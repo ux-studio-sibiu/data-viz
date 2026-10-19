@@ -1,0 +1,78 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 04">
+  <h1>The globe</h1>
+  <p>The <a routerLink="/">explorer</a> has a <strong>Globe / Map</strong> switch. The globe is still empty: a sphere, a 15° grid and an atmosphere glow. Drag to rotate, scroll or pinch to zoom. Countries arrive in lesson 05; until then the map stays the default view.</p>
+
+  <h2>1. The recipe, zoneless</h2>
+  <p>Same five steps as learn-angular lesson 15, in <code>globe/globe.ts</code>:</p>
+  <table>
+    <thead><tr><th>Step</th><th>Angular</th><th>≈ React</th></tr></thead>
+    <tbody>
+      <tr><td>Get the canvas</td><td><code>viewChild.required('canvas')</code></td><td><code>useRef</code></td></tr>
+      <tr><td>Create the scene</td><td><code>afterNextRender</code></td><td><code>useEffect(…, [])</code></td></tr>
+      <tr><td>Run frames</td><td><code>renderer.setAnimationLoop</code></td><td><code>useFrame</code> (r3f)</td></tr>
+      <tr><td>Inputs → scene</td><td><code>effect(…, &#123; injector &#125;)</code></td><td><code>useEffect(…, [dep])</code></td></tr>
+      <tr><td>Clean up</td><td><code>DestroyRef.onDestroy</code></td><td>the effect's return function</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><strong>What's gone:</strong> every <code>zone.runOutsideAngular()</code>. In learn-angular each animation frame and pointer move on the canvas made zone.js re-check the app. This app has no zone.js (lesson 00), so Angular never sees them. The only link back into Angular is the <code>effect</code> reading signals.</li>
+    <li>The effect is created <em>inside</em> <code>afterNextRender</code>, after the scene exists, so it gets the component's <code>injector</code> explicitly. Outside the constructor, <code>effect()</code> needs to be told which component it belongs to, so it's destroyed with it.</li>
+  </ul>
+
+  <h2>2. Render on demand</h2>
+  <p>A globe is idle most of the time. Drawing 60 frames a second of the same picture wastes battery and warms up laptops. So the loop runs only while something moves:</p>
+  <pre><code>tick:  controls.update() → render() → nothing moved and no auto-rotation? stop the loop
+wake:  pointerdown / pointermove / wheel → start the loop if it's stopped</code></pre>
+  <ul>
+    <li><code>controls.update()</code> returns <code>true</code> while the camera is still changing, during a drag and the damping glide after it.</li>
+    <li>A stopped loop has to be woken by the input itself: OrbitControls only applies movement inside <code>update()</code>, so without a running loop it would never notice a drag.</li>
+    <li><strong>The bug:</strong> the first version stopped auto-rotation after a single frame. With damping, OrbitControls ramps auto-rotation up from almost nothing, and the first frame moved less than <code>update()</code>'s "did it move" threshold. Now the loop stays alive explicitly while <code>controls.autoRotate</code> is on.</li>
+    <li>Measured with the draw calls counted: auto-rotating, about 53 frames a second. After a drag, the glide drew 52 frames, then 0 per second while idle.</li>
+    <li>The first drag stops auto-rotation for good: once you're steering, the globe shouldn't move on its own. It's also off with reduced motion (<code>MotionPreference</code>, copied in from learn-angular).</li>
+    <li>An <code>IntersectionObserver</code> stops the loop while the globe is scrolled out of view.</li>
+    <li>≈ react-three-fiber's <code>&lt;Canvas frameloop="demand"&gt;</code> + <code>invalidate()</code>.</li>
+  </ul>
+
+  <h2>3. lon/lat → x, y, z</h2>
+  <pre><code>x = r · cos(lat) · sin(lon)
+y = r · sin(lat)            // Three.js is Y-up: the north pole is +Y
+z = r · cos(lat) · cos(lon) // lon 0° (Greenwich) faces the camera</code></pre>
+  <ul>
+    <li><code>globe/geo.ts</code> holds <code>lonLatToVector3</code>. Everything on the globe goes through it: the grid now, borders and picking in lessons 05–06, the camera fly-to in lesson 10.</li>
+    <li>The grid is drawn as many 2° segments, so each line follows the curve instead of cutting through the sphere as a straight chord.</li>
+    <li>It sits at radius 1.001, just above the surface. At exactly 1.0 the lines and the sphere would compete for the same depth and flicker (z-fighting).</li>
+  </ul>
+
+  <h2>4. Light and atmosphere</h2>
+  <ul>
+    <li>The light is attached to the <strong>camera</strong>, not the scene. Whatever side you look at is lit; a real sun would leave half the data in the dark.</li>
+    <li>The atmosphere is a slightly larger sphere drawn from the inside (<code>BackSide</code>). A small shader makes it brightest at the rim, where the surface faces sideways, and <code>AdditiveBlending</code> adds the glow on top of what's behind it.</li>
+  </ul>
+
+  <h2>5. Cost: &#64;defer and cleanup</h2>
+  <ul>
+    <li>Three.js is big. Imported normally, it pushed the first download from 321 kB to 878 kB, over the 500 kB budget in <code>angular.json</code>.</li>
+    <li><code>&#64;defer (on immediate) &#123; &lt;app-globe /&gt; &#125;</code> moves the globe and Three.js into their own 563 kB chunk (117 kB gzipped), downloaded the first time the globe is shown. ≈ <code>next/dynamic</code> with <code>ssr: false</code>. Lesson 18 goes further into <code>&#64;defer</code> triggers.</li>
+    <li>Switching to the map destroys the globe. <code>DestroyRef</code> stops the loop, disconnects the observers, removes listeners, disposes every geometry and material, and calls <code>forceContextLoss()</code>. Browsers allow about 16 WebGL contexts per page; a component that leaks them breaks after enough switches.</li>
+    <li>No WebGL (disabled, blocklisted GPU): <code>new WebGLRenderer()</code> throws, the globe emits <code>unsupported</code>, and the explorer switches to the map and disables the Globe button.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>globe/globe.ts</code>: the component; <code>globe/geo.ts</code>: lon/lat → xyz, the grid</li>
+    <li><code>shared/motion-preference.ts</code>: copied from learn-angular, without the SSR check</li>
+    <li><code>pages/explorer/*</code>: the Globe / Map switch, <code>&#64;defer</code>, the no-WebGL fallback</li>
+    <li><code>lessons/lesson-globe/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+    <li>Packages: <code>three</code> 0.186.1; dev: <code>&#64;types/three</code></li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Switch to <strong>Globe</strong>. In DevTools → Network, a <code>globe</code> chunk loads only now, not on page load.</li>
+    <li>It auto-rotates. Drag once: it glides to a stop and stays still. Zoom in and out: it stops at the limits.</li>
+    <li>DevTools → Performance, record 3 seconds of an idle globe after a drag: no frames are drawn.</li>
+    <li>Switch Globe → Map → Globe a few times: no console warnings about too many WebGL contexts.</li>
+    <li>Turn on reduced motion in your OS: the globe doesn't auto-rotate.</li>
+  </ul>
+</app-lesson-page>

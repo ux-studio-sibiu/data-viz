@@ -1,15 +1,27 @@
 :host { display: flex; flex: 1; }
 
 .nsc-explorer {
+  --stage-h: max(320px, calc(100dvh - var(--header-h) - 160px));
   display: flex; flex-direction: column; flex: 1; gap: 8px; padding: 24px 16px;
   background: radial-gradient(circle at 50% 55%, #141a26, var(--bg) 70%);
 
+  .top-bar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 24px; }
   .intro { max-width: 520px; }
   h1 { margin: 0 0 4px; font-size: clamp(1.6rem, 4vw, 2.4rem); }
   p { margin: 0; color: var(--muted); }
 
-  // The map keeps its 960 × 500 aspect ratio and grows to whatever fits: full width, or full height on wide screens
+  .view-switch {
+    display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+
+    button { font: inherit; font-size: 0.85rem; padding: 4px 14px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+    button:hover:not(:disabled) { color: var(--fg); }
+    button.is-active { background: var(--code-bg); color: var(--fg); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
   .stage { display: grid; place-items: center; flex: 1; min-height: 0; }
-  app-flat-map { width: min(100%, calc((100dvh - var(--header-h) - 160px) * 1.92)); }
+  // The map keeps its 960 × 500 aspect ratio and grows to whatever fits; the globe takes the whole stage
+  app-flat-map { width: min(100%, calc(var(--stage-h) * 1.92)); }
+  .globe { width: 100%; height: var(--stage-h); }
   .status { color: var(--muted); }
 }
