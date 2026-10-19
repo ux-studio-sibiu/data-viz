@@ -1,0 +1,7 @@
+.nsc-roadmap {
+  padding-left: 0; list-style: none;
+
+  li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 10px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+  li.is-done { color: var(--fg); }
+  span { color: var(--muted); font-size: 0.85rem; }
+}

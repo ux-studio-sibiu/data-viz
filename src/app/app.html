@@ -1,0 +1,11 @@
+<header class="site-header">
+  <a class="brand" routerLink="/">The Carbon Divide</a>
+  <nav class="site-nav">
+    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Explore</a>
+    <a routerLink="/lessons" routerLinkActive="is-active">Lessons</a>
+  </nav>
+</header>
+
+<main class="site-main">
+  <router-outlet />
+</main>

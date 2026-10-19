@@ -1,0 +1,79 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<article class="nsc-lesson">
+  <p class="eyebrow">Lesson 00</p>
+  <h1>Setup &amp; app shell</h1>
+  <p>A fresh Angular app with only what the next lessons need: a product page, a lazy lessons area, and a dark stage for the globe. Three.js, GSAP and D3 aren't installed yet. Each library arrives in the lesson that first uses it, so every dependency shows up in a diff next to its reason.</p>
+
+  <h2>1. The command</h2>
+  <pre><code>npx &#64;angular/cli&#64;21 new data-viz --directory . --style=scss --routing --ssr=false --zoneless --skip-git --skip-tests --ai-config=none</code></pre>
+  <table>
+    <thead><tr><th>Flag</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><code>&#64;21</code></td><td>Angular 22 needs Node 22.22+. This machine has Node 20, so the project starts on 21, the previous major (still supported). After upgrading Node it's one <code>ng update</code>.</td></tr>
+      <tr><td><code>--ssr=false</code></td><td>A WebGL globe can't render on the server, and there is no content worth indexing before the data loads. No SSR means no <code>isPlatformBrowser</code> checks around Three.js and GSAP.</td></tr>
+      <tr><td><code>--zoneless</code></td><td>The default since 21, passed explicitly so it's visible. See section 2.</td></tr>
+      <tr><td><code>--skip-git</code></td><td><code>ng new</code> would otherwise make the first commit itself. You own the git workflow: <code>git init</code> and commit this lesson yourself.</td></tr>
+      <tr><td><code>--skip-tests</code></td><td>No <code>.spec.ts</code> next to every file, same as learn-angular. <code>angular.json</code> keeps <code>skipTests</code> for <code>ng generate</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Zoneless from day one</h2>
+  <p>In learn-angular (lessons 10 and 14), zone.js re-checked the whole app after every event, timer and animation frame. That's why GSAP and Three.js loops had to run inside <code>runOutsideAngular</code>.</p>
+  <ul>
+    <li>Here there is no <code>zone.js</code> in <code>package.json</code> or <code>angular.json</code> polyfills, and no <code>provideZoneChangeDetection()</code> in <code>app.config.ts</code>.</li>
+    <li>A template updates only when a <strong>signal it reads</strong> changes, or a template event handler runs. ≈ React: a re-render only after <code>setState</code>.</li>
+    <li>A Three.js <code>setAnimationLoop</code> or a GSAP ticker can run at 60 fps and Angular won't notice. That's exactly what we want: per-frame work stays in Three.js and GSAP, and only meaningful state (selected country, year) goes into signals.</li>
+    <li>The trap: a plain class field changed from a timer or a <code>fetch</code> callback won't show up on screen. Everything the template reads should be a signal.</li>
+  </ul>
+
+  <h2>3. Folders</h2>
+  <p>Only the first two folders exist now. The others appear in the lesson that needs them.</p>
+  <table>
+    <thead><tr><th>Folder</th><th>Holds</th><th>From</th></tr></thead>
+    <tbody>
+      <tr><td><code>pages/</code></td><td>The product's routed pages. Today: <code>explorer</code>, the globe page.</td><td>00</td></tr>
+      <tr><td><code>lessons/</code></td><td>One folder per lesson page + <code>lessons.routes.ts</code> + the roadmap</td><td>00</td></tr>
+      <tr><td><code>ui/</code></td><td>Generic, reusable pieces that know nothing about globes or lessons (floating panel, draggable)</td><td>01</td></tr>
+      <tr><td><code>data/</code></td><td>Models, loaders and signal stores</td><td>02</td></tr>
+      <tr><td><code>charts/</code></td><td>D3-powered SVG components</td><td>03</td></tr>
+      <tr><td><code>globe/</code></td><td>Three.js scene, materials, shaders, picking</td><td>04</td></tr>
+      <tr><td><code>shared/</code></td><td>Helpers copied in from learn-angular (<code>useGsap</code>, <code>MotionPreference</code>), never linked</td><td>10</td></tr>
+      <tr><td><code>scripts/</code> (project root)</td><td>Node scripts that download and convert datasets into <code>public/data/</code></td><td>02</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Routes</h2>
+  <pre><code>''          → Explorer (eager, in the main bundle)
+'lessons'   → loadChildren → lessons.routes.ts
+  ''        → Roadmap        (lazy chunk)
+  'setup'   → LessonSetup    (lazy chunk)</code></pre>
+  <ul>
+    <li>The product page is eager: it's the first thing a visitor sees. Lessons are a lazy subtree, so the product doesn't download any lesson code.</li>
+    <li><code>lessonRoutes</code> is its own exported array on purpose. Lesson 01 mounts the same array a second time, in a named outlet (<code>/(lesson:lessons/setup)</code>), to show any lesson in a floating window over the live product.</li>
+    <li>Route <code>title</code> sets <code>document.title</code>. ≈ Next.js <code>metadata.title</code>.</li>
+  </ul>
+
+  <h2>5. Styles</h2>
+  <ul>
+    <li><code>styles.scss</code> holds the tokens (<code>--bg</code>, <code>--accent</code>, …) and the shared <code>.nsc-lesson</code> typography. Dark only: the globe needs a dark background.</li>
+    <li>Component styles are scoped by Angular (≈ CSS Modules). Class names follow the workspace style guide: <code>nsc-</code> on the component root only, plain nested names, <code>is-</code> for state.</li>
+    <li>The explorer shows a CSS sphere where the globe will go. The layout already has its final shape: header, then a stage filling the rest of the viewport.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>src/app/app.config.ts</code>, <code>app.routes.ts</code>, <code>app.ts</code>, <code>app.html</code>, <code>app.scss</code>: shell and routing</li>
+    <li><code>src/app/pages/explorer/*</code>: the product page placeholder</li>
+    <li><code>src/app/lessons/lessons.routes.ts</code>, <code>roadmap/*</code>, <code>lesson-setup/*</code>: the lessons area</li>
+    <li><code>src/styles.scss</code>, <code>src/index.html</code>: tokens, title</li>
+    <li>Everything else is <code>ng new</code> output, unchanged apart from <code>.prettierrc</code> (wider lines, for the workspace's single-line style)</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li><code>npm start</code> → <a routerLink="/">the explorer</a> fills the viewport under the header</li>
+    <li><a routerLink="/lessons">Lessons</a> shows the roadmap. In the Network tab, the roadmap and this page load as separate chunks.</li>
+    <li>No <code>zone.js</code> anywhere: <code>package.json</code>, <code>angular.json</code>, <code>app.config.ts</code></li>
+    <li>Then <code>git init</code> and commit as <code>lesson 00</code></li>
+  </ul>
+</article>

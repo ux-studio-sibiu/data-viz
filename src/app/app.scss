@@ -1,0 +1,19 @@
+// Component styles are scoped to this component automatically (≈ CSS Modules, no class renaming).
+:host { display: flex; flex-direction: column; min-height: 100dvh; }
+
+.site-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  height: var(--header-h); padding: 0 24px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 10; background: var(--bg);
+
+  .brand { font-weight: 700; color: var(--fg); text-decoration: none; }
+}
+
+.site-nav {
+  display: flex; gap: 16px;
+
+  a { color: var(--muted); text-decoration: none; }
+  a.is-active, a:hover { color: var(--accent); }
+}
+
+.site-main { display: flex; flex-direction: column; flex: 1; }

@@ -1,0 +1,18 @@
+:host { display: flex; flex: 1; }
+
+.nsc-explorer {
+  position: relative; display: grid; place-items: center; flex: 1; overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #141a26, var(--bg) 70%);
+
+  // Placeholder for the globe (lesson 04): a CSS sphere, so the stage has its final proportions from day one.
+  .stage { position: absolute; inset: 0; display: grid; place-items: center; }
+  .planet {
+    width: min(60vmin, 520px); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2a3550, #10141d 70%);
+    box-shadow: 0 0 80px rgb(255 122 69 / 0.12), inset -20px -30px 60px rgb(0 0 0 / 0.5);
+  }
+
+  .intro { position: relative; max-width: 440px; padding: 16px; text-align: center; }
+  h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 3.2rem); }
+  p { margin: 0; color: var(--muted); }
+}
