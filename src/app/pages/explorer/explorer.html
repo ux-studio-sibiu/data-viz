@@ -36,6 +36,23 @@
         <p>{{ c.subregion }} · {{ c.continent }}</p>
         @if (c.incomeGroup) { <p>{{ income[c.incomeGroup] }}</p> }
         @if (c.sovereign) { <p>Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}</p> }
+
+        <!-- Lesson 08: the latest CO₂ figures, each with its own year. Missing data is said plainly, never shown as 0. -->
+        @if (readings(); as r) {
+          @if (co2Failed()) {
+            <p class="figures-note">The CO₂ data couldn't be loaded.</p>
+          } @else if (co2Loading()) {
+            <p class="figures-note">Loading CO₂ data…</p>
+          } @else if (!r.perCapita && !r.total) {
+            <p class="figures-note">No CO₂ data for {{ c.name }} in Our World in Data.</p>
+          } @else {
+            <dl class="figures">
+              @if (r.perCapita; as v) { <dt>CO₂ per person</dt><dd>{{ format(v.value) }} t <span class="year">{{ v.year }}</span></dd> }
+              @if (r.total; as v) { <dt>CO₂ per year</dt><dd>{{ format(v.value) }} Mt <span class="year">{{ v.year }}</span></dd> }
+              @if (r.historicShare; as v) { <dt>Share of all CO₂ since 1750</dt><dd>{{ format(v.value) }}% <span class="year">{{ v.year }}</span></dd> }
+            </dl>
+          }
+        }
         <p class="code">{{ c.id }}</p>
       }
     </div>

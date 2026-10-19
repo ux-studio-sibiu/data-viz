@@ -1,0 +1,106 @@
+{
+ "source": "Our World in Data – CO₂ and Greenhouse Gas Emissions",
+ "url": "https://github.com/owid/co2-data",
+ "commit": "382ee6c662b0ece26e111f263b44c029afad7787",
+ "license": "CC BY 4.0 (attribution required)",
+ "firstYear": 1900,
+ "lastYear": 2024,
+ "metrics": [
+  {
+   "id": "co2_per_capita",
+   "title": "CO₂ emissions per capita",
+   "description": "Carbon dioxide (CO₂) emissions from burning fossil fuels and industrial processes. This includes emissions from transport, electricity generation, and heating, but not land-use change.",
+   "unit": "tonnes per person (t/person)",
+   "source": "Global Carbon Budget (2025) [https://globalcarbonbudget.org/]; Population based on various sources (2024) [https://ourworldindata.org/population-sources]",
+   "countries": 212,
+   "lastYear": 2024,
+   "countriesInLastYear": 212
+  },
+  {
+   "id": "co2",
+   "title": "Annual CO₂ emissions",
+   "description": "Annual total emissions of carbon dioxide (CO₂), excluding land-use change, measured in million tonnes.",
+   "unit": "million tonnes (Mt)",
+   "source": "Global Carbon Budget (2025) [https://globalcarbonbudget.org/]",
+   "countries": 213,
+   "lastYear": 2024,
+   "countriesInLastYear": 213
+  },
+  {
+   "id": "cumulative_co2",
+   "title": "Cumulative CO₂ emissions",
+   "description": "Total cumulative emissions of carbon dioxide (CO₂), excluding land-use change, since the first year of available data, measured in million tonnes.",
+   "unit": "million tonnes (Mt)",
+   "source": "Global Carbon Budget (2025) [https://globalcarbonbudget.org/]",
+   "countries": 213,
+   "lastYear": 2024,
+   "countriesInLastYear": 213
+  },
+  {
+   "id": "share_global_cumulative_co2",
+   "title": "Share of global cumulative CO₂ emissions",
+   "description": "Total cumulative emissions of carbon dioxide (CO₂), excluding land-use change, since the first year of available data, measured as a percentage of global total cumulative emissions of CO₂.",
+   "unit": "%",
+   "source": "Global Carbon Budget (2025) [https://globalcarbonbudget.org/]",
+   "countries": 213,
+   "lastYear": 2024,
+   "countriesInLastYear": 213
+  },
+  {
+   "id": "consumption_co2_per_capita",
+   "title": "Per capita consumption-based CO₂ emissions",
+   "description": "Annual consumption-based emissions of carbon dioxide (CO₂), measured in tonnes per person.",
+   "unit": "tonnes per person (t/person)",
+   "source": "Global Carbon Budget (2025) [https://globalcarbonbudget.org/]; Population based on various sources (2024) [https://ourworldindata.org/population-sources]",
+   "countries": 120,
+   "lastYear": 2023,
+   "countriesInLastYear": 0
+  },
+  {
+   "id": "population",
+   "title": "Population",
+   "description": "Population by country, available from 10,000 BCE to 2100, based on data and estimates from different sources.",
+   "unit": "people",
+   "source": "Population based on various sources (2024) [https://ourworldindata.org/population-sources]",
+   "countries": 215,
+   "lastYear": 2024,
+   "countriesInLastYear": 215
+  },
+  {
+   "id": "gdp_per_capita",
+   "title": "GDP per capita",
+   "description": "Gross domestic product divided by population, adjusted for inflation and differences in living costs between countries. Derived here from OWID's gdp and population columns.",
+   "unit": "international-$ in 2011 prices per person",
+   "source": "Bolt and van Zanden – Maddison Project Database (via Our World in Data)",
+   "countries": 164,
+   "lastYear": 2022,
+   "countriesInLastYear": 0
+  }
+ ],
+ "noData": [
+  "ALA",
+  "ASM",
+  "IOT",
+  "CYM",
+  "FLK",
+  "ATF",
+  "GUM",
+  "GGY",
+  "HMD",
+  "IMN",
+  "JEY",
+  "XKX",
+  "CYN",
+  "MNP",
+  "NFK",
+  "PCN",
+  "PRI",
+  "SGS",
+  "KAS",
+  "SOL",
+  "BLM",
+  "MAF",
+  "VIR",
+  "ESH"
+ ]
+}

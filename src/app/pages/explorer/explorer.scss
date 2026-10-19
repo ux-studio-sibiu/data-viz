@@ -19,6 +19,15 @@
 
     h2 { margin: 0 0 4px; font-size: 1.1rem; }
     p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    .figures {
+      display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 10px 0 0; padding-top: 8px; border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+
+      dt { color: var(--muted); }
+      dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+      .year { color: var(--muted); font-size: 0.7rem; }
+    }
+    .figures-note { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
     .code { margin-top: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 0.75rem; }
     .close { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border: 0; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; }
     .close:hover { background: var(--code-bg); color: var(--fg); }

@@ -1,0 +1,102 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 08">
+  <h1>Data pipeline II: CO₂</h1>
+  <p>The second dataset: <strong>Our World in Data's CO₂ and Greenhouse Gas Emissions</strong>, country by country, year by year. Like the boundaries in lesson 02, a Node script turns it into small files once, and the app only reads those. The first place it shows: select a country, and the card lists its latest CO₂ per person, per year, and its share of all CO₂ since 1750.</p>
+  <pre><code>npm run data:co2            # uses the cached download
+npm run data:co2 -- --fresh # downloads again</code></pre>
+
+  <h2>1. The source</h2>
+  <ul>
+    <li><code>owid-co2-data.csv</code>: 14 MB, 50 000 rows (one per country or region per year, 1750–2024), 71 columns. The numbers come from the <strong>Global Carbon Budget</strong>; OWID cleans and joins them.</li>
+    <li><code>owid-co2-codebook.csv</code>: a title, definition, unit and source for every column. The script copies these into <code>meta.json</code>, so the app quotes OWID's own definitions instead of paraphrasing them.</li>
+    <li><strong>Pinned to a commit</strong> (<code>382ee6c</code>, 2 June 2026) instead of <code>master</code>: the same input always gives the same output, and an update is a deliberate one-line change.</li>
+    <li><strong>License: CC BY 4.0</strong>, which requires attribution. Natural Earth was public domain; this one must be credited on the page (lesson 19).</li>
+  </ul>
+
+  <h2>2. From 71 columns to 7 small files</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><code>co2_per_capita</code></td><td>Responsibility per person: the main colouring in lesson 09</td></tr>
+      <tr><td><code>co2</code></td><td>Total per year: size of the problem, extrusion height in lesson 15</td></tr>
+      <tr><td><code>cumulative_co2</code>, <code>share_global_cumulative_co2</code></td><td>Historical responsibility: who caused the CO₂ already in the air</td></tr>
+      <tr><td><code>consumption_co2_per_capita</code></td><td>Emissions of what a country <em>consumes</em>, including imports. Only 120 countries.</td></tr>
+      <tr><td><code>population</code>, <code>gdp_per_capita</code></td><td>Context, and the scatter plot in lesson 13. GDP per capita is derived: GDP ÷ population.</td></tr>
+    </tbody>
+  </table>
+  <pre><code>public/data/co2/co2_per_capita.json
+&#123; "metric": "co2_per_capita", "firstYear": 1900,
+  "values": &#123; "FRA": [3.23, 3.12, …, 4.068, 3.969], … &#125; &#125;   // 125 values: 1900 → 2024</code></pre>
+  <ul>
+    <li><strong>One file per metric</strong>, loaded only when it's shown: the card loads 3 of the 7. Each is 12–70 kB gzipped; all 7 together would be ~280 kB.</li>
+    <li><strong>Columnar:</strong> one array per country, indexed by <code>year − firstYear</code>. A year's value is one lookup, and there are no repeated keys like <code>&#123;"year":1950,"co2":…&#125;</code> 27 000 times.</li>
+    <li><strong>From 1900:</strong> earlier years exist, but for only a handful of countries.</li>
+    <li><strong>4 significant digits</strong> (4.068 t, 270.3 Mt): more would be false precision and bigger files.</li>
+    <li><strong>Joined on ISO alpha-3,</strong> the same ids as lesson 02's boundaries. Rows without an ISO code are regions and aggregates (World, "High-income countries") and are skipped. So are two places we don't draw (Christmas Island, Bonaire).</li>
+    <li>Keys are sorted, so the output is byte-identical run to run.</li>
+  </ul>
+
+  <h2>3. Missing data is normal</h2>
+  <ul>
+    <li><strong><code>null</code>, never 0:</strong> a missing value and "no emissions" are different statements. On the map in lesson 09, <code>null</code> becomes its own "no data" style, not the lightest colour.</li>
+    <li><strong>Each figure carries its year.</strong> CO₂ runs to 2024, consumption-based CO₂ to 2023, GDP to 2022. <code>latest(series, id)</code> returns the last value at or before a year, together with that year, and the card prints it.</li>
+    <li><strong>24 countries on the globe have no data at all:</strong> small dependencies (Guam, Puerto Rico, the Cayman Islands…), plus Kosovo, Somaliland, N. Cyprus, Siachen and Western Sahara. The card says "No CO₂ data… in Our World in Data" instead of showing zeros.</li>
+  </ul>
+
+  <h2>4. Validating at the boundary</h2>
+  <pre><code>httpResource(() => `data/co2/$&#123;id&#125;.json`, &#123; parse: parseSeries &#125;)</code></pre>
+  <ul>
+    <li>TypeScript types vanish at runtime: <code>httpResource&lt;MetricSeries&gt;</code> would accept any JSON and call it a <code>MetricSeries</code>.</li>
+    <li>The <code>parse</code> option runs on the raw response first. <code>parseSeries</code> checks the shape and throws if it's wrong, and the throw becomes the resource's <code>error()</code>. A broken or outdated file fails at the door, with a message, not three components later as "Cannot read properties of undefined". ≈ zod's <code>schema.parse()</code> in a fetcher, without the dependency.</li>
+    <li><code>Co2Data.metric(id)</code> creates each resource once and shares it: the card and lesson 09's map both use <code>co2_per_capita</code>, with one request. Outside a constructor, <code>httpResource</code> needs <code>&#123; injector &#125;</code>.</li>
+  </ul>
+
+  <h2>5. Western Sahara, revisited</h2>
+  <ul>
+    <li>Lesson 02 kept Natural Earth's <em>de facto</em> borders: the coastal strip west of the Berm is drawn as part of Morocco, the interior as Western Sahara (<code>ESH</code>).</li>
+    <li><strong>OWID has no rows for Western Sahara at all</strong>, in any year (nor for Kosovo). So the interior shows "no data" whichever border we draw.</li>
+    <li>With the ISO borders instead, the coastal strip would be "no data" too, rather than Morocco's colour. Morocco's own figures are the same either way: they come from the Global Carbon Budget's national totals, not from our shapes.</li>
+    <li><strong>Verdict:</strong> the difference is a few hundred kilometres of coastline changing between Morocco's colour and "no data". Not worth switching to the 1:10m ISO file. Kept de facto, and noted for the methodology page (lesson 19).</li>
+  </ul>
+
+  <h2>6. Live: the data, read by the app</h2>
+  <div class="inspector">
+    <label>Metric
+      <select [value]="metricId()" (change)="choose($any($event.target).value)">
+        @for (m of co2.meta.value()?.metrics ?? []; track m.id) { <option [value]="m.id">{{ m.title }}</option> }
+      </select>
+    </label>
+    @if (info(); as m) {
+      <p class="definition">{{ m.description }}</p>
+      <p class="unit">{{ m.unit }} · {{ m.countries }} countries · latest year {{ m.lastYear }} ({{ m.countriesInLastYear }} countries in {{ co2.meta.value()?.lastYear }}) · {{ m.source }}</p>
+    }
+    @if (series().error()) {
+      <p class="error">Couldn't load this metric.</p>
+    } @else if (series().isLoading()) {
+      <p class="note">Loading…</p>
+    } @else {
+      <ol>
+        @for (t of top(); track t.id) { <li>{{ t.name }} <span class="value">{{ format(t.reading!.value) }}</span></li> }
+      </ol>
+    }
+    <p class="note">No data at all: {{ noDataNames().join(', ') }}</p>
+  </div>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>scripts/build-co2.mjs</code>: the pipeline; <code>npm run data:co2</code> in <code>package.json</code></li>
+    <li><code>public/data/co2/*.json</code>: generated, committed (meta + 7 metrics)</li>
+    <li><code>data/co2.ts</code>: types, <code>parseSeries</code> / <code>parseMeta</code>, <code>latest()</code>; <code>data/co2-data.ts</code>: the shared resources</li>
+    <li><code>pages/explorer/*</code>: CO₂ figures in the selection card</li>
+    <li><code>lessons/lesson-co2-data/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li><code>npm run data:co2</code>: the report lists 1900–2024, 216 of 240 countries, the no-data list, file sizes</li>
+    <li>Run it twice: <code>git status</code> shows no changes in <code>public/data/co2/</code></li>
+    <li>Select <a routerLink="/" [queryParams]="{ country: 'FRA' }">France</a>, <a routerLink="/" [queryParams]="{ country: 'QAT' }">Qatar</a>, <a routerLink="/" [queryParams]="{ country: 'COD' }">DR Congo</a>: per person ranges from 41 t (Qatar) through 4 t (France) to 0.05 t (DR Congo) in 2024</li>
+    <li>Select <a routerLink="/" [queryParams]="{ country: 'ESH' }">Western Sahara</a> or <a routerLink="/" [queryParams]="{ country: 'XKX' }">Kosovo</a>: "No CO₂ data", not zeros</li>
+    <li>In the inspector, switch to GDP per capita: its latest year is 2022, not 2024</li>
+  </ul>
+</app-lesson-page>
