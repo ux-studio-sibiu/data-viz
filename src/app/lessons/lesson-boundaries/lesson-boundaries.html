@@ -10,7 +10,7 @@ npm run data:boundaries -- --fresh # downloads again</code></pre>
     <thead><tr><th>Build-time file</th><th>Fetching the source at runtime</th></tr></thead>
     <tbody>
       <tr><td>One request to our own server, cached by the browser</td><td>A third-party server, CORS rules, rate limits, downtime</td></tr>
-      <tr><td>~190 kB gzipped, only the fields we use</td><td>3 MB with 160+ fields per country</td></tr>
+      <tr><td>~105 kB gzipped, only the fields we use</td><td>3 MB with 160+ fields per country</td></tr>
       <tr><td>Fixes (ids, merges) happen once and are reviewed in git</td><td>Every visitor's browser repeats the cleanup</td></tr>
       <tr><td>Pinned to Natural Earth <code>v5.1.2</code>: same input, same output</td><td>The data can change under you</td></tr>
     </tbody>
@@ -53,15 +53,35 @@ npm run data:boundaries -- --fresh # downloads again</code></pre>
   <h2>4. GeoJSON → TopoJSON</h2>
   <pre><code>topology()      GeoJSON → TopoJSON: each shared border stored once, as an "arc"
 mergeArcs()     the 3 AUS shapes → one MultiPolygon
+drop islands    699 free-standing islands &lt; 250 km² that aren't a country's main body
+topology()      again, without them, so their arcs leave the file
 presimplify()   weight every point by the spherical area it adds
-protect         short arcs (microstates, small islands) get weight ∞
-simplify()      keep the 25% heaviest points
+protect         main bodies of countries &lt; 2 000 km², map-edge points, 3 corners of every ring: weight ∞
+simplify()      keep the 15% heaviest points
+chaikin         one pass of corner cutting per arc, endpoints fixed
+crossings?      arcs that cross keep full detail; repeat until none cross
 quantize(1e5)   snap to a grid, store points as small integer deltas</code></pre>
   <ul>
     <li><strong>Topology:</strong> in GeoJSON, the France–Spain border is stored twice, once in each country. In TopoJSON both reference the same arc. It's smaller, and simplifying an arc moves both sides together, so there are no gaps or overlaps between neighbours.</li>
     <li><strong>Spherical simplification:</strong> we draw a globe, so <code>sphericalTriangleArea</code> decides which points matter. A flat measure would over-simplify near the equator and keep too much near the poles.</li>
-    <li><strong>The microstate bug:</strong> the first run simplified Vatican City down to a single point. Its whole outline is one short arc, and every point on it had a tiny weight. Arcs of 24 points or fewer are now protected: +24 kB, and every country keeps at least 5 points.</li>
-    <li><strong>Quantize last:</strong> the first run quantized up front and came out at 2.4 MB, because <code>presimplify</code> had added a weight to every point. Quantizing at the end drops the weights, and the file went to 594 kB (191 kB gzipped).</li>
+    <li><strong>Quantize last:</strong> the first run quantized up front and came out at 2.4 MB, because <code>presimplify</code> had added a weight to every point. Quantizing at the end drops the weights.</li>
+  </ul>
+
+  <h3>Revisited after lesson 06: four fixes</h3>
+  <ul>
+    <li><strong>Simplification that barely simplified.</strong> <code>quantile(topology, p)</code> sorts weights from highest to lowest, so <code>p</code> is already the share to <em>keep</em>. The script passed <code>1 - KEEP</code> and kept 75% of the points instead of 25%. The clue: asking for fewer points made the file <em>bigger</em>. Measure before trusting a parameter.</li>
+    <li><strong>Dropping small islands, safely.</strong> An island is removed only if all three hold: it isn't the country's largest polygon (so no country can disappear), it's smaller than 250 km² (about 16 km across, one screen pixel at the default zoom), and it's free-standing, meaning none of its arcs is shared with another polygon (so no land border gets a gap). 699 go, most from the USA, Canada, Indonesia, Antarctica and Russia. The report lists the counts.</li>
+    <li><strong>Microstates, by area instead of by arc length.</strong> The first fix protected "arcs of 24 points or fewer", which missed Norfolk Island (more points, still tiny). Now the main body of every country under 2 000 km² is never simplified: Vatican keeps 5 points, Norfolk Island 25.</li>
+    <li><strong>Islands collapsing to lines.</strong> With real simplification, 205 rings fell below 4 points, one of them a 30 000 km² Arctic island. Visvalingam with one global threshold can drop every point of a round island, since no single point matters much. Every ring now keeps its 3 most significant corners.</li>
+  </ul>
+
+  <h3>Smoother borders, without gaps</h3>
+  <ul>
+    <li><strong>Why there can't be gaps:</strong> every step works on <em>arcs</em>, and each shared border is one arc both neighbours use. Whatever happens to the Pyrenees happens to France and Spain alike. The only rule: arc endpoints (where three countries meet, or a border meets the coast) never move.</li>
+    <li><strong>Simplify more, then smooth:</strong> keep 15% of the points, then one pass of <strong>Chaikin corner cutting</strong>. Each segment is replaced by points at ¼ and ¾ of its length, which rounds every corner. Endpoints stay put, and small countries' protected outlines aren't smoothed (Vatican would become a blob). Simplifying alone makes edges straighter, not rounder; smoothing alone doubles the points.</li>
+    <li><strong>Lines that cross:</strong> where two lines run very close (Dixon Entrance between Alaska and Canada, the islands at Montreal, Trieste, the Singapore Strait), simplifying and smoothing can make them cross: 10 crossings after the first pass. The script finds them (segments bucketed in a 1° grid, so only nearby pairs are tested), keeps those arcs at full detail and unsmoothed, and repeats: 10 → 2 → 0, with 12 arcs kept exact.</li>
+    <li><strong>A hidden bug it exposed: the South Pole was a hole.</strong> Natural Earth draws Antarctica's southern edge along the 180° meridian and the pole line. On the sphere those 257 points are all one point (the pole), so they have no weight and simplification dropped them, ever since the first version. The flat ID map then left everything south of 84°S as ocean. Map-edge points (lon ±180°, lat −90°) are now always kept; the South Pole is Antarctica again. Found because the share of ocean pixels changed from 70.1% to 67.0%: a number worth watching.</li>
+    <li>Result: 594 kB → <strong>306 kB</strong> (191 → 104 kB gzipped). Every country present, no degenerate rings, no crossings, every country owns a pixel in lesson 05's ID map, identical output run to run. Checked on the globe in Norway, Chile and the Mediterranean.</li>
   </ul>
 
   <h2>5. Two outputs</h2>
@@ -112,7 +132,7 @@ quantize(1e5)   snap to a grid, store points as small integer deltas</code></pre
 
   <h2>Review checklist</h2>
   <ul class="note">
-    <li>Run <code>npm run data:boundaries</code>: the report lists 240 countries, AUS merged from 3 shapes, 4 without ISO code, ~594 kB topology</li>
+    <li>Run <code>npm run data:boundaries</code>: the report lists 240 countries, AUS merged from 3 shapes, 4 without ISO code, 699 islands dropped, crossings ending at 0, ~306 kB topology</li>
     <li>Run it twice: <code>git status</code> shows no changes to <code>public/data/</code> (same input, same output)</li>
     <li>In the inspector above, look up <code>FRA</code> (not <code>-99</code>), <code>Kosovo</code> (<code>XKX</code>), <code>Greenland</code> (sovereign <code>DNK</code>), <code>Vatican</code></li>
     <li>Read the "ISO_A3 vs ISO_A3_EH" comment in the script and decide whether you agree with the 4 no-ISO choices</li>

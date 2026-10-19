@@ -1,8 +1,12 @@
 // Global styles (≈ Next.js app/globals.css). Not scoped: tokens, resets and the shared lesson typography.
-// Dark only: the globe is the main surface, and it reads best on a dark "space" background.
+// Paper and ink: an architectural drawing. Black lines on warm white, hatching instead of fills, one red for markup.
 :root {
-  --bg: #0b0d12; --surface: #12151c; --fg: #e8eaf0; --muted: #8a90a0; --line: #232733; --accent: #ff7a45; --code-bg: #1a1e27;
-  color-scheme: dark;
+  --bg: #f4f3ef; --surface: #ffffff; --fg: #141414; --muted: #6b6862; --line: #d6d3cc; --accent: #d1261b; --code-bg: #ebe9e3;
+  --ink: #141414;            // lines and hatching
+  --hover-fill: #e6e3dc;     // a hovered country
+  --sea: #d9e1e7;            // flat bluish grey (the globe shader uses the same value)
+  --shadow: rgb(20 20 20 / 0.12);
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }

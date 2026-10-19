@@ -5,22 +5,25 @@
 
   svg { display: block; width: 100%; height: auto; }
 
-  .sphere { fill: #0f1520; stroke: var(--line); }
-  .graticule { fill: none; stroke: rgb(255 255 255 / 0.05); }
+  // Paper and ink, like the globe: bluish-grey sea, white land, ink borders, the selection hatched in red
+  .sphere { fill: var(--sea); stroke: var(--ink); stroke-width: 1; }
+  .graticule { fill: none; stroke: var(--ink); stroke-opacity: 0.07; }
 
   .countries path {
-    fill: #263044; stroke: var(--bg); stroke-width: 0.5; stroke-linejoin: round; cursor: pointer;
+    fill: var(--surface); stroke: var(--ink); stroke-width: 0.5; stroke-linejoin: round; cursor: pointer;
     transition: fill 0.15s;
 
-    &:hover { fill: #34405a; }
+    &:hover { fill: var(--hover-fill); }
   }
 
-  .highlight { fill: #3a4868; stroke: var(--fg); stroke-width: 1; pointer-events: none; }
-  .selected { fill: var(--accent); stroke: var(--fg); stroke-width: 1; pointer-events: none; } // same colours as the globe
+  .highlight { fill: var(--hover-fill); stroke: var(--ink); stroke-width: 1; pointer-events: none; }
+  .selected { fill: url(#selected-hatch); stroke: var(--ink); stroke-width: 1; pointer-events: none; } // same look as the globe
+
+  .selected-lines { stroke: var(--accent); stroke-width: 1.1; }
 
   .tooltip {
     position: absolute; translate: -50% calc(-100% - 10px); pointer-events: none;
     padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
-    font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+    font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px var(--shadow);
   }
 }

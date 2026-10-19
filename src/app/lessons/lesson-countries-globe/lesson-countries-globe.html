@@ -44,7 +44,7 @@ float id = texture2D(idMap, uv).r * 255.0;</code></pre>
   <ul>
     <li>The texture position is computed per pixel from the surface point, with the inverse of lesson 04's formula, instead of using <code>SphereGeometry</code>'s built-in UVs. Those start at longitude −90°, so every country would land a quarter turn away.</li>
     <li>The Earth is now a <code>ShaderMaterial</code> (<code>globe/earth-material.ts</code>) and does its own simple lighting, from a direction fixed to the camera. The Three.js lights from lesson 04 are gone.</li>
-    <li><code>#include &lt;colorspace_fragment&gt;</code> at the end converts to the screen's colour space, so <code>#263044</code> in the code looks like <code>#263044</code> on screen, the same as the flat map.</li>
+    <li><code>#include &lt;colorspace_fragment&gt;</code> at the end converts to the screen's colour space, so a colour written in the code looks the same on screen as in the flat map's CSS.</li>
   </ul>
 
   <h2>5. Borders: <code>mesh()</code> and densified lines</h2>
@@ -68,6 +68,18 @@ float id = texture2D(idMap, uv).r * 255.0;</code></pre>
     <li>The data arrives after the globe is created, so the border geometry starts empty and gets its points later. Three.js computes a geometry's bounding sphere on the first render, and caches it.</li>
     <li>Depending on load order, the cached sphere was the empty one, and frustum culling ("is this object on screen?") decided the borders never were. One reload showed them, the next didn't.</li>
     <li>Fix: <code>computeBoundingSphere()</code> each time new points are set. Worth remembering: any geometry whose points change after the first render needs it.</li>
+  </ul>
+
+  <h2>7. Later restyle: paper and ink</h2>
+  <p>After lesson 06 the whole app moved from the dark "space" look to an architectural drawing: warm white paper, black lines, white land, a flat bluish-grey sea, hatching for markup in one red. Three techniques do it on the globe:</p>
+  <ul>
+    <li><strong>Hatching engraved on the globe.</strong> <code>hatch(p, direction, linesPerUnit, widthPx)</code> in <code>earth-material.ts</code>: each line is where one of a family of parallel planes slices the sphere (<code>dot(p, direction) * linesPerUnit</code> crossing a whole number). <code>p</code> is the surface point in the globe's own coordinates, so the lines turn with the globe and spread apart as you zoom in. The selected country is hatched in red, ~37 km apart. (The sea was hatched the same way at first, in ink; a flat bluish grey turned out calmer and leaves the lines to the borders.)</li>
+    <li><strong>Width in pixels, spacing on the globe.</strong> <code>fwidth(t)</code> says how many lines one screen pixel spans. That turns "distance to the nearest line" into pixels, so every line is ~1 px wide at any zoom. Where lines get closer than ~3 px (zoomed out, or near the rim where the sphere turns away), they fade into their average tone instead of shimmering (moiré).</li>
+    <li><strong>A derivatives gotcha.</strong> <code>fwidth()</code> compares neighbouring pixels. Called inside an <code>if</code> where a neighbour took the other branch (the selected country vs its neighbour, right at a border), it's undefined. The hatching is computed before the <code>if</code>s.</li>
+    <li>A first version hatched in screen space (<code>gl_FragCoord</code>): pen strokes on the paper, still while the globe turned. Fixing the lines to the globe reads more like an engraved globe.</li>
+    <li><strong>A hatched aura with an outline.</strong> <code>aura-material.ts</code> replaces the blue glow. For each pixel it measures how close the camera ray passes to the globe's centre (<code>length(cross(cameraPosition, ray))</code>, in globe radii). That one number gives the outline (1.0 to 1.0 + 2 px, using <code>fwidth</code> to measure a pixel) and the fade of the halo's hatching. On white paper, the globe would have no edge without the outline.</li>
+    <li><strong>Fat lines that thicken with zoom.</strong> WebGL draws ordinary lines 1 px wide whatever you ask for. <code>LineSegments2</code> + <code>LineMaterial</code> (Three.js addons) draw each segment as a thin quad facing the camera, so its width can be set in pixels. Before each frame, the width becomes about 1.2 ID map pixels as they appear on screen, between 1 and 6 px. Zoomed in, the fill's edge shows the ID map's 10 km pixels as small steps, and a border that wide covers them. <code>LineMaterial</code> needs the canvas size (<code>resolution</code>), set on resize.</li>
+    <li>The flat map uses the same look: <code>var(--sea)</code> for the sea, an SVG <code>&lt;pattern&gt;</code> (lines rotated 45°) for the selection. The UI uses small caps with letter spacing, like a drawing's title block.</li>
   </ul>
 
   <h2>Files in this lesson</h2>

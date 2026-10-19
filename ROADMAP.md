@@ -102,7 +102,7 @@ product gains, and "Concepts" is what the lesson page explains.
 |---|---|---|---|
 | 00 | Setup | App shell, explorer placeholder, lazy lessons area, roadmap | `ng new`, `app.config`, zoneless, style-guide conventions |
 | 01 | The lesson window | `Draggable`, `FloatingPanel`, `PanelDock`, `PanelMemory`, `LessonWindow`, `LessonPage` | Named outlets, attribute directives, `ng-content` slots, non-modal `<dialog>`, pointer events, `host` bindings |
-| 02 | Data pipeline I: boundaries | `scripts/build-boundaries`, `public/data/countries.*` | TopoJSON → GeoJSON, ISO3 lookup, country metadata |
+| 02 | Data pipeline I: boundaries | `scripts/build-boundaries`, `public/data/countries.*` | TopoJSON → GeoJSON, ISO3 lookup, country metadata, safe island removal, simplification + smoothing without gaps |
 | 03 | Flat map first (SVG) | 2D map with hover tooltip, later the no-WebGL fallback | `d3-geo` projection + Angular SVG templates |
 | 04 | The globe | Three.js sphere, OrbitControls, atmosphere | Three.js lifecycle in Angular, render on demand, dispose |
 | 05 | Countries on the sphere | Borders + ID-map texture | lon/lat → xyz, a scanline-filled ID map (canvas anti-aliasing would corrupt the ids), `LineSegments` |

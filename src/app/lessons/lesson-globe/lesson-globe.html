@@ -47,7 +47,7 @@ z = r · cos(lat) · cos(lon) // lon 0° (Greenwich) faces the camera</code></pr
   <h2>4. Light and atmosphere</h2>
   <ul>
     <li>The light is attached to the <strong>camera</strong>, not the scene. Whatever side you look at is lit; a real sun would leave half the data in the dark.</li>
-    <li>The atmosphere is a slightly larger sphere drawn from the inside (<code>BackSide</code>). A small shader makes it brightest at the rim, where the surface faces sideways, and <code>AdditiveBlending</code> adds the glow on top of what's behind it.</li>
+    <li>The atmosphere is a slightly larger sphere drawn from the inside (<code>BackSide</code>). A small shader makes it brightest at the rim, where the surface faces sideways, and <code>AdditiveBlending</code> adds the glow on top of what's behind it. (Later replaced by a hatched aura when the app moved to a paper-and-ink look; see lesson 05, section 7.)</li>
   </ul>
 
   <h2>5. Cost: &#64;defer and cleanup</h2>

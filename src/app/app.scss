@@ -6,16 +6,18 @@
   position: fixed; top: 16px; right: 16px; z-index: 10;
   display: flex; align-items: center; gap: 16px;
 
-  a { color: var(--muted); font-size: 0.9rem; text-decoration: none; text-shadow: 0 1px 6px var(--bg); }
+  // Small caps with tracking: the lettering of a drawing's title block
+  a { color: var(--fg); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; text-shadow: 0 0 6px var(--bg); }
   a:hover { color: var(--accent); }
 }
 
 .view-switch {
-  display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgb(18 21 28 / 0.7); backdrop-filter: blur(6px);
+  display: flex; border: 1px solid var(--ink); background: rgb(255 255 255 / 0.85); backdrop-filter: blur(6px);
 
-  button { font: inherit; font-size: 0.85rem; padding: 4px 14px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
-  button:hover:not(:disabled) { color: var(--fg); }
-  button.is-active { background: var(--code-bg); color: var(--fg); }
+  button { font: inherit; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 12px; border: 0; background: none; color: var(--fg); cursor: pointer; }
+  button + button { border-left: 1px solid var(--ink); }
+  button:hover:not(:disabled) { background: var(--hover-fill); }
+  button.is-active { background: var(--ink); color: var(--surface); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 

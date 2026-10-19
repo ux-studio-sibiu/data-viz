@@ -1,11 +1,15 @@
 import { afterNextRender, Component, computed, DestroyRef, effect, ElementRef, inject, Injector, input, model, output, signal, viewChild } from '@angular/core';
 import {
-  AdditiveBlending, BackSide, BufferAttribute, BufferGeometry, Color, DataTexture, LineBasicMaterial, LineSegments, Mesh, NearestFilter, PerspectiveCamera,
-  Raycaster, RedFormat, Scene, ShaderMaterial, Sphere, SphereGeometry, UnsignedByteType, Vector2, Vector3, WebGLRenderer
+  BufferAttribute, BufferGeometry, DataTexture, LineBasicMaterial, LineSegments, MathUtils, Mesh, NearestFilter, PerspectiveCamera,
+  Raycaster, RedFormat, Scene, Sphere, SphereGeometry, UnsignedByteType, Vector2, Vector3, WebGLRenderer
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
 import type { CountryFeature } from '../data/boundaries';
 import { MotionPreference } from '../shared/motion-preference';
+import { AURA_WIDTH, createAuraMaterial } from './aura-material';
 import { createEarthMaterial } from './earth-material';
 import { graticulePositions, lonLatToVector3, sphereLinePositions, vector3ToLonLat } from './geo';
 import { idAt, rasterizeIds } from './id-map';
@@ -13,6 +17,7 @@ import { idAt, rasterizeIds } from './id-map';
 // Where the camera starts: above the Atlantic off Morocco, so Europe and Africa face you. Distance 2.9 ≈ the globe fills the screen height.
 const START = { lon: -8, lat: 32, distance: 2.9 };
 const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
+const ID_MAP_TEXEL = (2 * Math.PI) / ID_MAP_WIDTH; // one ID map pixel, as a distance on the unit sphere (≈ 10 km)
 const CLICK_TOLERANCE = 5; // px: a press that moves further than this is a drag (rotating the globe), not a click
 
 // Three.js in Angular, the learn-angular lesson 15 recipe, zoneless:
@@ -33,7 +38,7 @@ const CLICK_TOLERANCE = 5; // px: a press that moves further than this is a drag
     .tooltip {
       position: absolute; top: 0; left: 0; pointer-events: none; margin: 14px 0 0 14px;
       padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
-      font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+      font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px var(--shadow);
     }
   `
 })
@@ -64,6 +69,7 @@ export class Globe {
       try { renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true }); }
       catch { this.unsupported.emit(); return; } // WebGL disabled, blocklisted GPU, or too many contexts
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); // a 3× phone screen would otherwise render 9× the pixels
+      // The page shows through (alpha: true): the paper colour behind the globe is the page's, not the scene's
 
       const scene = new Scene();
       const camera = new PerspectiveCamera(40, 1, 0.1, 100);
@@ -74,40 +80,28 @@ export class Globe {
       // 192 × 128 segments: the flat triangles sag at most 0.9 km below the true sphere (96 × 64 sagged 3.5 km, enough to see the fill drift from the borders)
       const earthGeometry = new SphereGeometry(1, 192, 128);
       const earthMaterial = createEarthMaterial();
+      earthMaterial.uniforms['pixelRatio'].value = renderer.getPixelRatio();
       let idMap: DataTexture | null = null;
       let ids: Uint8Array | null = null; // the CPU copy of the ID map, for picking
       scene.add(new Mesh(earthGeometry, earthMaterial));
 
       // Graticule: lines every 15°
       const gridGeometry = new BufferGeometry().setAttribute('position', new BufferAttribute(graticulePositions(15), 3));
-      const gridMaterial = new LineBasicMaterial({ color: '#8fa6d6', transparent: true, opacity: 0.06 });
+      const gridMaterial = new LineBasicMaterial({ color: '#141414', transparent: true, opacity: 0.07 });
       scene.add(new LineSegments(gridGeometry, gridMaterial));
 
-      // Borders and coastlines. Filled in when the data arrives (effect below).
-      const bordersGeometry = new BufferGeometry();
-      const bordersMaterial = new LineBasicMaterial({ color: '#8fa6d6', transparent: true, opacity: 0.35 });
-      scene.add(new LineSegments(bordersGeometry, bordersMaterial));
+      // Borders and coastlines, in ink. Filled in when the data arrives (effect below).
+      // "Fat" lines (LineSegments2): WebGL draws ordinary lines 1 px wide whatever you ask for. These are thin quads facing the
+      // camera, so their width in pixels can be set, and changed with the zoom (updateLineWidth below).
+      const bordersGeometry = new LineSegmentsGeometry();
+      const bordersMaterial = new LineMaterial({ color: 0x141414, linewidth: 1, worldUnits: false, transparent: true, opacity: 0.9 });
+      scene.add(new LineSegments2(bordersGeometry, bordersMaterial));
 
-      // Atmosphere: a bigger sphere seen from inside (BackSide), brightest at the rim, added on top of what's behind it
-      const atmosphereGeometry = new SphereGeometry(1.14, 64, 48);
-      const atmosphereMaterial = new ShaderMaterial({
-        uniforms: { glow: { value: new Color('#4f7cff') } },
-        vertexShader: `
-          varying vec3 vNormal;
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }`,
-        fragmentShader: `
-          uniform vec3 glow;
-          varying vec3 vNormal;
-          void main() {
-            float rim = pow(max(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 2.5);
-            gl_FragColor = vec4(glow, 1.0) * rim;
-          }`,
-        side: BackSide, blending: AdditiveBlending, transparent: true, depthWrite: false
-      });
-      scene.add(new Mesh(atmosphereGeometry, atmosphereMaterial));
+      // Aura: a hatched halo and an ink outline around the globe (aura-material.ts), on a sphere just big enough to hold it
+      const auraGeometry = new SphereGeometry(1 + AURA_WIDTH + 0.01, 96, 64);
+      const auraMaterial = createAuraMaterial();
+      auraMaterial.uniforms['pixelRatio'].value = renderer.getPixelRatio();
+      scene.add(new Mesh(auraGeometry, auraMaterial));
 
       // Drag to rotate, wheel/pinch to zoom. Damping = it glides to a stop instead of halting.
       const controls = new OrbitControls(camera, canvas);
@@ -117,7 +111,14 @@ export class Globe {
       // A frame is drawn only while something moves: a drag, the damping glide, a zoom, auto-rotation.
       // Then the loop stops, and an idle globe costs nothing (≈ react-three-fiber's frameloop="demand").
       let running = false, visible = true, userTookOver = false;
-      const render = () => renderer.render(scene, camera);
+      // Border width follows the zoom: about 1.2 ID map pixels as they appear on screen, between 1 and 6 px.
+      // Zoomed in, the fill's edge shows the ID map's 10 km pixels as small steps; a line that wide covers them.
+      const updateLineWidth = () => {
+        const toSurface = camera.position.length() - 1;
+        const pxPerUnit = canvas.clientHeight / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2)) * toSurface);
+        bordersMaterial.linewidth = MathUtils.clamp(ID_MAP_TEXEL * pxPerUnit * 1.2, 1, 6);
+      };
+      const render = () => { updateLineWidth(); renderer.render(scene, camera); };
       const tick = () => {
         const moved = controls.update(); // true while the camera is still changing
         render();
@@ -157,6 +158,7 @@ export class Globe {
         renderer.setSize(w, h, false); // false: CSS decides the canvas size, we only match its pixel buffer
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
+        bordersMaterial.resolution.set(w, h); // LineMaterial needs the canvas size to turn its width into pixels
         render();
       };
       const tooltip = this.tooltip().nativeElement;
@@ -215,10 +217,11 @@ export class Globe {
 
       // Borders → line segments on the sphere
       effect(() => {
-        bordersGeometry.setAttribute('position', new BufferAttribute(sphereLinePositions(this.borders()), 3));
-        // Three.js caches the bounding sphere from the first render, when the lines were still empty. Without this,
-        // the stale sphere makes the camera skip the lines as "off-screen" (frustum culling), depending on load order.
-        bordersGeometry.computeBoundingSphere();
+        const positions = sphereLinePositions(this.borders());
+        if (!positions.length) return;
+        // setPositions() also recomputes the bounding sphere. Lesson 05's bug: a sphere cached from the first, empty render made
+        // the camera skip the lines as "off-screen" (frustum culling), depending on load order.
+        bordersGeometry.setPositions(positions);
         render();
       }, { injector });
 
@@ -242,7 +245,7 @@ export class Globe {
         canvas.removeEventListener('wheel', wake);
         controls.removeEventListener('start', onStart);
         controls.dispose();
-        for (const disposable of [earthGeometry, earthMaterial, gridGeometry, gridMaterial, bordersGeometry, bordersMaterial, atmosphereGeometry, atmosphereMaterial]) disposable.dispose();
+        for (const disposable of [earthGeometry, earthMaterial, gridGeometry, gridMaterial, bordersGeometry, bordersMaterial, auraGeometry, auraMaterial]) disposable.dispose();
         idMap?.dispose();
         renderer.dispose();
         renderer.forceContextLoss(); // hand the WebGL context back now; browsers allow only ~16 at once
