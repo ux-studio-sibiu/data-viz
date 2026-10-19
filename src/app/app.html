@@ -2,10 +2,14 @@
   <a class="brand" routerLink="/">The Carbon Divide</a>
   <nav class="site-nav">
     <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Explore</a>
-    <a routerLink="/lessons" routerLinkActive="is-active">Lessons</a>
+    <!-- Opens the roadmap in the lesson window: only the named outlet changes, the current page stays -->
+    <a [routerLink]="[{ outlets: { lesson: ['lessons'] } }]" title="Lessons (L)">Lessons</a>
   </nav>
 </header>
 
 <main class="site-main">
   <router-outlet />
 </main>
+
+<app-lesson-window />
+<app-dock-bar />

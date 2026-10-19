@@ -1,6 +1,5 @@
 <!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
-<article class="nsc-lesson">
-  <p class="eyebrow">Lesson 00</p>
+<app-lesson-page eyebrow="Lesson 00">
   <h1>Setup &amp; app shell</h1>
   <p>A fresh Angular app with only what the next lessons need: a product page, a lazy lessons area, and a dark stage for the globe. Three.js, GSAP and D3 aren't installed yet. Each library arrives in the lesson that first uses it, so every dependency shows up in a diff next to its reason.</p>
 
@@ -55,7 +54,7 @@
 
   <h2>5. Styles</h2>
   <ul>
-    <li><code>styles.scss</code> holds the tokens (<code>--bg</code>, <code>--accent</code>, …) and the shared <code>.nsc-lesson</code> typography. Dark only: the globe needs a dark background.</li>
+    <li><code>styles.scss</code> holds the tokens (<code>--bg</code>, <code>--accent</code>, …) and base element styles (the shared lesson typography moved into <code>LessonPage</code> in lesson 01). Dark only: the globe needs a dark background.</li>
     <li>Component styles are scoped by Angular (≈ CSS Modules). Class names follow the workspace style guide: <code>nsc-</code> on the component root only, plain nested names, <code>is-</code> for state.</li>
     <li>The explorer shows a CSS sphere where the globe will go. The layout already has its final shape: header, then a stage filling the rest of the viewport.</li>
   </ul>
@@ -76,4 +75,4 @@
     <li>No <code>zone.js</code> anywhere: <code>package.json</code>, <code>angular.json</code>, <code>app.config.ts</code></li>
     <li>Then <code>git init</code> and commit as <code>lesson 00</code></li>
   </ul>
-</article>
+</app-lesson-page>

@@ -1,0 +1,14 @@
+<!-- A <dialog> with the `open` attribute is non-modal (≈ .show(), not .showModal()): no backdrop, no focus trap, the page stays clickable. -->
+<!-- Minimized = hidden with CSS, not removed: the content (and its state) stays alive until restored. -->
+<dialog #dialog open class="nsc-floating-panel" nscDraggable [(position)]="position" [class.is-minimized]="minimized()" [style.width.px]="size()?.w" [style.height.px]="size()?.h" [attr.aria-label]="label()" (keydown.escape)="minimized.set(true)">
+  <header class="title-bar" nscDragHandle aria-label="Move window: drag, or use the arrow keys">
+    <span class="grip" aria-hidden="true">⠿</span>
+    <div class="title"><ng-content select="[panel-title]" /></div>
+    <div class="actions">
+      <ng-content select="[panel-actions]" />
+      <button type="button" aria-label="Minimize" (click)="minimized.set(true)">–</button>
+      <button type="button" aria-label="Close" (click)="closed.emit()">✕</button>
+    </div>
+  </header>
+  <div class="body"><ng-content /></div>
+</dialog>

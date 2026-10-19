@@ -1,0 +1,35 @@
+// Starts docked to the bottom-right corner; Draggable's translate moves it from there.
+.nsc-floating-panel {
+  position: fixed; inset: auto 24px 24px auto; z-index: 20; margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+  width: 440px; height: min(70dvh, 640px); min-width: 280px; min-height: 160px; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px);
+  resize: both; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+
+  &.is-minimized { display: none; }
+  &.is-dragging { opacity: 0.92; user-select: none; }
+
+  .title-bar {
+    display: flex; align-items: center; gap: 8px; flex: none; padding: 6px 6px 6px 10px;
+    border-bottom: 1px solid var(--line); cursor: grab; user-select: none;
+
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  }
+  &.is-dragging .title-bar { cursor: grabbing; }
+
+  .grip { color: var(--muted); }
+  .title { flex: 1; min-width: 0; overflow: hidden; font-size: 0.9rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+  .actions { display: flex; align-items: center; gap: 2px; }
+
+  // Applies to projected [panel-actions] buttons too: ::ng-deep is needed because projected content carries the parent's style scope
+  .actions ::ng-deep :is(button, a) {
+    display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px;
+    border: 0; border-radius: 6px; background: none; color: var(--muted); font: inherit; text-decoration: none; cursor: pointer;
+
+    &:hover:not(:disabled) { background: var(--code-bg); color: var(--fg); }
+    &:disabled { opacity: 0.35; cursor: default; }
+  }
+
+  .body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+}

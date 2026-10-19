@@ -36,7 +36,7 @@ the running product.
 - **Not a blocking modal**: the globe stays usable while the window is open. It is a *non-modal*
   `<dialog>`, opened with `show()`, not `showModal()`, so lesson 08's "Show me" buttons can drive
   the globe while you watch.
-- Position, size and minimized state are remembered between visits (`localStorage`, in try/catch).
+- Position and size are remembered between visits (`localStorage`, in try/catch). Minimized state isn't: a reload opens the window normally.
 - Keyboard: `L` toggles the window, `Esc` minimizes it, arrow keys move it when the title bar has focus.
 
 ### How it's wired: a named router outlet

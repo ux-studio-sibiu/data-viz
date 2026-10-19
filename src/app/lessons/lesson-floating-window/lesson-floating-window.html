@@ -1,0 +1,96 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 01">
+  <h1>The lesson window</h1>
+  <p>From now on every lesson can sit on top of the live product. This page is probably open in that window right now: drag it by the title bar, resize it from the bottom-right corner, minimize it to the dock, press <kbd>L</kbd> to hide or show it.</p>
+  <p>The window is built from small generic pieces that know nothing about lessons. Only the last piece, <code>LessonWindow</code>, combines them with the router.</p>
+
+  <table>
+    <thead><tr><th>Piece</th><th>Kind</th><th>Knows about</th></tr></thead>
+    <tbody>
+      <tr><td><code>Draggable</code> + <code>DragHandle</code></td><td>directives, <code>ui/draggable/</code></td><td>nothing</td></tr>
+      <tr><td><code>FloatingPanel</code></td><td>component, <code>ui/floating-panel/</code></td><td>Draggable, Dock, PanelMemory</td></tr>
+      <tr><td><code>PanelMemory</code></td><td>service</td><td>localStorage</td></tr>
+      <tr><td><code>Dock</code> + <code>DockBar</code></td><td>service + component, <code>ui/dock/</code></td><td>nothing</td></tr>
+      <tr><td><code>LessonWindow</code></td><td>component, <code>lessons/lesson-window/</code></td><td>the router, FloatingPanel, lessonRoutes</td></tr>
+      <tr><td><code>LessonPage</code></td><td>layout component, <code>lessons/lesson-page/</code></td><td>nothing</td></tr>
+    </tbody>
+  </table>
+
+  <h2>1. A named outlet: two pages in one URL</h2>
+  <pre><code>/                              product only
+/(lesson:lessons/floating-window)   product + this lesson in the window
+/lessons/floating-window            this lesson as a full page</code></pre>
+  <ul>
+    <li><code>app.html</code> has the usual <code>&lt;router-outlet /&gt;</code>, and <code>LessonWindow</code> has a second one: <code>&lt;router-outlet name="lesson" /&gt;</code>. The part in brackets, <code>(lesson:…)</code>, is that outlet's URL.</li>
+    <li><code>app.routes.ts</code> mounts <code>lessonRoutes</code> twice: once normally, once with <code>outlet: 'lesson'</code>. Same components, same lazy chunks.</li>
+    <li>Links that change only the window: <code>[routerLink]="[&#123; outlets: &#123; lesson: ['lessons'] &#125; &#125;]"</code>. The primary outlet (the product) is left alone. Closing sets the outlet to <code>null</code>.</li>
+    <li>Relative links inside a lesson stay in the outlet they were rendered in. The roadmap uses <code>routerLink="setup"</code>, so in the window it opens the lesson in the window, and on the full page it opens it full-page. Absolute links are a trap here: <code>routerLink="/lessons"</code> clicked inside the window keeps <code>(lesson:…)</code> in the URL, so the window stays open. To leave the window, one navigation has to set both outlets: <code>&#123; outlets: &#123; primary: ['lessons', path], lesson: null &#125; &#125;</code>. That's what ↗ does.</li>
+    <li>The page title (<code>document.title</code>) follows the primary outlet only. The window shows its own route's <code>title</code> in the title bar. After every <code>NavigationEnd</code>, <code>LessonWindow</code> finds the <code>lesson</code> branch in <code>router.routerState.snapshot</code> and walks down to its deepest child, past the componentless <code>lessons</code> parent.</li>
+    <li>The product doesn't know any of this exists. ≈ Next.js <strong>parallel routes</strong> (an <code>&#64;lesson</code> slot) used for the "modal with its own URL" pattern.</li>
+  </ul>
+
+  <h2>2. Two directives that find each other</h2>
+  <pre><code>&lt;dialog nscDraggable [(position)]="position"&gt;
+  &lt;header nscDragHandle&gt;…&lt;/header&gt;</code></pre>
+  <ul>
+    <li>An attribute directive adds behavior to an element it doesn't own. ≈ a custom hook that receives a ref, or a jQuery plugin.</li>
+    <li><code>DragHandle</code> calls <code>inject(Draggable)</code>: Angular looks up the element tree and returns the nearest <code>nscDraggable</code>. No inputs, no wiring. ≈ <code>useContext</code>, but scoped to the DOM ancestors.</li>
+    <li><code>position</code> is a <code>model()</code>: a two-way signal. <code>[(position)]="position"</code> keeps the panel's signal and the directive's in sync. ≈ <code>value</code> + <code>onChange</code> props in one.</li>
+    <li>The position goes to <code>style.translate</code> through a <code>host</code> binding. Pointer moves only set a signal; zoneless Angular repaints once per frame, however many events arrive.</li>
+    <li><code>setPointerCapture</code> keeps the drag going when the pointer leaves the title bar. The viewport bounds are measured once at drag start, because during a drag the DOM is up to a frame behind the signal.</li>
+    <li>Keyboard: focus the title bar (<kbd>Tab</kbd>), then the arrow keys move the window, with <kbd>Shift</kbd> for bigger steps.</li>
+  </ul>
+
+  <h2>3. A panel with slots</h2>
+  <pre><code>&lt;app-floating-panel panel-id="lessons" [label]="title()" [(minimized)]="minimized" (closed)="close()"&gt;
+  &lt;span panel-title&gt;…&lt;/span&gt;
+  &lt;button panel-actions&gt;‹&lt;/button&gt;
+  &lt;router-outlet name="lesson" /&gt;
+&lt;/app-floating-panel&gt;</code></pre>
+  <ul>
+    <li><code>&lt;ng-content select="[panel-title]" /&gt;</code> picks the children marked <code>panel-title</code>; the plain <code>&lt;ng-content /&gt;</code> takes the rest. ≈ React's named props holding JSX (<code>title=&#123;…&#125;</code>) plus <code>children</code>.</li>
+    <li><code>panel-id</code> is read with <code>inject(new HostAttributeToken('panel-id'))</code>. A static attribute is available in the constructor (inputs aren't yet), so the saved position is known before the first render. No jump.</li>
+    <li>It's a <code>&lt;dialog open&gt;</code>: the <code>open</code> attribute makes it <strong>non-modal</strong>, the same as calling <code>.show()</code>. No backdrop, no focus trap, the globe behind it stays usable. Later lessons need that.</li>
+    <li>Resizing is plain CSS (<code>resize: both</code>). A <code>ResizeObserver</code> reports the new size so <code>PanelMemory</code> can save it, debounced, in <code>localStorage</code> (with try/catch, since storage can be blocked).</li>
+    <li>Minimizing hides the panel with CSS instead of removing it, so the lesson inside keeps its state (scroll position, inputs).</li>
+    <li><code>ui/</code> components avoid <code>::ng-deep</code> with one exception: the panel styles its projected <code>[panel-actions]</code> buttons, which carry the parent's style scope.</li>
+  </ul>
+
+  <h2>4. The dock: a service as a meeting point</h2>
+  <ul>
+    <li>The panel and the dock bar live far apart in the tree. A root service (<code>Dock</code>) holds a signal with the minimized windows; the panel adds itself, <code>DockBar</code> renders the list. Same idea as the stores in learn-angular lesson 05.</li>
+    <li>The panel's <code>effect()</code> keeps the dock in sync with <code>minimized</code>. Writing a signal inside an effect is fine here: it's syncing state outward, not deriving it (that would be <code>computed</code>).</li>
+  </ul>
+
+  <h2>5. LessonWindow: the only lesson-specific part</h2>
+  <ul>
+    <li>Shows itself when the URL has a <code>(lesson:…)</code> part and hides when it doesn't. It reads that from the router state after each navigation. The outlet's own <code>(activate)</code> event wasn't reliable for this: moving between two children of the same parent reported the old route.</li>
+    <li>Previous/next follow the order of <code>lessonRoutes</code>. The ↗ link opens the same lesson as a full page.</li>
+    <li><kbd>L</kbd> toggles the window (ignored while typing in a field), <kbd>Esc</kbd> minimizes it.</li>
+  </ul>
+
+  <h2>6. LessonPage: a layout through projection</h2>
+  <ul>
+    <li>Every lesson is now wrapped in <code>&lt;app-lesson-page eyebrow="Lesson 01"&gt;…&lt;/app-lesson-page&gt;</code>. The <code>.nsc-lesson</code> styles moved here from <code>styles.scss</code>.</li>
+    <li>Projected markup carries the <em>lesson's</em> style scope, so a normal scoped stylesheet in <code>LessonPage</code> wouldn't reach the <code>h2</code>s inside. It uses <code>ViewEncapsulation.None</code> instead, contained by the <code>nsc-lesson</code> root class.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>ui/draggable/draggable.ts</code>, <code>drag-handle.ts</code></li>
+    <li><code>ui/floating-panel/floating-panel.*</code>, <code>panel-memory.ts</code></li>
+    <li><code>ui/dock/dock.ts</code>, <code>dock-bar.ts</code></li>
+    <li><code>lessons/lesson-window/*</code>, <code>lessons/lesson-page/*</code>, <code>lessons/lesson-floating-window/*</code> (this page)</li>
+    <li><code>app.routes.ts</code> (the second mount), <code>lessons.routes.ts</code>, <code>app.ts</code>, <code>app.html</code></li>
+    <li>Moved to <code>LessonPage</code>: the roadmap, lesson 00, and the <code>.nsc-lesson</code> styles from <code>styles.scss</code></li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Header → <strong>Lessons</strong> opens the roadmap in the window; the explorer stays behind it. Open lesson 00 from there: it opens in the window.</li>
+    <li>Drag it, resize it, reload: same place and size. Make the browser narrow: it stays on screen.</li>
+    <li>Minimize → a chip in the bottom-left. Click it: back where it was. <kbd>Esc</kbd> also minimizes.</li>
+    <li>‹ › step through lessons; ↗ opens the <a routerLink="/lessons/floating-window">full page</a>; ✕ or <kbd>L</kbd> closes; <kbd>L</kbd> again reopens the last lesson.</li>
+    <li>Browser back/forward walks through the window's history too, because it's all in the URL.</li>
+  </ul>
+</app-lesson-page>

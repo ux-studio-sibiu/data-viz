@@ -1,12 +1,11 @@
 <!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
-<article class="nsc-lesson">
-  <p class="eyebrow">Roadmap</p>
+<app-lesson-page eyebrow="Roadmap">
   <h1>Building the globe, one lesson at a time</h1>
-  <p>Every lesson adds one piece to the product and explains the Angular, Three.js, GSAP or D3 idea behind it. Done lessons are links.</p>
+  <p>Every lesson adds one piece to the product and explains the Angular, Three.js, GSAP or D3 idea behind it. Done lessons are links. They're relative, so they open wherever this page is: in the lesson window or as a full page.</p>
 
   <ol class="nsc-roadmap">
-    <li class="is-done"><a routerLink="/lessons/setup">00 Setup &amp; app shell</a><span>ng new, zoneless, routes, styles</span></li>
-    <li>01 The lesson window<span>named outlets, directives, ng-content, non-modal dialog</span></li>
+    <li class="is-done"><a routerLink="setup">00 Setup &amp; app shell</a><span>ng new, zoneless, routes, styles</span></li>
+    <li class="is-done"><a routerLink="floating-window">01 The lesson window</a><span>named outlets, directives, ng-content, non-modal dialog</span></li>
     <li>02 Data pipeline I: boundaries<span>TopoJSON, ISO3, a Node build script</span></li>
     <li>03 Flat map first (SVG)<span>d3-geo + Angular SVG templates</span></li>
     <li>04 The globe<span>Three.js lifecycle in Angular</span></li>
@@ -26,4 +25,4 @@
     <li>18 Polish<span>&#64;defer, a11y, performance</span></li>
     <li>19 Ship it<span>build, attribution, case study</span></li>
   </ol>
-</article>
+</app-lesson-page>

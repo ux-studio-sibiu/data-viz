@@ -1,0 +1,9 @@
+<app-floating-panel panel-id="lessons" [label]="title()" [(minimized)]="minimized" (closed)="close()">
+  <span panel-title>{{ title() }}</span>
+  <button panel-actions type="button" aria-label="Previous lesson" [disabled]="prev() === undefined" (click)="open(prev()!)">‹</button>
+  <button panel-actions type="button" aria-label="Next lesson" [disabled]="next() === undefined" (click)="open(next()!)">›</button>
+  <button panel-actions type="button" aria-label="Open as full page" title="Open as full page" (click)="openFullPage()">↗</button>
+
+  <!-- The same lessonRoutes as /lessons, mounted a second time for this outlet (see app.routes.ts) -->
+  <router-outlet name="lesson" />
+</app-floating-panel>
