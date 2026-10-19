@@ -1,0 +1,72 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 03">
+  <h1>Flat map first (SVG)</h1>
+  <p>The <a routerLink="/">explorer</a> now draws the lesson 02 data: 240 countries as an SVG map, with a tooltip on hover. Before the globe, because a flat map isolates the D3 part from the Three.js part, and because it stays useful: in lesson 18 it becomes the fallback for devices without WebGL.</p>
+
+  <h2>1. D3 does the math, Angular renders the DOM</h2>
+  <p>Classic D3 owns the DOM: <code>d3.select(svg).selectAll('path').data(features).join('path').attr('d', path)</code>. In Angular (or React) that fights the framework, since two systems would be updating the same elements. Here D3 only computes, and the template draws:</p>
+  <pre><code>// flat-map.ts
+private readonly path = computed(() => geoPath(this.projection()));
+protected readonly countries = computed(() =>
+  this.features().map(f => (&#123; id: f.id, d: this.path()(f) &#125;)));
+
+&lt;!-- flat-map.html --&gt;
+&#64;for (c of countries(); track c.id) &#123; &lt;path [attr.d]="c.d" [attr.data-id]="c.id" /&gt; &#125;</code></pre>
+  <ul>
+    <li>Only <code>d3-geo</code> is installed, not the whole <code>d3</code> bundle. Its job: <code>geoPath(projection)(feature)</code> turns lon/lat polygons into an SVG path string.</li>
+    <li>The 240 path strings are built once, in a <code>computed()</code>. They're rebuilt only if the features or the projection change, never on hover. ≈ <code>useMemo</code>.</li>
+    <li><code>track c.id</code> ≈ React's <code>key</code>. Lesson 09 will recolour countries; the paths stay, only their fill changes.</li>
+    <li>SVG attributes need <code>[attr.d]</code>, not <code>[d]</code>: <code>d</code> isn't a DOM property, only an attribute.</li>
+    <li><code>&#64;if</code> and <code>&#64;for</code> work inside <code>&lt;svg&gt;</code>. Angular creates their <code>&lt;path&gt;</code>s in the SVG namespace because the compiler sees they're inside an <code>&lt;svg&gt;</code>.</li>
+  </ul>
+
+  <h2>2. The projection</h2>
+  <ul>
+    <li><strong>Equal Earth</strong> (<code>geoEqualEarth</code>): every country keeps its true area relative to the others. On Mercator, Greenland looks as big as Africa; it's 14 times smaller. When colour and size carry data (lesson 09), the map shouldn't distort them.</li>
+    <li><code>fitExtent([[8, 8], [952, 492]], &#123; type: 'Sphere' &#125;)</code> scales and centres the whole world inside the drawing.</li>
+    <li>The drawing is always 960 × 500 units. The <code>viewBox</code> scales it to any screen width, so nothing is recomputed on resize: no <code>ResizeObserver</code>, no listener.</li>
+    <li>d3-geo cuts shapes at the map edge on its own: Russia and Fiji cross the 180° meridian and are split cleanly. The globe in lesson 05 has to deal with this itself.</li>
+  </ul>
+
+  <h2>3. Loading: the Boundaries service</h2>
+  <ul>
+    <li><code>data/boundaries.ts</code> loads both lesson 02 files with two <code>httpResource</code>s. They run in parallel, and <code>features</code> is ready when both have arrived.</li>
+    <li>It converts TopoJSON to GeoJSON with <code>topojson-client</code>'s <code>feature()</code>, attaching each country's name and label point from <code>countries.json</code>.</li>
+    <li><code>providedIn: 'root'</code>: one instance for the whole app, so the explorer, the globe (lesson 04) and the search list (lesson 07) share the same download.</li>
+    <li>The explorer shows "Loading the map…" and an error state with <code>&#64;if</code> / <code>&#64;else if</code>, reading <code>isLoading()</code> and <code>error()</code>.</li>
+    <li>Before writing the map, a one-off check covered the polygon <strong>winding order</strong> (<code>d3.geoArea</code> of every country). d3-geo treats a ring drawn the wrong way round as "everything except this country", and the map fills with one colour. Here, no country covers more than half the sphere, so the order is right.</li>
+  </ul>
+
+  <h2>4. Hover: delegation, two-way state, a slot</h2>
+  <ul>
+    <li><strong>One listener, not 240:</strong> <code>(pointerover)</code> sits on the <code>&lt;g&gt;</code> and reads <code>data-id</code> from whichever path the pointer entered. ≈ <code>$('g').on('pointerover', 'path', fn)</code>. Pointer events also cover touch: a tap shows the tooltip.</li>
+    <li><strong><code>hovered</code> is a <code>model()</code>:</strong> the map writes it, and the explorer reads it with <code>[(hovered)]</code>. Later, a search list or the globe can set it too, and the map highlights whatever is chosen elsewhere.</li>
+    <li><strong>The highlight is drawn twice:</strong> the hovered country is repeated at the end of the SVG. SVG has no z-index; later elements paint on top, so the outline isn't hidden under the neighbours' borders.</li>
+    <li><strong>The tooltip is a slot:</strong> the map decides <em>where</em> (the projected label point, as a % of the drawing), the explorer decides <em>what</em> (name and subregion). Same idea as <code>FloatingPanel</code>'s slots in lesson 01. The map knows nothing about subregions.</li>
+    <li>Hover France: French Guiana and Réunion light up too. That's the MultiPolygon, one shape with several parts. The label point keeps the tooltip over mainland France; a centroid of all the parts would land in the Atlantic.</li>
+  </ul>
+
+  <h2>5. What's missing, on purpose</h2>
+  <ul>
+    <li><strong>Microstates</strong> are there (Vatican, Monaco, Nauru), but too small to point at on a 960-unit map. Lesson 07 adds a searchable country list for them.</li>
+    <li><strong>Keyboard</strong>: 240 tab stops would be worse than none. The same list in lesson 07 is the keyboard way in.</li>
+    <li><strong>Zoom and pan</strong>: the globe in lesson 04 covers that.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>charts/flat-map/flat-map.*</code>: the map component (generic: features in, hovered id out, a tooltip slot)</li>
+    <li><code>data/boundaries.ts</code>: loads and joins the two data files</li>
+    <li><code>pages/explorer/*</code>: the placeholder sphere replaced by the map and its tooltip</li>
+    <li><code>lessons/lesson-flat-map/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+    <li>Packages: <code>d3-geo</code>; dev: <code>&#64;types/d3-geo</code>, <code>&#64;types/topojson-client</code>, <code>&#64;types/topojson-specification</code>, <code>&#64;types/geojson</code></li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>The <a routerLink="/">explorer</a> shows the map. Hover a few countries: the highlight, the tooltip, and the tooltip staying put while you move inside the country</li>
+    <li>Hover France, Norway (Svalbard), the USA (Alaska, Hawaii): one country, several parts</li>
+    <li>Resize the browser: the map scales, and nothing is recomputed (no resize code)</li>
+    <li>In <code>flat-map.ts</code>, swap <code>geoEqualEarth</code> for <code>geoMercator</code> and compare Greenland and Africa. Then put it back.</li>
+  </ul>
+</app-lesson-page>

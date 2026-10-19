@@ -1,7 +1,20 @@
 <section class="nsc-explorer">
-  <div class="stage" aria-hidden="true"><div class="planet"></div></div>
   <div class="intro">
     <h1>The Carbon Divide</h1>
     <p>Who emits, and who pays the price. An interactive globe of country-level climate data, coming together one lesson at a time.</p>
+  </div>
+
+  <div class="stage">
+    @if (boundaries.error()) {
+      <p class="status">The map data couldn't be loaded.</p>
+    } @else if (boundaries.isLoading()) {
+      <p class="status">Loading the map…</p>
+    } @else {
+      <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" label="World map of countries. Hover a country to see its name.">
+        @if (country(); as c) {
+          <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
+        }
+      </app-flat-map>
+    }
   </div>
 </section>

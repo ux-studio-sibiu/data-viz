@@ -1,0 +1,16 @@
+<figure class="nsc-flat-map">
+  <svg [attr.viewBox]="viewBox" role="img" [attr.aria-label]="label()" (pointerleave)="hovered.set(null)">
+    <path class="sphere" [attr.d]="sphere()" />
+    <path class="graticule" [attr.d]="graticule()" />
+    <g class="countries" (pointerover)="onOver($event)">
+      @for (c of countries(); track c.id) { <path [attr.d]="c.d" [attr.data-id]="c.id" /> }
+    </g>
+    <!-- The hovered country drawn again on top, so its outline isn't hidden under its neighbours' strokes -->
+    @if (active(); as c) { <path class="highlight" [attr.d]="c.d" /> }
+  </svg>
+
+  @if (anchor(); as a) {
+    <!-- Content comes from the parent through the slot; the map only decides where it goes -->
+    <div class="tooltip" [style.left.%]="a.left" [style.top.%]="a.top"><ng-content select="[map-tooltip]" /></div>
+  }
+</figure>

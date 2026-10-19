@@ -1,0 +1,25 @@
+:host { display: block; }
+
+.nsc-flat-map {
+  position: relative; margin: 0;
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .sphere { fill: #0f1520; stroke: var(--line); }
+  .graticule { fill: none; stroke: rgb(255 255 255 / 0.05); }
+
+  .countries path {
+    fill: #263044; stroke: var(--bg); stroke-width: 0.5; stroke-linejoin: round; cursor: pointer;
+    transition: fill 0.15s;
+
+    &:hover { fill: #34405a; }
+  }
+
+  .highlight { fill: var(--accent); stroke: var(--fg); stroke-width: 1; pointer-events: none; }
+
+  .tooltip {
+    position: absolute; translate: -50% calc(-100% - 10px); pointer-events: none;
+    padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
+    font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+  }
+}
