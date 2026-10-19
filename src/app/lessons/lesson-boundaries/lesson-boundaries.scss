@@ -1,0 +1,13 @@
+.inspector {
+  margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 8px;
+
+  .stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 12px; }
+  .stat { display: flex; flex-direction: column; }
+  .stat-value { font-size: 1.4rem; font-weight: 700; }
+  .stat-label { color: var(--muted); font-size: 0.8rem; }
+
+  label { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  input { font: inherit; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); }
+  pre { margin: 8px 0 0; font-size: 0.8rem; }
+  .error { color: var(--accent); }
+}

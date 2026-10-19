@@ -1,0 +1,111 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 02">
+  <h1>Data pipeline I: boundaries</h1>
+  <p>Before anything is drawn, the app needs two things: <strong>where</strong> each country is (geometry) and <strong>what</strong> it is (an id, a name, a region). This lesson adds a Node script that builds both once, at build time, and writes them to <code>public/data/</code>. The app only ever reads those two files.</p>
+  <pre><code>npm run data:boundaries            # uses the cached download
+npm run data:boundaries -- --fresh # downloads again</code></pre>
+
+  <h2>1. Why a build script, not a live API</h2>
+  <table>
+    <thead><tr><th>Build-time file</th><th>Fetching the source at runtime</th></tr></thead>
+    <tbody>
+      <tr><td>One request to our own server, cached by the browser</td><td>A third-party server, CORS rules, rate limits, downtime</td></tr>
+      <tr><td>~190 kB gzipped, only the fields we use</td><td>3 MB with 160+ fields per country</td></tr>
+      <tr><td>Fixes (ids, merges) happen once and are reviewed in git</td><td>Every visitor's browser repeats the cleanup</td></tr>
+      <tr><td>Pinned to Natural Earth <code>v5.1.2</code>: same input, same output</td><td>The data can change under you</td></tr>
+    </tbody>
+  </table>
+  <p>≈ Next.js <code>getStaticProps</code>, or a Razor app reading a seeded table instead of calling an API on every request. The raw download goes to <code>scripts/.cache/</code>, which git ignores; the outputs in <code>public/data/</code> are committed.</p>
+
+  <h2>2. The source: Natural Earth</h2>
+  <ul>
+    <li><strong>Natural Earth</strong> admin-0 countries at 1:50 million scale: 242 shapes, <strong>public domain</strong>, so no attribution is required (we'll still credit it in lesson 19).</li>
+    <li>1:50m, not 1:110m: the smaller file drops microstates like Monaco and the Vatican. A globe you can zoom into needs them.</li>
+    <li>Boundaries are political choices. Natural Earth draws <em>de facto</em> borders; Kosovo, Somaliland and N. Cyprus are separate shapes. The script keeps the shapes and records what is unusual about them (section 3).</li>
+  </ul>
+
+  <h2>3. One stable id per country</h2>
+  <p>Every dataset in later lessons (OWID CO₂, World Bank, ND-GAIN) identifies countries by <strong>ISO 3166-1 alpha-3</strong>: <code>FRA</code>, <code>NOR</code>, <code>BRA</code>. The geometry has to use the same codes, or nothing joins. Natural Earth has three code fields, and the obvious one is wrong:</p>
+  <table>
+    <thead><tr><th>Field</th><th>France</th><th>Kosovo</th><th>Problem</th></tr></thead>
+    <tbody>
+      <tr><td><code>ISO_A3</code></td><td><code>-99</code></td><td><code>-99</code></td><td>Strict ISO: France and Norway get <code>-99</code> because their overseas parts are separate shapes</td></tr>
+      <tr><td><code>ISO_A3_EH</code></td><td><code>FRA</code></td><td><code>-99</code></td><td>"ISO, except here": fixes France and Norway. Used.</td></tr>
+      <tr><td><code>ADM0_A3</code></td><td><code>FRA</code></td><td><code>KOS</code></td><td>Natural Earth's own code. Fallback for the 4 areas without ISO</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><strong>Kosovo → <code>XKX</code></strong>, the World Bank's code. OWID uses <code>OWID_KOS</code>; lesson 08 maps that.</li>
+    <li><strong>Somaliland (<code>SOL</code>), N. Cyprus (<code>CYN</code>), Siachen Glacier (<code>KAS</code>)</strong> keep Natural Earth's codes. Statistics count them inside Somalia, Cyprus and India/Pakistan, so they'll show as "no data". That's honest: we don't have separate numbers for them.</li>
+    <li><strong>Australia</strong> appears 3 times (the mainland, Indian Ocean Territories, Ashmore and Cartier Islands), all coded <code>AUS</code>. They're merged into one shape, so hover and colour treat them as one country.</li>
+    <li>Dependencies get a <code>sovereign</code> field: Greenland is <code>GRL</code> with <code>sovereign: 'DNK'</code>. Some datasets report Greenland on its own, some inside Denmark.</li>
+  </ul>
+
+  <h2>4. GeoJSON → TopoJSON</h2>
+  <pre><code>topology()      GeoJSON → TopoJSON: each shared border stored once, as an "arc"
+mergeArcs()     the 3 AUS shapes → one MultiPolygon
+presimplify()   weight every point by the spherical area it adds
+protect         short arcs (microstates, small islands) get weight ∞
+simplify()      keep the 25% heaviest points
+quantize(1e5)   snap to a grid, store points as small integer deltas</code></pre>
+  <ul>
+    <li><strong>Topology:</strong> in GeoJSON, the France–Spain border is stored twice, once in each country. In TopoJSON both reference the same arc. It's smaller, and simplifying an arc moves both sides together, so there are no gaps or overlaps between neighbours.</li>
+    <li><strong>Spherical simplification:</strong> we draw a globe, so <code>sphericalTriangleArea</code> decides which points matter. A flat measure would over-simplify near the equator and keep too much near the poles.</li>
+    <li><strong>The microstate bug:</strong> the first run simplified Vatican City down to a single point. Its whole outline is one short arc, and every point on it had a tiny weight. Arcs of 24 points or fewer are now protected: +24 kB, and every country keeps at least 5 points.</li>
+    <li><strong>Quantize last:</strong> the first run quantized up front and came out at 2.4 MB, because <code>presimplify</code> had added a weight to every point. Quantizing at the end drops the weights, and the file went to 594 kB (191 kB gzipped).</li>
+  </ul>
+
+  <h2>5. Two outputs</h2>
+  <table>
+    <thead><tr><th>File</th><th>Holds</th><th>Used from</th></tr></thead>
+    <tbody>
+      <tr><td><code>countries-50m.topo.json</code></td><td>Geometry only, keyed by id</td><td>Lesson 03 (flat map), 05 (globe)</td></tr>
+      <tr><td><code>countries.json</code></td><td>Metadata + source and license</td><td>Everywhere: names, search, regions, peers</td></tr>
+    </tbody>
+  </table>
+  <p>Kept apart because they change for different reasons, and the metadata is small enough to load first. <code>src/app/data/country.ts</code> describes the metadata as TypeScript types.</p>
+
+  <h2>6. Live: the output, read by the app</h2>
+  <p>This is <code>countries.json</code> loaded with <code>httpResource</code>: a GET request as a signal. ≈ <code>useSWR</code> or TanStack Query. Lesson 08 goes deeper (parsing, validation, errors).</p>
+  <div class="inspector">
+    @if (file.isLoading()) {
+      <p class="note">Loading countries.json…</p>
+    } @else if (file.error()) {
+      <p class="error">Couldn't load countries.json. Did <code>npm run data:boundaries</code> run?</p>
+    } @else {
+      <div class="stats">
+        <div class="stat"><span class="stat-value">{{ countries().length }}</span><span class="stat-label">countries</span></div>
+        <div class="stat"><span class="stat-value">{{ dependencies() }}</span><span class="stat-label">with a sovereign</span></div>
+        <div class="stat"><span class="stat-value">{{ withoutIso().length }}</span><span class="stat-label">without ISO code</span></div>
+        @for (entry of byContinent(); track entry[0]) {
+          <div class="stat"><span class="stat-value">{{ entry[1] }}</span><span class="stat-label">{{ entry[0] }}</span></div>
+        }
+      </div>
+      <p class="note">Without an ISO code: @for (c of withoutIso(); track c.id) {<code>{{ c.id }}</code> {{ c.name }}@if (!$last) {, }}</p>
+      <label>Look up <input [value]="query()" (input)="query.set($any($event.target).value)" placeholder="FRA, Greenland, Kosovo…" /></label>
+      @if (match(); as c) {
+        <pre><code>{{ c | json }}</code></pre>
+      } @else {
+        <p class="note">No country matches "{{ query() }}".</p>
+      }
+    }
+  </div>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>scripts/build-boundaries.mjs</code>: the pipeline; <code>npm run data:boundaries</code> in <code>package.json</code></li>
+    <li><code>public/data/countries-50m.topo.json</code>, <code>public/data/countries.json</code>: generated, committed</li>
+    <li><code>src/app/data/country.ts</code>: types for the metadata</li>
+    <li><code>app.config.ts</code>: <code>provideHttpClient(withFetch())</code></li>
+    <li><code>lessons/lesson-boundaries/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+    <li>Packages: <code>topojson-server</code>, <code>topojson-simplify</code> (dev, script only), <code>topojson-client</code> (also used by the app from lesson 03). <code>.gitignore</code>: <code>/scripts/.cache</code></li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Run <code>npm run data:boundaries</code>: the report lists 240 countries, AUS merged from 3 shapes, 4 without ISO code, ~594 kB topology</li>
+    <li>Run it twice: <code>git status</code> shows no changes to <code>public/data/</code> (same input, same output)</li>
+    <li>In the inspector above, look up <code>FRA</code> (not <code>-99</code>), <code>Kosovo</code> (<code>XKX</code>), <code>Greenland</code> (sovereign <code>DNK</code>), <code>Vatican</code></li>
+    <li>Read the "ISO_A3 vs ISO_A3_EH" comment in the script and decide whether you agree with the 4 no-ISO choices</li>
+  </ul>
+</app-lesson-page>

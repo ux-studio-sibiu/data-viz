@@ -1,0 +1,3608 @@
+{
+ "source": "Natural Earth 1:50m Admin 0 – Countries",
+ "version": "v5.1.2",
+ "url": "https://www.naturalearthdata.com/",
+ "license": "Public domain",
+ "countries": [
+  {
+   "id": "AFG",
+   "iso2": "AF",
+   "hasIsoCode": true,
+   "name": "Afghanistan",
+   "longName": "Afghanistan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "low",
+   "label": [
+    66.497,
+    34.164
+   ]
+  },
+  {
+   "id": "ALA",
+   "iso2": "AX",
+   "hasIsoCode": true,
+   "name": "Åland",
+   "longName": "Åland Islands",
+   "sovereign": "FIN",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    19.87,
+    60.156
+   ]
+  },
+  {
+   "id": "ALB",
+   "iso2": "AL",
+   "hasIsoCode": true,
+   "name": "Albania",
+   "longName": "Albania",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "lower-middle",
+   "label": [
+    20.114,
+    40.655
+   ]
+  },
+  {
+   "id": "DZA",
+   "iso2": "DZ",
+   "hasIsoCode": true,
+   "name": "Algeria",
+   "longName": "Algeria",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    2.808,
+    27.397
+   ]
+  },
+  {
+   "id": "ASM",
+   "iso2": "AS",
+   "hasIsoCode": true,
+   "name": "American Samoa",
+   "longName": "American Samoa",
+   "sovereign": "USA",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -170.747,
+    -14.327
+   ]
+  },
+  {
+   "id": "AND",
+   "iso2": "AD",
+   "hasIsoCode": true,
+   "name": "Andorra",
+   "longName": "Andorra",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    1.539,
+    42.548
+   ]
+  },
+  {
+   "id": "AGO",
+   "iso2": "AO",
+   "hasIsoCode": true,
+   "name": "Angola",
+   "longName": "Angola",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    17.984,
+    -12.183
+   ]
+  },
+  {
+   "id": "AIA",
+   "iso2": "AI",
+   "hasIsoCode": true,
+   "name": "Anguilla",
+   "longName": "Anguilla",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -63.026,
+    18.243
+   ]
+  },
+  {
+   "id": "ATA",
+   "iso2": "AQ",
+   "hasIsoCode": true,
+   "name": "Antarctica",
+   "longName": "Antarctica",
+   "sovereign": null,
+   "continent": "Antarctica",
+   "subregion": "Antarctica",
+   "incomeGroup": "high",
+   "label": [
+    35.885,
+    -79.843
+   ]
+  },
+  {
+   "id": "ATG",
+   "iso2": "AG",
+   "hasIsoCode": true,
+   "name": "Antigua and Barb.",
+   "longName": "Antigua and Barbuda",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -61.791,
+    17.352
+   ]
+  },
+  {
+   "id": "ARG",
+   "iso2": "AR",
+   "hasIsoCode": true,
+   "name": "Argentina",
+   "longName": "Argentina",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -64.173,
+    -33.501
+   ]
+  },
+  {
+   "id": "ARM",
+   "iso2": "AM",
+   "hasIsoCode": true,
+   "name": "Armenia",
+   "longName": "Armenia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    44.801,
+    40.459
+   ]
+  },
+  {
+   "id": "ABW",
+   "iso2": "AW",
+   "hasIsoCode": true,
+   "name": "Aruba",
+   "longName": "Aruba",
+   "sovereign": "NLD",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -69.973,
+    12.517
+   ]
+  },
+  {
+   "id": "AUS",
+   "iso2": "AU",
+   "hasIsoCode": true,
+   "name": "Australia",
+   "longName": "Australia",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Australia and New Zealand",
+   "incomeGroup": "high",
+   "label": [
+    134.05,
+    -24.13
+   ]
+  },
+  {
+   "id": "AUT",
+   "iso2": "AT",
+   "hasIsoCode": true,
+   "name": "Austria",
+   "longName": "Austria",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    14.131,
+    47.519
+   ]
+  },
+  {
+   "id": "AZE",
+   "iso2": "AZ",
+   "hasIsoCode": true,
+   "name": "Azerbaijan",
+   "longName": "Azerbaijan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    47.211,
+    40.402
+   ]
+  },
+  {
+   "id": "BHS",
+   "iso2": "BS",
+   "hasIsoCode": true,
+   "name": "Bahamas",
+   "longName": "Bahamas",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -77.147,
+    26.402
+   ]
+  },
+  {
+   "id": "BHR",
+   "iso2": "BH",
+   "hasIsoCode": true,
+   "name": "Bahrain",
+   "longName": "Bahrain",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    50.555,
+    26.056
+   ]
+  },
+  {
+   "id": "BGD",
+   "iso2": "BD",
+   "hasIsoCode": true,
+   "name": "Bangladesh",
+   "longName": "Bangladesh",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "low",
+   "label": [
+    89.685,
+    24.215
+   ]
+  },
+  {
+   "id": "BRB",
+   "iso2": "BB",
+   "hasIsoCode": true,
+   "name": "Barbados",
+   "longName": "Barbados",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -59.569,
+    13.164
+   ]
+  },
+  {
+   "id": "BLR",
+   "iso2": "BY",
+   "hasIsoCode": true,
+   "name": "Belarus",
+   "longName": "Belarus",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    28.418,
+    53.822
+   ]
+  },
+  {
+   "id": "BEL",
+   "iso2": "BE",
+   "hasIsoCode": true,
+   "name": "Belgium",
+   "longName": "Belgium",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    4.8,
+    50.785
+   ]
+  },
+  {
+   "id": "BLZ",
+   "iso2": "BZ",
+   "hasIsoCode": true,
+   "name": "Belize",
+   "longName": "Belize",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -88.713,
+    17.202
+   ]
+  },
+  {
+   "id": "BEN",
+   "iso2": "BJ",
+   "hasIsoCode": true,
+   "name": "Benin",
+   "longName": "Benin",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    2.352,
+    10.325
+   ]
+  },
+  {
+   "id": "BMU",
+   "iso2": "BM",
+   "hasIsoCode": true,
+   "name": "Bermuda",
+   "longName": "Bermuda",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Northern America",
+   "incomeGroup": "high",
+   "label": [
+    -64.764,
+    32.297
+   ]
+  },
+  {
+   "id": "BTN",
+   "iso2": "BT",
+   "hasIsoCode": true,
+   "name": "Bhutan",
+   "longName": "Bhutan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    90.04,
+    27.537
+   ]
+  },
+  {
+   "id": "BOL",
+   "iso2": "BO",
+   "hasIsoCode": true,
+   "name": "Bolivia",
+   "longName": "Bolivia",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -64.593,
+    -16.666
+   ]
+  },
+  {
+   "id": "BIH",
+   "iso2": "BA",
+   "hasIsoCode": true,
+   "name": "Bosnia and Herz.",
+   "longName": "Bosnia and Herzegovina",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    18.068,
+    44.091
+   ]
+  },
+  {
+   "id": "BWA",
+   "iso2": "BW",
+   "hasIsoCode": true,
+   "name": "Botswana",
+   "longName": "Botswana",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    24.179,
+    -22.103
+   ]
+  },
+  {
+   "id": "IOT",
+   "iso2": "IO",
+   "hasIsoCode": true,
+   "name": "Br. Indian Ocean Ter.",
+   "longName": "British Indian Ocean Territory",
+   "sovereign": "GBR",
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Seven seas (open ocean)",
+   "incomeGroup": "high",
+   "label": [
+    71.348,
+    -6.191
+   ]
+  },
+  {
+   "id": "BRA",
+   "iso2": "BR",
+   "hasIsoCode": true,
+   "name": "Brazil",
+   "longName": "Brazil",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -49.559,
+    -12.099
+   ]
+  },
+  {
+   "id": "VGB",
+   "iso2": "VG",
+   "hasIsoCode": true,
+   "name": "British Virgin Is.",
+   "longName": "British Virgin Islands",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -64.637,
+    18.427
+   ]
+  },
+  {
+   "id": "BRN",
+   "iso2": "BN",
+   "hasIsoCode": true,
+   "name": "Brunei",
+   "longName": "Brunei Darussalam",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    114.552,
+    4.448
+   ]
+  },
+  {
+   "id": "BGR",
+   "iso2": "BG",
+   "hasIsoCode": true,
+   "name": "Bulgaria",
+   "longName": "Bulgaria",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    25.157,
+    42.509
+   ]
+  },
+  {
+   "id": "BFA",
+   "iso2": "BF",
+   "hasIsoCode": true,
+   "name": "Burkina Faso",
+   "longName": "Burkina Faso",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -1.364,
+    12.673
+   ]
+  },
+  {
+   "id": "BDI",
+   "iso2": "BI",
+   "hasIsoCode": true,
+   "name": "Burundi",
+   "longName": "Burundi",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    29.917,
+    -3.333
+   ]
+  },
+  {
+   "id": "CPV",
+   "iso2": "CV",
+   "hasIsoCode": true,
+   "name": "Cabo Verde",
+   "longName": "Republic of Cabo Verde",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -23.639,
+    15.075
+   ]
+  },
+  {
+   "id": "KHM",
+   "iso2": "KH",
+   "hasIsoCode": true,
+   "name": "Cambodia",
+   "longName": "Cambodia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "low",
+   "label": [
+    104.505,
+    12.648
+   ]
+  },
+  {
+   "id": "CMR",
+   "iso2": "CM",
+   "hasIsoCode": true,
+   "name": "Cameroon",
+   "longName": "Cameroon",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    12.473,
+    4.585
+   ]
+  },
+  {
+   "id": "CAN",
+   "iso2": "CA",
+   "hasIsoCode": true,
+   "name": "Canada",
+   "longName": "Canada",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Northern America",
+   "incomeGroup": "high",
+   "label": [
+    -101.911,
+    60.324
+   ]
+  },
+  {
+   "id": "CYM",
+   "iso2": "KY",
+   "hasIsoCode": true,
+   "name": "Cayman Is.",
+   "longName": "Cayman Islands",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -81.241,
+    19.32
+   ]
+  },
+  {
+   "id": "CAF",
+   "iso2": "CF",
+   "hasIsoCode": true,
+   "name": "Central African Rep.",
+   "longName": "Central African Republic",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "low",
+   "label": [
+    20.907,
+    6.99
+   ]
+  },
+  {
+   "id": "TCD",
+   "iso2": "TD",
+   "hasIsoCode": true,
+   "name": "Chad",
+   "longName": "Chad",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "low",
+   "label": [
+    18.645,
+    15.143
+   ]
+  },
+  {
+   "id": "CHL",
+   "iso2": "CL",
+   "hasIsoCode": true,
+   "name": "Chile",
+   "longName": "Chile",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -72.319,
+    -38.152
+   ]
+  },
+  {
+   "id": "CHN",
+   "iso2": "CN",
+   "hasIsoCode": true,
+   "name": "China",
+   "longName": "China",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    106.337,
+    32.498
+   ]
+  },
+  {
+   "id": "COL",
+   "iso2": "CO",
+   "hasIsoCode": true,
+   "name": "Colombia",
+   "longName": "Colombia",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -73.174,
+    3.373
+   ]
+  },
+  {
+   "id": "COM",
+   "iso2": "KM",
+   "hasIsoCode": true,
+   "name": "Comoros",
+   "longName": "Comoros",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    43.318,
+    -11.728
+   ]
+  },
+  {
+   "id": "COG",
+   "iso2": "CG",
+   "hasIsoCode": true,
+   "name": "Congo",
+   "longName": "Republic of the Congo",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    15.901,
+    0.142
+   ]
+  },
+  {
+   "id": "COK",
+   "iso2": "CK",
+   "hasIsoCode": true,
+   "name": "Cook Is.",
+   "longName": "Cook Islands",
+   "sovereign": "NZL",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -159.786,
+    -21.216
+   ]
+  },
+  {
+   "id": "CRI",
+   "iso2": "CR",
+   "hasIsoCode": true,
+   "name": "Costa Rica",
+   "longName": "Costa Rica",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -84.078,
+    10.065
+   ]
+  },
+  {
+   "id": "CIV",
+   "iso2": "CI",
+   "hasIsoCode": true,
+   "name": "Côte d'Ivoire",
+   "longName": "Côte d'Ivoire",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -5.569,
+    7.491
+   ]
+  },
+  {
+   "id": "HRV",
+   "iso2": "HR",
+   "hasIsoCode": true,
+   "name": "Croatia",
+   "longName": "Croatia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    16.372,
+    45.806
+   ]
+  },
+  {
+   "id": "CUB",
+   "iso2": "CU",
+   "hasIsoCode": true,
+   "name": "Cuba",
+   "longName": "Cuba",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -77.976,
+    21.334
+   ]
+  },
+  {
+   "id": "CUW",
+   "iso2": "CW",
+   "hasIsoCode": true,
+   "name": "Curaçao",
+   "longName": "Curaçao",
+   "sovereign": "NLD",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -68.921,
+    12.145
+   ]
+  },
+  {
+   "id": "CYP",
+   "iso2": "CY",
+   "hasIsoCode": true,
+   "name": "Cyprus",
+   "longName": "Cyprus",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    33.084,
+    34.913
+   ]
+  },
+  {
+   "id": "CZE",
+   "iso2": "CZ",
+   "hasIsoCode": true,
+   "name": "Czechia",
+   "longName": "Czech Republic",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "high",
+   "label": [
+    15.378,
+    49.882
+   ]
+  },
+  {
+   "id": "COD",
+   "iso2": "CD",
+   "hasIsoCode": true,
+   "name": "Dem. Rep. Congo",
+   "longName": "Democratic Republic of the Congo",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "low",
+   "label": [
+    23.459,
+    -1.858
+   ]
+  },
+  {
+   "id": "DNK",
+   "iso2": "DK",
+   "hasIsoCode": true,
+   "name": "Denmark",
+   "longName": "Denmark",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    9.018,
+    55.967
+   ]
+  },
+  {
+   "id": "DJI",
+   "iso2": "DJ",
+   "hasIsoCode": true,
+   "name": "Djibouti",
+   "longName": "Djibouti",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    42.499,
+    11.976
+   ]
+  },
+  {
+   "id": "DMA",
+   "iso2": "DM",
+   "hasIsoCode": true,
+   "name": "Dominica",
+   "longName": "Dominica",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -61.345,
+    15.459
+   ]
+  },
+  {
+   "id": "DOM",
+   "iso2": "DO",
+   "hasIsoCode": true,
+   "name": "Dominican Rep.",
+   "longName": "Dominican Republic",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -70.654,
+    19.104
+   ]
+  },
+  {
+   "id": "ECU",
+   "iso2": "EC",
+   "hasIsoCode": true,
+   "name": "Ecuador",
+   "longName": "Ecuador",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -78.188,
+    -1.259
+   ]
+  },
+  {
+   "id": "EGY",
+   "iso2": "EG",
+   "hasIsoCode": true,
+   "name": "Egypt",
+   "longName": "Egypt",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    29.446,
+    26.186
+   ]
+  },
+  {
+   "id": "SLV",
+   "iso2": "SV",
+   "hasIsoCode": true,
+   "name": "El Salvador",
+   "longName": "El Salvador",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -88.89,
+    13.685
+   ]
+  },
+  {
+   "id": "GNQ",
+   "iso2": "GQ",
+   "hasIsoCode": true,
+   "name": "Eq. Guinea",
+   "longName": "Equatorial Guinea",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "high",
+   "label": [
+    8.99,
+    2.333
+   ]
+  },
+  {
+   "id": "ERI",
+   "iso2": "ER",
+   "hasIsoCode": true,
+   "name": "Eritrea",
+   "longName": "Eritrea",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    38.286,
+    15.787
+   ]
+  },
+  {
+   "id": "EST",
+   "iso2": "EE",
+   "hasIsoCode": true,
+   "name": "Estonia",
+   "longName": "Estonia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    25.867,
+    58.725
+   ]
+  },
+  {
+   "id": "SWZ",
+   "iso2": "SZ",
+   "hasIsoCode": true,
+   "name": "eSwatini",
+   "longName": "Kingdom of eSwatini",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    31.467,
+    -26.534
+   ]
+  },
+  {
+   "id": "ETH",
+   "iso2": "ET",
+   "hasIsoCode": true,
+   "name": "Ethiopia",
+   "longName": "Ethiopia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    39.089,
+    8.033
+   ]
+  },
+  {
+   "id": "FRO",
+   "iso2": "FO",
+   "hasIsoCode": true,
+   "name": "Faeroe Is.",
+   "longName": "Faeroe Islands",
+   "sovereign": "DNK",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -7.058,
+    62.186
+   ]
+  },
+  {
+   "id": "FLK",
+   "iso2": "FK",
+   "hasIsoCode": true,
+   "name": "Falkland Is.",
+   "longName": "Falkland Islands / Malvinas",
+   "sovereign": "GBR",
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "high",
+   "label": [
+    -58.739,
+    -51.609
+   ]
+  },
+  {
+   "id": "FJI",
+   "iso2": "FJ",
+   "hasIsoCode": true,
+   "name": "Fiji",
+   "longName": "Fiji",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    177.975,
+    -17.826
+   ]
+  },
+  {
+   "id": "FIN",
+   "iso2": "FI",
+   "hasIsoCode": true,
+   "name": "Finland",
+   "longName": "Finland",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    27.276,
+    63.252
+   ]
+  },
+  {
+   "id": "PYF",
+   "iso2": "PF",
+   "hasIsoCode": true,
+   "name": "Fr. Polynesia",
+   "longName": "French Polynesia",
+   "sovereign": "FRA",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "high",
+   "label": [
+    -149.462,
+    -17.628
+   ]
+  },
+  {
+   "id": "ATF",
+   "iso2": "TF",
+   "hasIsoCode": true,
+   "name": "Fr. S. Antarctic Lands",
+   "longName": "French Southern and Antarctic Lands",
+   "sovereign": "FRA",
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Seven seas (open ocean)",
+   "incomeGroup": "high",
+   "label": [
+    69.122,
+    -49.304
+   ]
+  },
+  {
+   "id": "FRA",
+   "iso2": "FR",
+   "hasIsoCode": true,
+   "name": "France",
+   "longName": "France",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    2.552,
+    46.696
+   ]
+  },
+  {
+   "id": "GAB",
+   "iso2": "GA",
+   "hasIsoCode": true,
+   "name": "Gabon",
+   "longName": "Gabon",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    11.836,
+    -0.438
+   ]
+  },
+  {
+   "id": "GMB",
+   "iso2": "GM",
+   "hasIsoCode": true,
+   "name": "Gambia",
+   "longName": "The Gambia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -14.998,
+    13.642
+   ]
+  },
+  {
+   "id": "GEO",
+   "iso2": "GE",
+   "hasIsoCode": true,
+   "name": "Georgia",
+   "longName": "Georgia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    43.736,
+    41.87
+   ]
+  },
+  {
+   "id": "DEU",
+   "iso2": "DE",
+   "hasIsoCode": true,
+   "name": "Germany",
+   "longName": "Germany",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    9.678,
+    50.962
+   ]
+  },
+  {
+   "id": "GHA",
+   "iso2": "GH",
+   "hasIsoCode": true,
+   "name": "Ghana",
+   "longName": "Ghana",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -1.037,
+    7.718
+   ]
+  },
+  {
+   "id": "GRC",
+   "iso2": "GR",
+   "hasIsoCode": true,
+   "name": "Greece",
+   "longName": "Greece",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    21.726,
+    39.493
+   ]
+  },
+  {
+   "id": "GRL",
+   "iso2": "GL",
+   "hasIsoCode": true,
+   "name": "Greenland",
+   "longName": "Greenland",
+   "sovereign": "DNK",
+   "continent": "North America",
+   "subregion": "Northern America",
+   "incomeGroup": "high",
+   "label": [
+    -39.335,
+    74.319
+   ]
+  },
+  {
+   "id": "GRD",
+   "iso2": "GD",
+   "hasIsoCode": true,
+   "name": "Grenada",
+   "longName": "Grenada",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -61.68,
+    12.113
+   ]
+  },
+  {
+   "id": "GUM",
+   "iso2": "GU",
+   "hasIsoCode": true,
+   "name": "Guam",
+   "longName": "Guam",
+   "sovereign": "USA",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "high",
+   "label": [
+    144.704,
+    13.354
+   ]
+  },
+  {
+   "id": "GTM",
+   "iso2": "GT",
+   "hasIsoCode": true,
+   "name": "Guatemala",
+   "longName": "Guatemala",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -90.497,
+    14.982
+   ]
+  },
+  {
+   "id": "GGY",
+   "iso2": "GG",
+   "hasIsoCode": true,
+   "name": "Guernsey",
+   "longName": "Guernsey",
+   "sovereign": "GBR",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -2.562,
+    49.464
+   ]
+  },
+  {
+   "id": "GIN",
+   "iso2": "GN",
+   "hasIsoCode": true,
+   "name": "Guinea",
+   "longName": "Guinea",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -10.016,
+    10.619
+   ]
+  },
+  {
+   "id": "GNB",
+   "iso2": "GW",
+   "hasIsoCode": true,
+   "name": "Guinea-Bissau",
+   "longName": "Guinea-Bissau",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -14.524,
+    12.164
+   ]
+  },
+  {
+   "id": "GUY",
+   "iso2": "GY",
+   "hasIsoCode": true,
+   "name": "Guyana",
+   "longName": "Guyana",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -58.943,
+    5.124
+   ]
+  },
+  {
+   "id": "HTI",
+   "iso2": "HT",
+   "hasIsoCode": true,
+   "name": "Haiti",
+   "longName": "Haiti",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "low",
+   "label": [
+    -72.224,
+    19.264
+   ]
+  },
+  {
+   "id": "HMD",
+   "iso2": "HM",
+   "hasIsoCode": true,
+   "name": "Heard I. and McDonald Is.",
+   "longName": "Heard I. and McDonald Islands",
+   "sovereign": "AUS",
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Seven seas (open ocean)",
+   "incomeGroup": "low",
+   "label": [
+    73.505,
+    -53.103
+   ]
+  },
+  {
+   "id": "HND",
+   "iso2": "HN",
+   "hasIsoCode": true,
+   "name": "Honduras",
+   "longName": "Honduras",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -86.888,
+    14.795
+   ]
+  },
+  {
+   "id": "HKG",
+   "iso2": "HK",
+   "hasIsoCode": true,
+   "name": "Hong Kong",
+   "longName": "Hong Kong",
+   "sovereign": "CHN",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    114.098,
+    22.449
+   ]
+  },
+  {
+   "id": "HUN",
+   "iso2": "HU",
+   "hasIsoCode": true,
+   "name": "Hungary",
+   "longName": "Hungary",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "high",
+   "label": [
+    19.448,
+    47.087
+   ]
+  },
+  {
+   "id": "ISL",
+   "iso2": "IS",
+   "hasIsoCode": true,
+   "name": "Iceland",
+   "longName": "Iceland",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -18.674,
+    64.779
+   ]
+  },
+  {
+   "id": "IND",
+   "iso2": "IN",
+   "hasIsoCode": true,
+   "name": "India",
+   "longName": "India",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    79.358,
+    22.687
+   ]
+  },
+  {
+   "id": "IDN",
+   "iso2": "ID",
+   "hasIsoCode": true,
+   "name": "Indonesia",
+   "longName": "Indonesia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    101.893,
+    -0.954
+   ]
+  },
+  {
+   "id": "IRN",
+   "iso2": "IR",
+   "hasIsoCode": true,
+   "name": "Iran",
+   "longName": "Iran",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    54.931,
+    32.166
+   ]
+  },
+  {
+   "id": "IRQ",
+   "iso2": "IQ",
+   "hasIsoCode": true,
+   "name": "Iraq",
+   "longName": "Iraq",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    43.262,
+    33.094
+   ]
+  },
+  {
+   "id": "IRL",
+   "iso2": "IE",
+   "hasIsoCode": true,
+   "name": "Ireland",
+   "longName": "Ireland",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -7.799,
+    53.079
+   ]
+  },
+  {
+   "id": "IMN",
+   "iso2": "IM",
+   "hasIsoCode": true,
+   "name": "Isle of Man",
+   "longName": "Isle of Man",
+   "sovereign": "GBR",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -4.53,
+    54.221
+   ]
+  },
+  {
+   "id": "ISR",
+   "iso2": "IL",
+   "hasIsoCode": true,
+   "name": "Israel",
+   "longName": "Israel",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    34.848,
+    30.911
+   ]
+  },
+  {
+   "id": "ITA",
+   "iso2": "IT",
+   "hasIsoCode": true,
+   "name": "Italy",
+   "longName": "Italy",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    11.077,
+    44.732
+   ]
+  },
+  {
+   "id": "JAM",
+   "iso2": "JM",
+   "hasIsoCode": true,
+   "name": "Jamaica",
+   "longName": "Jamaica",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -77.319,
+    18.137
+   ]
+  },
+  {
+   "id": "JPN",
+   "iso2": "JP",
+   "hasIsoCode": true,
+   "name": "Japan",
+   "longName": "Japan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    138.442,
+    36.143
+   ]
+  },
+  {
+   "id": "JEY",
+   "iso2": "JE",
+   "hasIsoCode": true,
+   "name": "Jersey",
+   "longName": "Jersey",
+   "sovereign": "GBR",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -2.09,
+    49.221
+   ]
+  },
+  {
+   "id": "JOR",
+   "iso2": "JO",
+   "hasIsoCode": true,
+   "name": "Jordan",
+   "longName": "Jordan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    36.376,
+    30.805
+   ]
+  },
+  {
+   "id": "KAZ",
+   "iso2": "KZ",
+   "hasIsoCode": true,
+   "name": "Kazakhstan",
+   "longName": "Kazakhstan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    68.686,
+    49.054
+   ]
+  },
+  {
+   "id": "KEN",
+   "iso2": "KE",
+   "hasIsoCode": true,
+   "name": "Kenya",
+   "longName": "Kenya",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    37.908,
+    0.549
+   ]
+  },
+  {
+   "id": "KIR",
+   "iso2": "KI",
+   "hasIsoCode": true,
+   "name": "Kiribati",
+   "longName": "Kiribati",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -157.385,
+    1.82
+   ]
+  },
+  {
+   "id": "XKX",
+   "iso2": "XK",
+   "hasIsoCode": false,
+   "name": "Kosovo",
+   "longName": "Kosovo",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "lower-middle",
+   "label": [
+    20.861,
+    42.594
+   ]
+  },
+  {
+   "id": "KWT",
+   "iso2": "KW",
+   "hasIsoCode": true,
+   "name": "Kuwait",
+   "longName": "Kuwait",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    47.314,
+    29.414
+   ]
+  },
+  {
+   "id": "KGZ",
+   "iso2": "KG",
+   "hasIsoCode": true,
+   "name": "Kyrgyzstan",
+   "longName": "Kyrgyzstan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "incomeGroup": "low",
+   "label": [
+    74.533,
+    41.669
+   ]
+  },
+  {
+   "id": "LAO",
+   "iso2": "LA",
+   "hasIsoCode": true,
+   "name": "Laos",
+   "longName": "Lao PDR",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    102.534,
+    19.432
+   ]
+  },
+  {
+   "id": "LVA",
+   "iso2": "LV",
+   "hasIsoCode": true,
+   "name": "Latvia",
+   "longName": "Latvia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    25.459,
+    57.067
+   ]
+  },
+  {
+   "id": "LBN",
+   "iso2": "LB",
+   "hasIsoCode": true,
+   "name": "Lebanon",
+   "longName": "Lebanon",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    35.993,
+    34.133
+   ]
+  },
+  {
+   "id": "LSO",
+   "iso2": "LS",
+   "hasIsoCode": true,
+   "name": "Lesotho",
+   "longName": "Lesotho",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    28.247,
+    -29.48
+   ]
+  },
+  {
+   "id": "LBR",
+   "iso2": "LR",
+   "hasIsoCode": true,
+   "name": "Liberia",
+   "longName": "Liberia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -9.46,
+    6.447
+   ]
+  },
+  {
+   "id": "LBY",
+   "iso2": "LY",
+   "hasIsoCode": true,
+   "name": "Libya",
+   "longName": "Libya",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    18.011,
+    26.639
+   ]
+  },
+  {
+   "id": "LIE",
+   "iso2": "LI",
+   "hasIsoCode": true,
+   "name": "Liechtenstein",
+   "longName": "Liechtenstein",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    9.559,
+    47.111
+   ]
+  },
+  {
+   "id": "LTU",
+   "iso2": "LT",
+   "hasIsoCode": true,
+   "name": "Lithuania",
+   "longName": "Lithuania",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    24.09,
+    55.104
+   ]
+  },
+  {
+   "id": "LUX",
+   "iso2": "LU",
+   "hasIsoCode": true,
+   "name": "Luxembourg",
+   "longName": "Luxembourg",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    6.078,
+    49.734
+   ]
+  },
+  {
+   "id": "MAC",
+   "iso2": "MO",
+   "hasIsoCode": true,
+   "name": "Macao",
+   "longName": "Macao",
+   "sovereign": "CHN",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    113.556,
+    22.13
+   ]
+  },
+  {
+   "id": "MDG",
+   "iso2": "MG",
+   "hasIsoCode": true,
+   "name": "Madagascar",
+   "longName": "Madagascar",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    46.704,
+    -18.628
+   ]
+  },
+  {
+   "id": "MWI",
+   "iso2": "MW",
+   "hasIsoCode": true,
+   "name": "Malawi",
+   "longName": "Malawi",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    33.608,
+    -13.387
+   ]
+  },
+  {
+   "id": "MYS",
+   "iso2": "MY",
+   "hasIsoCode": true,
+   "name": "Malaysia",
+   "longName": "Malaysia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    113.837,
+    2.529
+   ]
+  },
+  {
+   "id": "MDV",
+   "iso2": "MV",
+   "hasIsoCode": true,
+   "name": "Maldives",
+   "longName": "Maldives",
+   "sovereign": null,
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Southern Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    73.508,
+    4.174
+   ]
+  },
+  {
+   "id": "MLI",
+   "iso2": "ML",
+   "hasIsoCode": true,
+   "name": "Mali",
+   "longName": "Mali",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -2.038,
+    18.693
+   ]
+  },
+  {
+   "id": "MLT",
+   "iso2": "MT",
+   "hasIsoCode": true,
+   "name": "Malta",
+   "longName": "Malta",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    14.433,
+    35.893
+   ]
+  },
+  {
+   "id": "MHL",
+   "iso2": "MH",
+   "hasIsoCode": true,
+   "name": "Marshall Is.",
+   "longName": "Marshall Islands",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    171.194,
+    7.083
+   ]
+  },
+  {
+   "id": "MRT",
+   "iso2": "MR",
+   "hasIsoCode": true,
+   "name": "Mauritania",
+   "longName": "Mauritania",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -9.74,
+    19.587
+   ]
+  },
+  {
+   "id": "MUS",
+   "iso2": "MU",
+   "hasIsoCode": true,
+   "name": "Mauritius",
+   "longName": "Mauritius",
+   "sovereign": null,
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    57.566,
+    -20.3
+   ]
+  },
+  {
+   "id": "MEX",
+   "iso2": "MX",
+   "hasIsoCode": true,
+   "name": "Mexico",
+   "longName": "Mexico",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -102.289,
+    23.92
+   ]
+  },
+  {
+   "id": "FSM",
+   "iso2": "FM",
+   "hasIsoCode": true,
+   "name": "Micronesia",
+   "longName": "Federated States of Micronesia",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    158.234,
+    6.888
+   ]
+  },
+  {
+   "id": "MDA",
+   "iso2": "MD",
+   "hasIsoCode": true,
+   "name": "Moldova",
+   "longName": "Moldova",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "lower-middle",
+   "label": [
+    28.488,
+    47.435
+   ]
+  },
+  {
+   "id": "MCO",
+   "iso2": "MC",
+   "hasIsoCode": true,
+   "name": "Monaco",
+   "longName": "Monaco",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    7.398,
+    43.74
+   ]
+  },
+  {
+   "id": "MNG",
+   "iso2": "MN",
+   "hasIsoCode": true,
+   "name": "Mongolia",
+   "longName": "Mongolia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    104.15,
+    45.997
+   ]
+  },
+  {
+   "id": "MNE",
+   "iso2": "ME",
+   "hasIsoCode": true,
+   "name": "Montenegro",
+   "longName": "Montenegro",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    19.144,
+    42.803
+   ]
+  },
+  {
+   "id": "MSR",
+   "iso2": "MS",
+   "hasIsoCode": true,
+   "name": "Montserrat",
+   "longName": "Montserrat",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -62.188,
+    16.737
+   ]
+  },
+  {
+   "id": "MAR",
+   "iso2": "MA",
+   "hasIsoCode": true,
+   "name": "Morocco",
+   "longName": "Morocco",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -7.187,
+    31.651
+   ]
+  },
+  {
+   "id": "MOZ",
+   "iso2": "MZ",
+   "hasIsoCode": true,
+   "name": "Mozambique",
+   "longName": "Mozambique",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    37.838,
+    -13.943
+   ]
+  },
+  {
+   "id": "MMR",
+   "iso2": "MM",
+   "hasIsoCode": true,
+   "name": "Myanmar",
+   "longName": "Myanmar",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "low",
+   "label": [
+    95.804,
+    21.574
+   ]
+  },
+  {
+   "id": "CYN",
+   "iso2": null,
+   "hasIsoCode": false,
+   "name": "N. Cyprus",
+   "longName": "Northern Cyprus",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    33.692,
+    35.216
+   ]
+  },
+  {
+   "id": "MNP",
+   "iso2": "MP",
+   "hasIsoCode": true,
+   "name": "N. Mariana Is.",
+   "longName": "Northern Mariana Islands",
+   "sovereign": "USA",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "high",
+   "label": [
+    145.734,
+    15.188
+   ]
+  },
+  {
+   "id": "NAM",
+   "iso2": "NA",
+   "hasIsoCode": true,
+   "name": "Namibia",
+   "longName": "Namibia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    17.108,
+    -20.575
+   ]
+  },
+  {
+   "id": "NRU",
+   "iso2": "NR",
+   "hasIsoCode": true,
+   "name": "Nauru",
+   "longName": "Nauru",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    166.933,
+    -0.52
+   ]
+  },
+  {
+   "id": "NPL",
+   "iso2": "NP",
+   "hasIsoCode": true,
+   "name": "Nepal",
+   "longName": "Nepal",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "low",
+   "label": [
+    83.64,
+    28.298
+   ]
+  },
+  {
+   "id": "NLD",
+   "iso2": "NL",
+   "hasIsoCode": true,
+   "name": "Netherlands",
+   "longName": "Netherlands",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    5.611,
+    52.422
+   ]
+  },
+  {
+   "id": "NCL",
+   "iso2": "NC",
+   "hasIsoCode": true,
+   "name": "New Caledonia",
+   "longName": "New Caledonia",
+   "sovereign": "FRA",
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "incomeGroup": "high",
+   "label": [
+    165.084,
+    -21.065
+   ]
+  },
+  {
+   "id": "NZL",
+   "iso2": "NZ",
+   "hasIsoCode": true,
+   "name": "New Zealand",
+   "longName": "New Zealand",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Australia and New Zealand",
+   "incomeGroup": "high",
+   "label": [
+    172.787,
+    -39.759
+   ]
+  },
+  {
+   "id": "NIC",
+   "iso2": "NI",
+   "hasIsoCode": true,
+   "name": "Nicaragua",
+   "longName": "Nicaragua",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -85.069,
+    12.671
+   ]
+  },
+  {
+   "id": "NER",
+   "iso2": "NE",
+   "hasIsoCode": true,
+   "name": "Niger",
+   "longName": "Niger",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    9.504,
+    17.446
+   ]
+  },
+  {
+   "id": "NGA",
+   "iso2": "NG",
+   "hasIsoCode": true,
+   "name": "Nigeria",
+   "longName": "Nigeria",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    7.503,
+    9.44
+   ]
+  },
+  {
+   "id": "NIU",
+   "iso2": "NU",
+   "hasIsoCode": true,
+   "name": "Niue",
+   "longName": "Niue",
+   "sovereign": "NZL",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -169.863,
+    -19.046
+   ]
+  },
+  {
+   "id": "NFK",
+   "iso2": "NF",
+   "hasIsoCode": true,
+   "name": "Norfolk Island",
+   "longName": "Norfolk Island",
+   "sovereign": "AUS",
+   "continent": "Oceania",
+   "subregion": "Australia and New Zealand",
+   "incomeGroup": "lower-middle",
+   "label": [
+    167.955,
+    -29.033
+   ]
+  },
+  {
+   "id": "PRK",
+   "iso2": "KP",
+   "hasIsoCode": true,
+   "name": "North Korea",
+   "longName": "Dem. Rep. Korea",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "low",
+   "label": [
+    126.445,
+    39.885
+   ]
+  },
+  {
+   "id": "MKD",
+   "iso2": "MK",
+   "hasIsoCode": true,
+   "name": "North Macedonia",
+   "longName": "North Macedonia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    21.556,
+    41.558
+   ]
+  },
+  {
+   "id": "NOR",
+   "iso2": "NO",
+   "hasIsoCode": true,
+   "name": "Norway",
+   "longName": "Norway",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    9.68,
+    61.357
+   ]
+  },
+  {
+   "id": "OMN",
+   "iso2": "OM",
+   "hasIsoCode": true,
+   "name": "Oman",
+   "longName": "Oman",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    57.337,
+    22.12
+   ]
+  },
+  {
+   "id": "PAK",
+   "iso2": "PK",
+   "hasIsoCode": true,
+   "name": "Pakistan",
+   "longName": "Pakistan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    68.546,
+    29.328
+   ]
+  },
+  {
+   "id": "PLW",
+   "iso2": "PW",
+   "hasIsoCode": true,
+   "name": "Palau",
+   "longName": "Palau",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    134.58,
+    7.518
+   ]
+  },
+  {
+   "id": "PSE",
+   "iso2": "PS",
+   "hasIsoCode": true,
+   "name": "Palestine",
+   "longName": "Palestine",
+   "sovereign": "ISR",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    35.291,
+    32.047
+   ]
+  },
+  {
+   "id": "PAN",
+   "iso2": "PA",
+   "hasIsoCode": true,
+   "name": "Panama",
+   "longName": "Panama",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Central America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -80.352,
+    8.722
+   ]
+  },
+  {
+   "id": "PNG",
+   "iso2": "PG",
+   "hasIsoCode": true,
+   "name": "Papua New Guinea",
+   "longName": "Papua New Guinea",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    143.91,
+    -5.695
+   ]
+  },
+  {
+   "id": "PRY",
+   "iso2": "PY",
+   "hasIsoCode": true,
+   "name": "Paraguay",
+   "longName": "Paraguay",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -60.146,
+    -21.675
+   ]
+  },
+  {
+   "id": "PER",
+   "iso2": "PE",
+   "hasIsoCode": true,
+   "name": "Peru",
+   "longName": "Peru",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -72.9,
+    -12.977
+   ]
+  },
+  {
+   "id": "PHL",
+   "iso2": "PH",
+   "hasIsoCode": true,
+   "name": "Philippines",
+   "longName": "Philippines",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    122.465,
+    11.198
+   ]
+  },
+  {
+   "id": "PCN",
+   "iso2": "PN",
+   "hasIsoCode": true,
+   "name": "Pitcairn Is.",
+   "longName": "Pitcairn Islands",
+   "sovereign": "GBR",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "low",
+   "label": [
+    -128.318,
+    -24.365
+   ]
+  },
+  {
+   "id": "POL",
+   "iso2": "PL",
+   "hasIsoCode": true,
+   "name": "Poland",
+   "longName": "Poland",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "high",
+   "label": [
+    19.49,
+    51.99
+   ]
+  },
+  {
+   "id": "PRT",
+   "iso2": "PT",
+   "hasIsoCode": true,
+   "name": "Portugal",
+   "longName": "Portugal",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -8.272,
+    39.607
+   ]
+  },
+  {
+   "id": "PRI",
+   "iso2": "PR",
+   "hasIsoCode": true,
+   "name": "Puerto Rico",
+   "longName": "Puerto Rico",
+   "sovereign": "USA",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -66.481,
+    18.235
+   ]
+  },
+  {
+   "id": "QAT",
+   "iso2": "QA",
+   "hasIsoCode": true,
+   "name": "Qatar",
+   "longName": "Qatar",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    51.144,
+    25.237
+   ]
+  },
+  {
+   "id": "ROU",
+   "iso2": "RO",
+   "hasIsoCode": true,
+   "name": "Romania",
+   "longName": "Romania",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    24.973,
+    45.733
+   ]
+  },
+  {
+   "id": "RUS",
+   "iso2": "RU",
+   "hasIsoCode": true,
+   "name": "Russia",
+   "longName": "Russian Federation",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    44.686,
+    58.249
+   ]
+  },
+  {
+   "id": "RWA",
+   "iso2": "RW",
+   "hasIsoCode": true,
+   "name": "Rwanda",
+   "longName": "Rwanda",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    30.104,
+    -1.897
+   ]
+  },
+  {
+   "id": "SGS",
+   "iso2": "GS",
+   "hasIsoCode": true,
+   "name": "S. Geo. and the Is.",
+   "longName": "South Georgia and the Islands",
+   "sovereign": "GBR",
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Seven seas (open ocean)",
+   "incomeGroup": "low",
+   "label": [
+    -31.063,
+    -55.683
+   ]
+  },
+  {
+   "id": "SSD",
+   "iso2": "SS",
+   "hasIsoCode": true,
+   "name": "S. Sudan",
+   "longName": "South Sudan",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    30.39,
+    7.23
+   ]
+  },
+  {
+   "id": "SHN",
+   "iso2": "SH",
+   "hasIsoCode": true,
+   "name": "Saint Helena",
+   "longName": "Saint Helena",
+   "sovereign": "GBR",
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -5.713,
+    -15.95
+   ]
+  },
+  {
+   "id": "LCA",
+   "iso2": "LC",
+   "hasIsoCode": true,
+   "name": "Saint Lucia",
+   "longName": "Saint Lucia",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -60.98,
+    13.892
+   ]
+  },
+  {
+   "id": "WSM",
+   "iso2": "WS",
+   "hasIsoCode": true,
+   "name": "Samoa",
+   "longName": "Samoa",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -172.438,
+    -13.639
+   ]
+  },
+  {
+   "id": "SMR",
+   "iso2": "SM",
+   "hasIsoCode": true,
+   "name": "San Marino",
+   "longName": "San Marino",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    12.441,
+    43.934
+   ]
+  },
+  {
+   "id": "STP",
+   "iso2": "ST",
+   "hasIsoCode": true,
+   "name": "São Tomé and Principe",
+   "longName": "São Tomé and Principe",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    7.021,
+    0.971
+   ]
+  },
+  {
+   "id": "SAU",
+   "iso2": "SA",
+   "hasIsoCode": true,
+   "name": "Saudi Arabia",
+   "longName": "Saudi Arabia",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    44.7,
+    23.807
+   ]
+  },
+  {
+   "id": "SEN",
+   "iso2": "SN",
+   "hasIsoCode": true,
+   "name": "Senegal",
+   "longName": "Senegal",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -14.779,
+    15.138
+   ]
+  },
+  {
+   "id": "SRB",
+   "iso2": "RS",
+   "hasIsoCode": true,
+   "name": "Serbia",
+   "longName": "Serbia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "upper-middle",
+   "label": [
+    20.788,
+    44.19
+   ]
+  },
+  {
+   "id": "SYC",
+   "iso2": "SC",
+   "hasIsoCode": true,
+   "name": "Seychelles",
+   "longName": "Seychelles",
+   "sovereign": null,
+   "continent": "Seven seas (open ocean)",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    55.48,
+    -4.677
+   ]
+  },
+  {
+   "id": "KAS",
+   "iso2": null,
+   "hasIsoCode": false,
+   "name": "Siachen Glacier",
+   "longName": "Siachen Glacier",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    77.13,
+    35.341
+   ]
+  },
+  {
+   "id": "SLE",
+   "iso2": "SL",
+   "hasIsoCode": true,
+   "name": "Sierra Leone",
+   "longName": "Sierra Leone",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    -11.764,
+    8.617
+   ]
+  },
+  {
+   "id": "SGP",
+   "iso2": "SG",
+   "hasIsoCode": true,
+   "name": "Singapore",
+   "longName": "Singapore",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    103.817,
+    1.367
+   ]
+  },
+  {
+   "id": "SXM",
+   "iso2": "SX",
+   "hasIsoCode": true,
+   "name": "Sint Maarten",
+   "longName": "Sint Maarten",
+   "sovereign": "NLD",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -63.07,
+    18.041
+   ]
+  },
+  {
+   "id": "SVK",
+   "iso2": "SK",
+   "hasIsoCode": true,
+   "name": "Slovakia",
+   "longName": "Slovakia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "high",
+   "label": [
+    19.05,
+    48.734
+   ]
+  },
+  {
+   "id": "SVN",
+   "iso2": "SI",
+   "hasIsoCode": true,
+   "name": "Slovenia",
+   "longName": "Slovenia",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    14.915,
+    46.061
+   ]
+  },
+  {
+   "id": "SLB",
+   "iso2": "SB",
+   "hasIsoCode": true,
+   "name": "Solomon Is.",
+   "longName": "Solomon Islands",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    159.17,
+    -8.03
+   ]
+  },
+  {
+   "id": "SOM",
+   "iso2": "SO",
+   "hasIsoCode": true,
+   "name": "Somalia",
+   "longName": "Somalia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    45.192,
+    3.569
+   ]
+  },
+  {
+   "id": "SOL",
+   "iso2": null,
+   "hasIsoCode": false,
+   "name": "Somaliland",
+   "longName": "Somaliland",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    46.732,
+    9.444
+   ]
+  },
+  {
+   "id": "ZAF",
+   "iso2": "ZA",
+   "hasIsoCode": true,
+   "name": "South Africa",
+   "longName": "South Africa",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    23.666,
+    -29.709
+   ]
+  },
+  {
+   "id": "KOR",
+   "iso2": "KR",
+   "hasIsoCode": true,
+   "name": "South Korea",
+   "longName": "Republic of Korea",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    128.13,
+    36.385
+   ]
+  },
+  {
+   "id": "ESP",
+   "iso2": "ES",
+   "hasIsoCode": true,
+   "name": "Spain",
+   "longName": "Spain",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -3.465,
+    40.091
+   ]
+  },
+  {
+   "id": "LKA",
+   "iso2": "LK",
+   "hasIsoCode": true,
+   "name": "Sri Lanka",
+   "longName": "Sri Lanka",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    80.705,
+    7.581
+   ]
+  },
+  {
+   "id": "BLM",
+   "iso2": "BL",
+   "hasIsoCode": true,
+   "name": "St-Barthélemy",
+   "longName": "Saint-Barthélemy",
+   "sovereign": "FRA",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -62.833,
+    17.902
+   ]
+  },
+  {
+   "id": "MAF",
+   "iso2": "MF",
+   "hasIsoCode": true,
+   "name": "St-Martin",
+   "longName": "Saint-Martin",
+   "sovereign": "FRA",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -63.049,
+    18.081
+   ]
+  },
+  {
+   "id": "KNA",
+   "iso2": "KN",
+   "hasIsoCode": true,
+   "name": "St. Kitts and Nevis",
+   "longName": "Saint Kitts and Nevis",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -62.758,
+    17.337
+   ]
+  },
+  {
+   "id": "SPM",
+   "iso2": "PM",
+   "hasIsoCode": true,
+   "name": "St. Pierre and Miquelon",
+   "longName": "Saint Pierre and Miquelon",
+   "sovereign": "FRA",
+   "continent": "North America",
+   "subregion": "Northern America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -56.332,
+    47.04
+   ]
+  },
+  {
+   "id": "VCT",
+   "iso2": "VC",
+   "hasIsoCode": true,
+   "name": "St. Vin. and Gren.",
+   "longName": "Saint Vincent and the Grenadines",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -61.336,
+    13.088
+   ]
+  },
+  {
+   "id": "SDN",
+   "iso2": "SD",
+   "hasIsoCode": true,
+   "name": "Sudan",
+   "longName": "Sudan",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    29.261,
+    16.331
+   ]
+  },
+  {
+   "id": "SUR",
+   "iso2": "SR",
+   "hasIsoCode": true,
+   "name": "Suriname",
+   "longName": "Suriname",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -55.911,
+    4.144
+   ]
+  },
+  {
+   "id": "SWE",
+   "iso2": "SE",
+   "hasIsoCode": true,
+   "name": "Sweden",
+   "longName": "Sweden",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    19.017,
+    65.859
+   ]
+  },
+  {
+   "id": "CHE",
+   "iso2": "CH",
+   "hasIsoCode": true,
+   "name": "Switzerland",
+   "longName": "Switzerland",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "incomeGroup": "high",
+   "label": [
+    7.464,
+    46.719
+   ]
+  },
+  {
+   "id": "SYR",
+   "iso2": "SY",
+   "hasIsoCode": true,
+   "name": "Syria",
+   "longName": "Syria",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    38.278,
+    35.007
+   ]
+  },
+  {
+   "id": "TWN",
+   "iso2": "TW",
+   "hasIsoCode": true,
+   "name": "Taiwan",
+   "longName": "Taiwan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "incomeGroup": "high",
+   "label": [
+    120.868,
+    23.652
+   ]
+  },
+  {
+   "id": "TJK",
+   "iso2": "TJ",
+   "hasIsoCode": true,
+   "name": "Tajikistan",
+   "longName": "Tajikistan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "incomeGroup": "low",
+   "label": [
+    72.587,
+    38.2
+   ]
+  },
+  {
+   "id": "TZA",
+   "iso2": "TZ",
+   "hasIsoCode": true,
+   "name": "Tanzania",
+   "longName": "Tanzania",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    34.959,
+    -6.052
+   ]
+  },
+  {
+   "id": "THA",
+   "iso2": "TH",
+   "hasIsoCode": true,
+   "name": "Thailand",
+   "longName": "Thailand",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    101.073,
+    15.46
+   ]
+  },
+  {
+   "id": "TLS",
+   "iso2": "TL",
+   "hasIsoCode": true,
+   "name": "Timor-Leste",
+   "longName": "Timor-Leste",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    125.855,
+    -8.804
+   ]
+  },
+  {
+   "id": "TGO",
+   "iso2": "TG",
+   "hasIsoCode": true,
+   "name": "Togo",
+   "longName": "Togo",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "incomeGroup": "low",
+   "label": [
+    1.058,
+    8.807
+   ]
+  },
+  {
+   "id": "TON",
+   "iso2": "TO",
+   "hasIsoCode": true,
+   "name": "Tonga",
+   "longName": "Tonga",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -175.163,
+    -21.21
+   ]
+  },
+  {
+   "id": "TTO",
+   "iso2": "TT",
+   "hasIsoCode": true,
+   "name": "Trinidad and Tobago",
+   "longName": "Trinidad and Tobago",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -60.918,
+    10.999
+   ]
+  },
+  {
+   "id": "TUN",
+   "iso2": "TN",
+   "hasIsoCode": true,
+   "name": "Tunisia",
+   "longName": "Tunisia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "upper-middle",
+   "label": [
+    9.008,
+    33.687
+   ]
+  },
+  {
+   "id": "TUR",
+   "iso2": "TR",
+   "hasIsoCode": true,
+   "name": "Turkey",
+   "longName": "Turkey",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    34.508,
+    39.345
+   ]
+  },
+  {
+   "id": "TKM",
+   "iso2": "TM",
+   "hasIsoCode": true,
+   "name": "Turkmenistan",
+   "longName": "Turkmenistan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    58.677,
+    39.855
+   ]
+  },
+  {
+   "id": "TCA",
+   "iso2": "TC",
+   "hasIsoCode": true,
+   "name": "Turks and Caicos Is.",
+   "longName": "Turks and Caicos Islands",
+   "sovereign": "GBR",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -71.753,
+    21.817
+   ]
+  },
+  {
+   "id": "TUV",
+   "iso2": "TV",
+   "hasIsoCode": true,
+   "name": "Tuvalu",
+   "longName": "Tuvalu",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "upper-middle",
+   "label": [
+    179.21,
+    -8.514
+   ]
+  },
+  {
+   "id": "VIR",
+   "iso2": "VI",
+   "hasIsoCode": true,
+   "name": "U.S. Virgin Is.",
+   "longName": "United States Virgin Islands",
+   "sovereign": "USA",
+   "continent": "North America",
+   "subregion": "Caribbean",
+   "incomeGroup": "high",
+   "label": [
+    -64.779,
+    17.747
+   ]
+  },
+  {
+   "id": "UGA",
+   "iso2": "UG",
+   "hasIsoCode": true,
+   "name": "Uganda",
+   "longName": "Uganda",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    32.949,
+    1.973
+   ]
+  },
+  {
+   "id": "UKR",
+   "iso2": "UA",
+   "hasIsoCode": true,
+   "name": "Ukraine",
+   "longName": "Ukraine",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "incomeGroup": "lower-middle",
+   "label": [
+    32.141,
+    49.725
+   ]
+  },
+  {
+   "id": "ARE",
+   "iso2": "AE",
+   "hasIsoCode": true,
+   "name": "United Arab Emirates",
+   "longName": "United Arab Emirates",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "high",
+   "label": [
+    54.547,
+    23.466
+   ]
+  },
+  {
+   "id": "GBR",
+   "iso2": "GB",
+   "hasIsoCode": true,
+   "name": "United Kingdom",
+   "longName": "United Kingdom",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "incomeGroup": "high",
+   "label": [
+    -2.116,
+    54.403
+   ]
+  },
+  {
+   "id": "USA",
+   "iso2": "US",
+   "hasIsoCode": true,
+   "name": "United States of America",
+   "longName": "United States",
+   "sovereign": null,
+   "continent": "North America",
+   "subregion": "Northern America",
+   "incomeGroup": "high",
+   "label": [
+    -97.483,
+    39.538
+   ]
+  },
+  {
+   "id": "URY",
+   "iso2": "UY",
+   "hasIsoCode": true,
+   "name": "Uruguay",
+   "longName": "Uruguay",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -55.967,
+    -32.961
+   ]
+  },
+  {
+   "id": "UZB",
+   "iso2": "UZ",
+   "hasIsoCode": true,
+   "name": "Uzbekistan",
+   "longName": "Uzbekistan",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    64.005,
+    41.694
+   ]
+  },
+  {
+   "id": "VUT",
+   "iso2": "VU",
+   "hasIsoCode": true,
+   "name": "Vanuatu",
+   "longName": "Vanuatu",
+   "sovereign": null,
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    166.909,
+    -15.372
+   ]
+  },
+  {
+   "id": "VAT",
+   "iso2": "VA",
+   "hasIsoCode": true,
+   "name": "Vatican",
+   "longName": "Vatican",
+   "sovereign": null,
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "incomeGroup": "high",
+   "label": [
+    12.453,
+    41.903
+   ]
+  },
+  {
+   "id": "VEN",
+   "iso2": "VE",
+   "hasIsoCode": true,
+   "name": "Venezuela",
+   "longName": "Venezuela",
+   "sovereign": null,
+   "continent": "South America",
+   "subregion": "South America",
+   "incomeGroup": "upper-middle",
+   "label": [
+    -64.599,
+    7.182
+   ]
+  },
+  {
+   "id": "VNM",
+   "iso2": "VN",
+   "hasIsoCode": true,
+   "name": "Vietnam",
+   "longName": "Vietnam",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    105.387,
+    21.715
+   ]
+  },
+  {
+   "id": "ESH",
+   "iso2": "EH",
+   "hasIsoCode": true,
+   "name": "W. Sahara",
+   "longName": "Western Sahara",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "incomeGroup": "low",
+   "label": [
+    -12.63,
+    23.968
+   ]
+  },
+  {
+   "id": "WLF",
+   "iso2": "WF",
+   "hasIsoCode": true,
+   "name": "Wallis and Futuna Is.",
+   "longName": "Wallis and Futuna Islands",
+   "sovereign": "FRA",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    -178.137,
+    -14.286
+   ]
+  },
+  {
+   "id": "YEM",
+   "iso2": "YE",
+   "hasIsoCode": true,
+   "name": "Yemen",
+   "longName": "Yemen",
+   "sovereign": null,
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "incomeGroup": "lower-middle",
+   "label": [
+    45.874,
+    15.328
+   ]
+  },
+  {
+   "id": "ZMB",
+   "iso2": "ZM",
+   "hasIsoCode": true,
+   "name": "Zambia",
+   "longName": "Zambia",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "lower-middle",
+   "label": [
+    26.395,
+    -14.661
+   ]
+  },
+  {
+   "id": "ZWE",
+   "iso2": "ZW",
+   "hasIsoCode": true,
+   "name": "Zimbabwe",
+   "longName": "Zimbabwe",
+   "sovereign": null,
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "incomeGroup": "low",
+   "label": [
+    29.925,
+    -18.912
+   ]
+  }
+ ]
+}

@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Downloaded source data (lesson 02): re-created by the scripts in scripts/
+/scripts/.cache
