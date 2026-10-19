@@ -1,0 +1,92 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 05">
+  <h1>Countries on the sphere</h1>
+  <p>The <a routerLink="/">globe</a> now shows land, sea and every border, and it's the default view. Two layers do it: an <strong>ID map</strong> that tells the shader which country each point of the surface belongs to, and <strong>border lines</strong> drawn on top.</p>
+
+  <h2>1. The ID map: a picture of country numbers</h2>
+  <pre><code>4096 × 2048 pixels, 1 byte each
+0  = ocean
+1  = features[0]  (the first country)
+…
+240 = features[239]</code></pre>
+  <ul>
+    <li>It's an <strong>equirectangular</strong> image: column = longitude, row = latitude. One pixel ≈ 10 km at the equator.</li>
+    <li>The globe uses it now to colour land vs sea. Lesson 06 uses it for picking (which country is under the pointer), and lesson 09 for colouring each country by its data. One texture, three jobs.</li>
+    <li>One byte per pixel (<code>RedFormat</code>), so 8 MB on the GPU, and up to 255 countries. We have 240.</li>
+    <li>Sampled with <code>NearestFilter</code>, never blended. Halfway between country 12 and country 40 must not read as country 26.</li>
+  </ul>
+
+  <h2>2. Why not draw it with D3 on a canvas?</h2>
+  <p>The plan was <code>geoPath(projection, ctx)</code> on a <code>&lt;canvas&gt;</code>, with each country filled in its own colour. The problem: canvas <strong>anti-aliases</strong> every edge. A border pixel that is half country 12 and half country 40 is painted as a blend, and that blend decodes as some third country. Canvas has no switch to turn this off for shapes.</p>
+  <p>So <code>globe/id-map.ts</code> fills the polygons itself, with a <strong>scanline fill</strong>:</p>
+  <pre><code>for each pixel row:
+  find where the row's centre line crosses the country's edges
+  sort the crossings
+  fill between pairs: 1st→2nd inside, 2nd→3rd outside, 3rd→4th inside…</code></pre>
+  <ul>
+    <li>Each pixel is fully inside one country or not, so no blends. It takes about 90 ms for the whole world, once, when the data arrives.</li>
+    <li>The inside/outside alternation (the "even-odd rule") handles holes for free: Lesotho is a hole in South Africa, and Lesotho's own pixels fill it.</li>
+    <li>Tested before wiring it in: Paris → FRA, Maseru → LSO, Johannesburg → ZAF, Fiji and Chukotka on both sides of the 180° line, Rome's centre → VAT.</li>
+  </ul>
+
+  <h2>3. Microstates: two bugs</h2>
+  <ul>
+    <li><strong>Too small to fill:</strong> Vatican City and Monaco are smaller than a pixel, so no pixel centre falls inside them. Each gets its label pixel in a second pass, after all the fills, so Italy can't paint over the Vatican.</li>
+    <li><strong>Sharing an island:</strong> Saint-Martin and Sint Maarten share one island. Sint Maarten got exactly one pixel from the fill, and Saint-Martin's label pixel landed on it, so Sint Maarten disappeared. Now the second pass never takes another country's last pixel; it moves to a free neighbour. All 240 countries own at least one pixel.</li>
+  </ul>
+
+  <h2>4. The shader: from a surface point to a pixel</h2>
+  <pre><code>vec3 p = normalize(vPosition);   // the point on the sphere
+float lon = atan(p.x, p.z);      // inverse of lonLatToVector3 (lesson 04)
+float lat = asin(p.y);
+vec2 uv = vec2(lon / 2π + 0.5, 0.5 - lat / π);
+float id = texture2D(idMap, uv).r * 255.0;</code></pre>
+  <ul>
+    <li>The texture position is computed per pixel from the surface point, with the inverse of lesson 04's formula, instead of using <code>SphereGeometry</code>'s built-in UVs. Those start at longitude −90°, so every country would land a quarter turn away.</li>
+    <li>The Earth is now a <code>ShaderMaterial</code> (<code>globe/earth-material.ts</code>) and does its own simple lighting, from a direction fixed to the camera. The Three.js lights from lesson 04 are gone.</li>
+    <li><code>#include &lt;colorspace_fragment&gt;</code> at the end converts to the screen's colour space, so <code>#263044</code> in the code looks like <code>#263044</code> on screen, the same as the flat map.</li>
+  </ul>
+
+  <h2>5. Borders: <code>mesh()</code> and densified lines</h2>
+  <ul>
+    <li><code>Boundaries.borders</code> uses <code>topojson-client</code>'s <code>mesh()</code>: every border and coastline exactly once. From the features, the France–Spain border would be drawn twice, once per country.</li>
+    <li>Long straight edges are cut into 1° steps (<code>sphereLinePositions</code>). The USA–Canada border along the 49th parallel is only a few points; drawn directly, it would cut through the sphere instead of following the surface.</li>
+    <li>The lines lie exactly on the surface (radius 1). To stop them flickering against it (z-fighting, two things at the same depth), the Earth material uses <code>polygonOffset</code>: its depth is pushed back a hair, so lines on it always win.</li>
+  </ul>
+
+  <h2>5b. Bug: coastlines drifting off the land</h2>
+  <ul>
+    <li>Zoomed in, Portugal's coastline floated out into the Atlantic and Italy's Adriatic coast drifted into the sea. Both moved <em>away from the centre of the view</em>, which points to <strong>parallax</strong>, not wrong data.</li>
+    <li>Cause 1: the first version lifted the lines to radius 1.0015, about 10 km above the surface, to avoid z-fighting. Seen at an angle, anything floating above the surface shifts sideways on screen, and the further from the centre, the more it shifts.</li>
+    <li>Cause 2: a <code>SphereGeometry</code> is made of flat triangles, which sag below the true sphere between their corners: up to 3.4 km with 96 × 64 segments. The fill is drawn on that sagging surface, the lines on the true sphere.</li>
+    <li>Fix: lines at radius 1 plus <code>polygonOffset</code> instead of lifting them, and 192 × 128 segments (sag under 1 km). Same idea as a GIS app drawing labels "on" a terrain: offset the depth, not the geometry.</li>
+    <li>What remains: the fill's edge is stair-stepped at the ID map's resolution (one pixel ≈ 10 km), visible only when zoomed far in. An 8192-wide map would halve that, but not every device supports textures that large.</li>
+  </ul>
+
+  <h2>6. Bug: borders that sometimes didn't show</h2>
+  <ul>
+    <li>The data arrives after the globe is created, so the border geometry starts empty and gets its points later. Three.js computes a geometry's bounding sphere on the first render, and caches it.</li>
+    <li>Depending on load order, the cached sphere was the empty one, and frustum culling ("is this object on screen?") decided the borders never were. One reload showed them, the next didn't.</li>
+    <li>Fix: <code>computeBoundingSphere()</code> each time new points are set. Worth remembering: any geometry whose points change after the first render needs it.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>globe/id-map.ts</code>: the scanline rasterizer</li>
+    <li><code>globe/earth-material.ts</code>: the Earth shader</li>
+    <li><code>globe/geo.ts</code>: <code>sphereLinePositions</code> (densified border lines)</li>
+    <li><code>globe/globe.ts</code>: <code>features</code> and <code>borders</code> inputs, the ID map texture, the border lines, cleanup</li>
+    <li><code>data/boundaries.ts</code>: <code>borders</code> from <code>mesh()</code></li>
+    <li><code>pages/explorer/*</code>: data passed to the globe; the globe is the default view</li>
+    <li><code>lessons/lesson-countries-globe/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Zoom into Europe and rotate Portugal and the Adriatic towards the edge of the globe: coastlines stay on the edge of the land fill</li>
+    <li>Rotate to the Pacific: Fiji and the tip of Russia across the 180° line, with no seam in the fill</li>
+    <li>Look at the poles: Antarctica fills to the pole without a pinch</li>
+    <li>Find Lesotho (inside South Africa) and Italy: the hole and the boot are there</li>
+    <li>Reload a few times: the borders always show</li>
+  </ul>
+</app-lesson-page>

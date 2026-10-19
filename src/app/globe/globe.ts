@@ -1,11 +1,18 @@
 import { afterNextRender, Component, DestroyRef, effect, ElementRef, inject, Injector, input, output, viewChild } from '@angular/core';
 import {
-  AdditiveBlending, AmbientLight, BackSide, BufferAttribute, BufferGeometry, Color, DirectionalLight, LineBasicMaterial, LineSegments, Mesh,
-  MeshStandardMaterial, PerspectiveCamera, Scene, ShaderMaterial, SphereGeometry, WebGLRenderer
+  AdditiveBlending, BackSide, BufferAttribute, BufferGeometry, Color, DataTexture, LineBasicMaterial, LineSegments, Mesh, NearestFilter, PerspectiveCamera,
+  RedFormat, Scene, ShaderMaterial, SphereGeometry, UnsignedByteType, WebGLRenderer
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import type { CountryFeature } from '../data/boundaries';
 import { MotionPreference } from '../shared/motion-preference';
-import { graticulePositions } from './geo';
+import { createEarthMaterial } from './earth-material';
+import { graticulePositions, lonLatToVector3, sphereLinePositions } from './geo';
+import { rasterizeIds } from './id-map';
+
+// Where the camera starts: above the Atlantic off Morocco, so Europe and Africa face you. Distance 2.9 ≈ the globe fills the screen height.
+const START = { lon: -8, lat: 32, distance: 2.9 };
+const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
 
 // Three.js in Angular, the learn-angular lesson 15 recipe, zoneless:
 //   viewChild → canvas · afterNextRender → create · render on demand → run · effects → inputs drive the scene · DestroyRef → dispose
@@ -20,6 +27,8 @@ import { graticulePositions } from './geo';
   `
 })
 export class Globe {
+  readonly features = input<CountryFeature[]>([]); // lesson 05: drawn through the ID map
+  readonly borders = input<number[][][]>([]);       // lesson 05: every border once, as [lon, lat] lines
   readonly autoRotate = input(true);
   readonly label = input('A globe you can rotate by dragging and zoom with the mouse wheel or a pinch');
   readonly unsupported = output(); // no WebGL: the parent shows the flat map instead
@@ -40,22 +49,25 @@ export class Globe {
 
       const scene = new Scene();
       const camera = new PerspectiveCamera(40, 1, 0.1, 100);
-      camera.position.set(0, 0, 3.4);
-      // The light rides with the camera: whichever side you look at is lit. A real sun would leave half the data in the dark.
-      const light = new DirectionalLight(0xffffff, 1.6);
-      light.position.set(-2, 2, 3);
-      camera.add(light);
-      scene.add(camera, new AmbientLight(0xffffff, 0.9));
+      lonLatToVector3(START.lon, START.lat, START.distance, camera.position); // looking at the centre from above that point, north up
 
-      // The Earth: a plain sphere for now. Countries arrive in lesson 05.
-      const earthGeometry = new SphereGeometry(1, 96, 64);
-      const earthMaterial = new MeshStandardMaterial({ color: '#16223a', roughness: 0.95 });
+      // The Earth. Its shader does its own lighting, from a direction fixed to the camera: whichever side you look at is lit.
+      // (Lesson 04 used Three.js lights for that; a real sun would leave half the data in the dark.)
+      // 192 × 128 segments: the flat triangles sag at most 0.9 km below the true sphere (96 × 64 sagged 3.5 km, enough to see the fill drift from the borders)
+      const earthGeometry = new SphereGeometry(1, 192, 128);
+      const earthMaterial = createEarthMaterial();
+      let idMap: DataTexture | null = null;
       scene.add(new Mesh(earthGeometry, earthMaterial));
 
-      // Graticule: lines every 15°, slightly above the surface so they don't flicker against it (z-fighting)
+      // Graticule: lines every 15°
       const gridGeometry = new BufferGeometry().setAttribute('position', new BufferAttribute(graticulePositions(15), 3));
-      const gridMaterial = new LineBasicMaterial({ color: '#8fa6d6', transparent: true, opacity: 0.12 });
+      const gridMaterial = new LineBasicMaterial({ color: '#8fa6d6', transparent: true, opacity: 0.06 });
       scene.add(new LineSegments(gridGeometry, gridMaterial));
+
+      // Borders and coastlines. Filled in when the data arrives (effect below).
+      const bordersGeometry = new BufferGeometry();
+      const bordersMaterial = new LineBasicMaterial({ color: '#8fa6d6', transparent: true, opacity: 0.35 });
+      scene.add(new LineSegments(bordersGeometry, bordersMaterial));
 
       // Atmosphere: a bigger sphere seen from inside (BackSide), brightest at the rim, added on top of what's behind it
       const atmosphereGeometry = new SphereGeometry(1.14, 64, 48);
@@ -132,6 +144,30 @@ export class Globe {
       // --- inputs → scene ---
       effect(() => updateAutoRotate(), { injector }); // reads autoRotate() and motion.reduced(): re-runs when either changes
 
+      // Countries → the ID map texture. Runs when the features arrive (they load after the globe is created).
+      effect(() => {
+        const features = this.features();
+        if (!features.length) return;
+        const texture = new DataTexture(rasterizeIds(features, ID_MAP_WIDTH, ID_MAP_HEIGHT), ID_MAP_WIDTH, ID_MAP_HEIGHT, RedFormat, UnsignedByteType);
+        // Nearest, never blended: halfway between country 12 and country 40 must not read as country 26
+        texture.magFilter = texture.minFilter = NearestFilter;
+        texture.generateMipmaps = false;
+        texture.needsUpdate = true;
+        idMap?.dispose();
+        idMap = texture;
+        earthMaterial.uniforms['idMap'].value = texture;
+        render();
+      }, { injector });
+
+      // Borders → line segments on the sphere
+      effect(() => {
+        bordersGeometry.setAttribute('position', new BufferAttribute(sphereLinePositions(this.borders()), 3));
+        // Three.js caches the bounding sphere from the first render, when the lines were still empty. Without this,
+        // the stale sphere makes the camera skip the lines as "off-screen" (frustum culling), depending on load order.
+        bordersGeometry.computeBoundingSphere();
+        render();
+      }, { injector });
+
       // --- destroy: everything created above, in reverse ---
       destroyRef.onDestroy(() => {
         renderer.setAnimationLoop(null);
@@ -142,7 +178,8 @@ export class Globe {
         canvas.removeEventListener('wheel', onInput);
         controls.removeEventListener('start', onStart);
         controls.dispose();
-        for (const disposable of [earthGeometry, earthMaterial, gridGeometry, gridMaterial, atmosphereGeometry, atmosphereMaterial]) disposable.dispose();
+        for (const disposable of [earthGeometry, earthMaterial, gridGeometry, gridMaterial, bordersGeometry, bordersMaterial, atmosphereGeometry, atmosphereMaterial]) disposable.dispose();
+        idMap?.dispose();
         renderer.dispose();
         renderer.forceContextLoss(); // hand the WebGL context back now; browsers allow only ~16 at once
       });

@@ -1,35 +1,22 @@
-<section class="nsc-explorer">
-  <div class="top-bar">
-    <div class="intro">
-      <h1>The Carbon Divide</h1>
-      <p>Who emits, and who pays the price. An interactive globe of country-level climate data, coming together one lesson at a time.</p>
-    </div>
-    <div class="view-switch" role="group" aria-label="View">
-      <button type="button" [class.is-active]="view() === 'globe'" [attr.aria-pressed]="view() === 'globe'" [disabled]="!webgl()" (click)="view.set('globe')">Globe</button>
-      <button type="button" [class.is-active]="view() === 'map'" [attr.aria-pressed]="view() === 'map'" (click)="view.set('map')">Map</button>
-    </div>
-  </div>
-
-  <div class="stage">
-    @if (view() === 'globe') {
-      <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
-      <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
-      @defer (on immediate) {
-        <app-globe class="globe" (unsupported)="noWebgl()" />
-      } @placeholder {
-        <p class="status">Loading the globe…</p>
-      }
-    } @else if (boundaries.error()) {
-      <p class="status">The map data couldn't be loaded.</p>
-    } @else if (boundaries.isLoading()) {
-      <p class="status">Loading the map…</p>
-    } @else {
-      <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" label="World map of countries. Hover a country to see its name.">
-        @if (country(); as c) {
-          <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
-        }
-      </app-flat-map>
+<section class="nsc-explorer" aria-label="The Carbon Divide: explore country-level climate data">
+  @if (explorerView.view() === 'globe') {
+    <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
+    <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
+    @defer (on immediate) {
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" (unsupported)="explorerView.noWebgl()" />
+    } @placeholder {
+      <p class="status">Loading the globe…</p>
     }
-  </div>
-  @if (!webgl()) { <p class="status">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
+  } @else if (boundaries.error()) {
+    <p class="status">The map data couldn't be loaded.</p>
+  } @else if (boundaries.isLoading()) {
+    <p class="status">Loading the map…</p>
+  } @else {
+    <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" label="World map of countries. Hover a country to see its name.">
+      @if (country(); as c) {
+        <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
+      }
+    </app-flat-map>
+  }
+  @if (!explorerView.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

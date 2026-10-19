@@ -105,10 +105,10 @@ product gains, and "Concepts" is what the lesson page explains.
 | 02 | Data pipeline I: boundaries | `scripts/build-boundaries`, `public/data/countries.*` | TopoJSON → GeoJSON, ISO3 lookup, country metadata |
 | 03 | Flat map first (SVG) | 2D map with hover tooltip, later the no-WebGL fallback | `d3-geo` projection + Angular SVG templates |
 | 04 | The globe | Three.js sphere, OrbitControls, atmosphere | Three.js lifecycle in Angular, render on demand, dispose |
-| 05 | Countries on the sphere | Borders + ID-map texture | lon/lat → xyz, painting with D3 on a canvas, `LineSegments` |
+| 05 | Countries on the sphere | Borders + ID-map texture | lon/lat → xyz, a scanline-filled ID map (canvas anti-aliasing would corrupt the ids), `LineSegments` |
 | 06 | Picking | Hover highlight, click to select | Raycast → UV → country ID, shader uniforms |
 | 07 | Stores and the URL | Selection store, country search list | Signal stores, query-param sync, keyboard access, microstates |
-| 08 | Data pipeline II: CO₂ | Country-year dataset + metadata | Typed models, `httpResource`, missing values |
+| 08 | Data pipeline II: CO₂ | Country-year dataset + metadata; revisit Western Sahara (de facto vs ISO borders, see lesson 02) | Typed models, `httpResource`, missing values |
 | 09 | Choropleth and legend | Colored globe + legend | `d3-scale` (log, quantile), palette texture |
 | 10 | Fly to a country | Camera tween, panel reveal | GSAP driving camera orientation, reduced motion |
 | 11 | Country detail panel | Historical chart, per-capita vs total, income-group peers | D3 line chart in an Angular SVG template |
@@ -119,7 +119,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 16 | The "divide" view | Bivariate responsibility × vulnerability map | 3×3 bivariate palette, second dataset |
 | 17 | Scroll-driven story | Editorial intro | ScrollTrigger → store → globe |
 | 18 | Polish | Loading states, touch, a11y, table fallback | `@defer`, `aria-live`, performance |
-| 19 | Ship it | Static build, methodology page, case study | Attribution, licenses, deploy |
+| 19 | Ship it | Static build, methodology page (incl. border choices), case study | Attribution, licenses, deploy |
 
 Optional after 19: flow arcs between countries, if a good bilateral dataset turns up (trade, migration).
 

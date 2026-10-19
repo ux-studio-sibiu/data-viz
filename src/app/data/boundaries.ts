@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable } from '@angular/core';
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
-import { feature } from 'topojson-client';
+import { feature, mesh } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { CountriesFile, Country } from './country';
 
@@ -30,5 +30,12 @@ export class Boundaries {
       const c = countries.get(String(f.id));
       return { ...f, id: String(f.id), properties: { name: c?.name ?? String(f.id), label: c?.label ?? [0, 0] } };
     });
+  });
+
+  // Every border and coastline, each drawn once: mesh() walks the topology's arcs, so the France–Spain border
+  // isn't drawn twice (once per country) like it would be from the features. Lesson 05 draws these on the globe.
+  readonly borders = computed(() => {
+    const topo = this.topology.value();
+    return topo ? mesh(topo, topo.objects.countries).coordinates : [];
   });
 }

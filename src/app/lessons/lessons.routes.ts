@@ -7,5 +7,6 @@ export const lessonRoutes: Routes = [
   { path: 'floating-window', loadComponent: () => import('./lesson-floating-window/lesson-floating-window').then(m => m.LessonFloatingWindow), title: '01 The lesson window' },
   { path: 'boundaries', loadComponent: () => import('./lesson-boundaries/lesson-boundaries').then(m => m.LessonBoundaries), title: '02 Data pipeline: boundaries' },
   { path: 'flat-map', loadComponent: () => import('./lesson-flat-map/lesson-flat-map').then(m => m.LessonFlatMap), title: '03 Flat map first' },
-  { path: 'globe', loadComponent: () => import('./lesson-globe/lesson-globe').then(m => m.LessonGlobe), title: '04 The globe' }
+  { path: 'globe', loadComponent: () => import('./lesson-globe/lesson-globe').then(m => m.LessonGlobe), title: '04 The globe' },
+  { path: 'countries-globe', loadComponent: () => import('./lesson-countries-globe/lesson-countries-globe').then(m => m.LessonCountriesGlobe), title: '05 Countries on the sphere' }
 ];

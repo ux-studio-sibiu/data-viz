@@ -1,10 +1,15 @@
+<!-- No bar, no background: just the actions, floating over the top-right corner of the globe or map -->
 <header class="site-header">
-  <a class="brand" routerLink="/">The Carbon Divide</a>
-  <nav class="site-nav">
-    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Explore</a>
-    <!-- Opens the roadmap in the lesson window: only the named outlet changes, the current page stays -->
-    <a [routerLink]="[{ outlets: { lesson: ['lessons'] } }]" title="Lessons (L)">Lessons</a>
-  </nav>
+  @if (onExplorer()) {
+    <div class="view-switch" role="group" aria-label="View">
+      <button type="button" [class.is-active]="explorerView.view() === 'globe'" [attr.aria-pressed]="explorerView.view() === 'globe'" [disabled]="!explorerView.webgl()" (click)="explorerView.view.set('globe')">Globe</button>
+      <button type="button" [class.is-active]="explorerView.view() === 'map'" [attr.aria-pressed]="explorerView.view() === 'map'" (click)="explorerView.view.set('map')">Map</button>
+    </div>
+  } @else {
+    <a routerLink="/">Explore</a>
+  }
+  <!-- Opens the roadmap in the lesson window: only the named outlet changes, the current page stays -->
+  <a [routerLink]="[{ outlets: { lesson: ['lessons'] } }]" title="Lessons (L)">Lessons</a>
 </header>
 
 <main class="site-main">

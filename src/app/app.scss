@@ -1,19 +1,22 @@
 // Component styles are scoped to this component automatically (≈ CSS Modules, no class renaming).
 :host { display: flex; flex-direction: column; min-height: 100dvh; }
 
+// Floats over the page; below the lesson window (z-index 20) and the dock (30)
 .site-header {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  height: var(--header-h); padding: 0 24px; border-bottom: 1px solid var(--line);
-  position: sticky; top: 0; z-index: 10; background: var(--bg);
+  position: fixed; top: 16px; right: 16px; z-index: 10;
+  display: flex; align-items: center; gap: 16px;
 
-  .brand { font-weight: 700; color: var(--fg); text-decoration: none; }
+  a { color: var(--muted); font-size: 0.9rem; text-decoration: none; text-shadow: 0 1px 6px var(--bg); }
+  a:hover { color: var(--accent); }
 }
 
-.site-nav {
-  display: flex; gap: 16px;
+.view-switch {
+  display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgb(18 21 28 / 0.7); backdrop-filter: blur(6px);
 
-  a { color: var(--muted); text-decoration: none; }
-  a.is-active, a:hover { color: var(--accent); }
+  button { font: inherit; font-size: 0.85rem; padding: 4px 14px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+  button:hover:not(:disabled) { color: var(--fg); }
+  button.is-active { background: var(--code-bg); color: var(--fg); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 .site-main { display: flex; flex-direction: column; flex: 1; }

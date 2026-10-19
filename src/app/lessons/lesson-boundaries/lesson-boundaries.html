@@ -39,6 +39,15 @@ npm run data:boundaries -- --fresh # downloads again</code></pre>
     <li><strong>Somaliland (<code>SOL</code>), N. Cyprus (<code>CYN</code>), Siachen Glacier (<code>KAS</code>)</strong> keep Natural Earth's codes. Statistics count them inside Somalia, Cyprus and India/Pakistan, so they'll show as "no data". That's honest: we don't have separate numbers for them.</li>
     <li><strong>Australia</strong> appears 3 times (the mainland, Indian Ocean Territories, Ashmore and Cartier Islands), all coded <code>AUS</code>. They're merged into one shape, so hover and colour treat them as one country.</li>
     <li>Dependencies get a <code>sovereign</code> field: Greenland is <code>GRL</code> with <code>sovereign: 'DNK'</code>. Some datasets report Greenland on its own, some inside Denmark.</li>
+    <li><strong>Western Sahara</strong> is split along the <strong>Moroccan Berm</strong>, the sand wall that separates the Morocco-controlled west from the Polisario-controlled east. The coastal strip belongs to <code>MAR</code>, the interior to <code>ESH</code> (Natural Earth's note: "Self admin.; Claimed by Morocco"). That's why the globe shows a border running parallel to the coast.</li>
+  </ul>
+
+  <h3>Decision: de facto borders, for now</h3>
+  <ul>
+    <li>Kept as Natural Earth draws them. Most statistics (OWID, World Bank, UN) follow the ISO/UN map instead, where Western Sahara is one territory and Morocco ends at the 27°40′N line.</li>
+    <li>Consequence once countries are coloured by data (lesson 09): Morocco's colour also covers the coastal strip, and Western Sahara's own value covers only the interior.</li>
+    <li>The alternative is Natural Earth's <strong>ISO point-of-view</strong> file, which draws Western Sahara whole. It only exists at the 1:10m scale (there's no 1:50m version), so the script would download a much larger file and simplify harder.</li>
+    <li><strong>To revisit in lesson 08</strong>, when the CO₂ data shows how much it matters. Either way, the choice goes on the methodology page in lesson 19.</li>
   </ul>
 
   <h2>4. GeoJSON → TopoJSON</h2>

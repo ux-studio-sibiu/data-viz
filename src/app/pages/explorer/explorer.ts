@@ -2,10 +2,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FlatMap } from '../../charts/flat-map/flat-map';
 import { Boundaries } from '../../data/boundaries';
 import { Globe } from '../../globe/globe';
+import { ExplorerView } from './explorer-view';
 
-type View = 'globe' | 'map';
-
-// The product page. Two views of the same countries: the globe (lesson 04+) and the flat map (lesson 03), which is also the no-WebGL fallback.
+// The product page: the globe or the flat map, filling the whole screen. The Globe / Map switch is in the app header.
 @Component({
   selector: 'app-explorer',
   imports: [FlatMap, Globe],
@@ -14,15 +13,7 @@ type View = 'globe' | 'map';
 })
 export class Explorer {
   protected readonly boundaries = inject(Boundaries);
+  protected readonly explorerView = inject(ExplorerView);
   protected readonly hovered = signal<string | null>(null);
   protected readonly country = computed(() => this.boundaries.countries().get(this.hovered() ?? ''));
-
-  // The map stays the default until the globe has countries (lesson 05). Lesson 07 moves this into the URL.
-  protected readonly view = signal<View>('map');
-  protected readonly webgl = signal(true);
-
-  protected noWebgl() {
-    this.webgl.set(false);
-    this.view.set('map');
-  }
 }
