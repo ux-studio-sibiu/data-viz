@@ -2,8 +2,8 @@
 <header class="site-header">
   @if (onExplorer()) {
     <div class="view-switch" role="group" aria-label="View">
-      <button type="button" [class.is-active]="explorerView.view() === 'globe'" [attr.aria-pressed]="explorerView.view() === 'globe'" [disabled]="!explorerView.webgl()" (click)="explorerView.view.set('globe')">Globe</button>
-      <button type="button" [class.is-active]="explorerView.view() === 'map'" [attr.aria-pressed]="explorerView.view() === 'map'" (click)="explorerView.view.set('map')">Map</button>
+      <button type="button" [class.is-active]="state.view() === 'globe'" [attr.aria-pressed]="state.view() === 'globe'" [disabled]="!state.webgl()" (click)="state.show('globe')">Globe</button>
+      <button type="button" [class.is-active]="state.view() === 'map'" [attr.aria-pressed]="state.view() === 'map'" (click)="state.show('map')">Map</button>
     </div>
   } @else {
     <a routerLink="/">Explore</a>

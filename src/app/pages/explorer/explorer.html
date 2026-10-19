@@ -1,9 +1,10 @@
 <section class="nsc-explorer" aria-label="The Carbon Divide: explore country-level climate data">
-  @if (explorerView.view() === 'globe') {
+  <!-- [(hovered)]="state.hovered": two-way binding straight to a store signal. Selection goes through select(), which writes the URL. -->
+  @if (state.view() === 'globe') {
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
     <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
     @defer (on immediate) {
-      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="hovered" [(selected)]="selected" (unsupported)="explorerView.noWebgl()">
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" (unsupported)="state.noWebgl()">
         @if (country(); as c) {
           <span globe-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
         }
@@ -16,24 +17,29 @@
   } @else if (boundaries.isLoading()) {
     <p class="status">Loading the map…</p>
   } @else {
-    <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" [(selected)]="selected" label="World map of countries. Hover a country to see its name, click to select it.">
+    <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" label="World map of countries. Hover a country to see its name, click to select it.">
       @if (country(); as c) {
         <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
       }
     </app-flat-map>
   }
 
-  <!-- Lesson 06: what's selected. The full detail panel arrives in lesson 11. aria-live: screen readers announce a new selection. -->
-  <div class="selection" aria-live="polite" [hidden]="!selectedCountry()">
-    @if (selectedCountry(); as c) {
-      <button type="button" class="close" aria-label="Clear selection" (click)="selected.set(null)">✕</button>
-      <h2>{{ c.longName }}</h2>
-      <p>{{ c.subregion }} · {{ c.continent }}</p>
-      @if (c.incomeGroup) { <p>{{ income[c.incomeGroup] }}</p> }
-      @if (c.sovereign) { <p>Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}</p> }
-      <p class="code">{{ c.id }}</p>
-    }
+  <!-- Top-left, opposite the header: find a country, then what's selected -->
+  <div class="side">
+    <app-country-search />
+
+    <!-- The full detail panel arrives in lesson 11. aria-live: screen readers announce a new selection. -->
+    <div class="selection" aria-live="polite" [hidden]="!selectedCountry()">
+      @if (selectedCountry(); as c) {
+        <button type="button" class="close" aria-label="Clear selection" (click)="state.select(null)">✕</button>
+        <h2>{{ c.longName }}</h2>
+        <p>{{ c.subregion }} · {{ c.continent }}</p>
+        @if (c.incomeGroup) { <p>{{ income[c.incomeGroup] }}</p> }
+        @if (c.sovereign) { <p>Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}</p> }
+        <p class="code">{{ c.id }}</p>
+      }
+    </div>
   </div>
 
-  @if (!explorerView.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
+  @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

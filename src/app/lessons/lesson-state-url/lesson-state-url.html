@@ -1,0 +1,79 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 07">
+  <h1>Stores and the URL</h1>
+  <p>The explorer's state now lives in one store, and the parts worth sharing live in the URL. Select a country and the address bar says <code>?country=FRA</code>; switch to the map and it adds <code>&amp;view=map</code>. Copy the link, reload, press back: the same screen every time. And there's a search box: press <kbd>/</kbd> and type.</p>
+  <ul>
+    <li>Try: <a routerLink="/" [queryParams]="{ country: 'NOR', view: 'map' }">Norway on the map</a>, <a routerLink="/" [queryParams]="{ country: 'VAT', view: null }">the Vatican on the globe</a>.</li>
+  </ul>
+
+  <h2>1. The URL as the source of truth</h2>
+  <pre><code>// pages/explorer/explorer-state.ts
+private readonly params = toSignal(router.events.pipe(
+  filter(e => e instanceof NavigationEnd),
+  map(() => router.routerState.snapshot.root.queryParamMap)));
+
+readonly selected = computed(() => &#123; …params().get('country')… &#125;);
+select(id) &#123; router.navigate([], &#123; queryParams: &#123; country: id &#125; &#125;); &#125;</code></pre>
+  <ul>
+    <li><strong>Reading</strong> is a <code>computed</code> over the query params. <strong>Writing</strong> is a navigation. There's no second copy of "the selected country" to keep in sync with the URL, so the two can't disagree.</li>
+    <li><code>toSignal()</code> turns the router's event stream (RxJS) into a signal. It's the bridge between Angular's older Observable APIs and signals.</li>
+    <li><code>navigate([])</code>: empty commands mean "stay on this page" (and keep the lesson window's outlet); only the query params change.</li>
+    <li>The URL is validated, not trusted: <code>?country=fra</code> works (upper-cased), and an unknown code is ignored instead of breaking the page. The check waits for <code>countries.json</code>, because <code>computed</code> re-runs when it arrives.</li>
+    <li>≈ Next.js <code>useSearchParams()</code> + <code>router.push(&#123; query &#125;)</code>, or the <code>nuqs</code> library.</li>
+  </ul>
+
+  <h2>2. What goes in the URL, and how</h2>
+  <table>
+    <thead><tr><th>State</th><th>Where</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Selected country</td><td><code>?country=</code>, new history entry</td><td>Worth sharing; back undoes a selection</td></tr>
+      <tr><td>Globe or map</td><td><code>?view=map</code>, replaces the entry</td><td>Worth sharing, not worth stepping back through. The default (globe) leaves the URL clean.</td></tr>
+      <tr><td>Hovered country</td><td>a plain signal</td><td>Changes many times a second, never worth sharing</td></tr>
+      <tr><td>No WebGL</td><td>a plain signal</td><td>A fact about this browser, not part of a link</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>Year and metric (lessons 09–12) will go in the URL the same way.</li>
+    <li>The globe and the map bind <code>[(hovered)]="state.hovered"</code> straight to the store's signal: two-way binding works with any <code>WritableSignal</code>. Selection uses <code>[selected]</code> + <code>(selectedChange)="state.select($event)"</code>, because writing it means navigating.</li>
+  </ul>
+
+  <h2>3. Keeping the query when navigating elsewhere</h2>
+  <ul>
+    <li>Router navigations drop the query params by default. Opening a lesson in the window (<code>/(lesson:lessons)</code>) would have cleared the selection.</li>
+    <li>Fixed once, for the whole app: <code>withRouterConfig(&#123; defaultQueryParamsHandling: 'merge' &#125;)</code> in <code>app.config.ts</code>. Every <code>routerLink</code> and <code>navigate()</code> now keeps the current params unless it sets them. Going to a full-page lesson and back to Explore keeps the selection too.</li>
+  </ul>
+
+  <h2>4. One store for the explorer</h2>
+  <ul>
+    <li><code>ExplorerState</code> replaces lesson 05's <code>ExplorerView</code> service and the explorer's own hover/selection signals. The header's switch, the explorer, the globe, the map and the search all read and write the same instance (<code>providedIn: 'root'</code>).</li>
+    <li>It's a plain class with signals, computeds and methods: no NgRx, no actions, no reducers. ≈ a Zustand store, or a React context with a custom hook. The signal-store pattern from learn-angular lesson 05, now with the router as a dependency.</li>
+  </ul>
+
+  <h2>5. The search: an accessible combobox</h2>
+  <ul>
+    <li>The keyboard way into the globe, and the only practical way to reach microstates: the Vatican is smaller than one pixel at the default zoom.</li>
+    <li>ARIA combobox pattern: focus stays in the input (<code>role="combobox"</code>). ↑/↓ move a highlighted option, and <code>aria-activedescendant</code> tells screen readers which one. Enter selects; Esc closes. The list is a <code>role="listbox"</code> of <code>role="option"</code>s.</li>
+    <li>The highlighted option is written to <code>state.hovered</code>, so it lights up on the globe or map before you choose.</li>
+    <li>Results rank an exact code first (<code>FRA</code>), then names starting with the text, then names containing it, up to 8.</li>
+    <li>Two details that are easy to miss: <code>(mousedown)="$event.preventDefault()"</code> on the list keeps the input focused, otherwise its blur would close the list before the click lands. And the document-level <kbd>/</kbd> shortcut ignores keys typed into fields.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>pages/explorer/explorer-state.ts</code>: the store (replaces <code>explorer-view.ts</code>)</li>
+    <li><code>pages/explorer/country-search/*</code>: the combobox</li>
+    <li><code>pages/explorer/explorer.*</code>: reads the store, search + selection card stacked top-left</li>
+    <li><code>app.ts</code>, <code>app.html</code>: the header's switch writes the URL; <code>app.config.ts</code>: <code>defaultQueryParamsHandling</code></li>
+    <li><code>lessons/lesson-state-url/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Select a country, copy the URL into a new tab: same country, same view</li>
+    <li>Select three countries one after another, press back three times: they come back in reverse order</li>
+    <li>Switch Globe ↔ Map a few times, press back once: it leaves the explorer's history, not just the view</li>
+    <li>Press <kbd>/</kbd>, type "mon", arrow down to Monaco, Enter. Then try it with a screen reader if you have one</li>
+    <li>Open <code>/?country=XYZ</code>: nothing selected, no error</li>
+    <li>Open a lesson in the window: the selection stays</li>
+  </ul>
+</app-lesson-page>

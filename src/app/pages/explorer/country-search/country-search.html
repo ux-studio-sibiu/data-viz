@@ -1,0 +1,18 @@
+<div class="nsc-country-search" (focusout)="close()">
+  <label class="visually-hidden" for="country-search-input">Find a country</label>
+  <!-- role="combobox": the input owns the list; aria-activedescendant tells screen readers which option is highlighted -->
+  <input #input id="country-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Find a country  /" role="combobox" aria-controls="country-search-list" aria-autocomplete="list" [attr.aria-expanded]="open() && results().length > 0" [attr.aria-activedescendant]="open() && results().length ? 'country-option-' + results()[active()].id : null" [value]="query()" (input)="onInput(input.value)" (keydown)="onKey($event)" (focus)="open.set(true)" />
+
+  @if (open() && results().length) {
+    <!-- mousedown.preventDefault: clicking an option mustn't blur the input first (that would close the list before the click lands) -->
+    <ul id="country-search-list" class="results" role="listbox" aria-label="Countries" (mousedown)="$event.preventDefault()">
+      @for (c of results(); track c.id; let i = $index) {
+        <li role="option" [id]="'country-option-' + c.id" [attr.aria-selected]="i === active()" [class.is-active]="i === active()" (pointerenter)="point(i)" (click)="choose(c.id)">
+          <span class="name">{{ c.name }}</span>
+          <span class="meta">{{ c.subregion }}</span>
+          <span class="code">{{ c.id }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

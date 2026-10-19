@@ -58,9 +58,25 @@ z = r · cos(lat) · cos(lon) // lon 0° (Greenwich) faces the camera</code></pr
     <li>No WebGL (disabled, blocklisted GPU): <code>new WebGLRenderer()</code> throws, the globe emits <code>unsupported</code>, and the explorer switches to the map and disables the Globe button.</li>
   </ul>
 
+  <h2>6. Later refactor: a scene class and a thin component</h2>
+  <p>After lesson 10, <code>globe.ts</code> had grown to a 310-line constructor: renderer, materials, render loop, fly-to, picking, listeners, five effects and cleanup, all sharing local variables, with lessons 09, 12 and 15 still to land there. It was split in two:</p>
+  <table>
+    <thead><tr><th><code>globe/globe-scene.ts</code>: <code>GlobeScene</code></th><th><code>globe/globe.ts</code>: <code>Globe</code></th></tr></thead>
+    <tbody>
+      <tr><td>A plain class, no Angular. Renderer, camera, controls, materials, the render loop, picking, flights, <code>dispose()</code>.</td><td>The Angular side: inputs and models, the tooltip, one <code>effect</code> per input that calls a scene method.</td></tr>
+      <tr><td>Methods in: <code>setFeatures</code>, <code>setBorders</code>, <code>setHighlight</code>, <code>setAutoRotate</code>, <code>flyTo</code>. Callbacks out: <code>hover(id, x, y)</code>, <code>select(id)</code>.</td><td>Turns the callbacks into signal writes, plus a direct <code>style.translate</code> for the tooltip.</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>≈ In React: a component holding a ref to an imperative object, with a <code>useEffect</code> per prop that calls a method on it. The scene can be unit-tested without Angular.</li>
+    <li><strong><code>invalidate()</code>:</strong> changes (new data, a hover, a selection) no longer call <code>render()</code> themselves. They mark the scene dirty and wake the loop, and the next tick draws once. A tick renders only if the camera moved, something was invalidated, or auto-rotation is on. Measured: three hover changes in a row → 1 render; idle after a flight → 0. Resizing still renders immediately, since a resized canvas is cleared and would flash blank.</li>
+    <li><strong>A cache across mounts:</strong> switching Map → Globe creates a new globe, which used to rasterize the ID map again (~90 ms) and re-densify the borders. Both depend only on the data, so they're cached in a module-level <code>WeakMap</code> keyed by the data arrays. Measured: three switches, one rasterization. The textures are still per globe, because each globe has its own WebGL context.</li>
+    <li>Behaviour is unchanged: the same flights, picking, hover, render on demand and cleanup, checked in the browser after the split.</li>
+  </ul>
+
   <h2>Files in this lesson</h2>
   <ul class="note">
-    <li><code>globe/globe.ts</code>: the component; <code>globe/geo.ts</code>: lon/lat → xyz, the grid</li>
+    <li><code>globe/globe.ts</code>: the component (split in two after lesson 10, see section 6); <code>globe/geo.ts</code>: lon/lat → xyz, the grid</li>
     <li><code>shared/motion-preference.ts</code>: copied from learn-angular, without the SSR check</li>
     <li><code>pages/explorer/*</code>: the Globe / Map switch, <code>&#64;defer</code>, the no-WebGL fallback</li>
     <li><code>lessons/lesson-globe/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>

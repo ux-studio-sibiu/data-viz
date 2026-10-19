@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { LessonWindow } from './lessons/lesson-window/lesson-window';
-import { ExplorerView } from './pages/explorer/explorer-view';
+import { ExplorerState } from './pages/explorer/explorer-state';
 import { DockBar } from './ui/dock/dock-bar';
 
 // Root component ≈ Next.js app/layout.tsx: a small floating header, then whichever page matches the URL.
@@ -15,7 +15,7 @@ import { DockBar } from './ui/dock/dock-bar';
 })
 export class App {
   private readonly router = inject(Router);
-  protected readonly explorerView = inject(ExplorerView);
+  protected readonly state = inject(ExplorerState);
 
   // Is the explorer the page underneath (primary outlet ''), whatever the lesson window shows?
   // routerLinkActive can't answer this: with "(lesson:…)" in the URL, the "/" link no longer matches exactly.

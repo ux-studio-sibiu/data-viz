@@ -1,0 +1,72 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 10 (pulled forward)">
+  <h1>Fly to a country</h1>
+  <p>Select a country, by clicking, searching or following a link, and the globe flies there: the country ends up centred and filling about 30% of the screen. Try <a routerLink="/" [queryParams]="{ country: 'JPN', view: null }">Japan</a>, then <a routerLink="/" [queryParams]="{ country: 'BRA', view: null }">Brazil</a>, then <a routerLink="/" [queryParams]="{ country: 'MCO', view: null }">Monaco</a> (as close as the camera goes, so Monaco itself stays small).</p>
+  <p class="note">Taken out of order, after lesson 07. The roadmap's "panel reveal" half of this lesson arrives with the detail panel in lesson 11.</p>
+
+  <h2>1. Where to put the camera</h2>
+  <p><code>globe/framing.ts</code> answers "centred, 30% of the screen" with two numbers: a direction and a distance.</p>
+  <ul>
+    <li><strong>Centre:</strong> the country's label point from Natural Earth, which lies on its main body. A centroid of all its parts would aim at the Atlantic for France (mainland + French Guiana + Réunion).</li>
+    <li><strong>Size:</strong> only the main body counts, the polygon containing the label point. Its size is an angle on the sphere, <code>θ</code>, the farthest outline point from the centre (<code>d3.geoDistance</code>).</li>
+    <li><strong>Distance:</strong> from the globe's centre, a point θ away from the point under the camera appears at an angle α where <code>tan α = sin θ / (D − cos θ)</code>. The screen's height spans <code>2·tan(fov/2)</code> in the same units. Setting <code>2·tan α = 0.3 × 2·tan(fov/2)</code> and solving:
+      <pre><code>D = cos θ + sin θ / (0.3 · tan(fov/2))</code></pre>
+    </li>
+    <li>Clamped between 1.8 and 4. 1.8 is <code>ZOOM.closest</code> in <code>globe.ts</code>, the same limit scroll and pinch use: Europe fills the screen (Monaco would otherwise need the camera inside the Earth). 4 keeps Russia and Brazil from backing off too far. On a portrait screen the width is the tighter side, so the horizontal field of view is used.</li>
+  </ul>
+
+  <h2>2. How to get there: GSAP drives, Three.js draws</h2>
+  <pre><code>gsap.to(progress, &#123; t: 1, duration: 0.7 + 0.5 · angle, ease: 'power2.inOut',
+  onUpdate: () => &#123;
+    direction = slerp(from, to, t)                       // along the great circle
+    distance  = lerp(D0, D1, t) + lift · sin(π · t)       // a little climb mid-way
+    camera.position = direction · distance; camera.lookAt(0, 0, 0); render();
+  &#125; &#125;)</code></pre>
+  <ul>
+    <li>GSAP tweens a single number, <code>t</code>. Everything else is computed from it each frame. Tweening <code>camera.position.x/y/z</code> directly would fly in a straight line through the Earth.</li>
+    <li><strong>Slerp</strong> (spherical interpolation) of a quaternion rotates the direction along the great circle from where the camera is to above the country, at an even speed.</li>
+    <li><strong>The climb:</strong> <code>lift · sin(π · t)</code> is 0 at both ends and peaks mid-flight. Up to 0.6 radii on a trip to the far side of the globe, like a plane climbing and descending, so you see where you're going.</li>
+    <li><strong>Duration from distance:</strong> 0.7 s next door, about 2.3 s to the antipode. Japan → Brazil took 2.05 s.</li>
+    <li><code>camera.lookAt(0, 0, 0)</code> with <code>camera.up</code> = +Y keeps north up all the way.</li>
+    <li>≈ Mapbox's <code>flyTo</code>, or Google Earth's "fly to". In React Three Fiber you'd do the same in <code>useFrame</code>, or with <code>@react-spring/three</code>.</li>
+  </ul>
+
+  <h2>3. Who owns the camera?</h2>
+  <ul>
+    <li>Three engines could move the camera: OrbitControls (drag), auto-rotation, and now GSAP. One at a time:</li>
+    <li><strong>During a flight</strong> the render loop is paused, and GSAP's own ticker calls <code>render()</code>. <code>wake()</code> ignores pointer moves while <code>flight</code> is set, otherwise OrbitControls' leftover damping from an earlier drag would pull against the tween.</li>
+    <li><strong>A drag interrupts:</strong> OrbitControls' <code>start</code> event kills the tween, and the user is in control from where the camera is.</li>
+    <li><strong>A selection stops auto-rotation for good:</strong> a country you chose shouldn't rotate away.</li>
+    <li><strong>Reduced motion:</strong> the camera jumps to the target, no flight.</li>
+  </ul>
+
+  <h2>4. When it flies</h2>
+  <ul>
+    <li>An <code>effect</code> on <code>selected</code> and <code>features</code>: any selection, wherever it comes from (a click, the search, the back button, a link with <code>?country=</code>). Switching from the map to the globe with a country selected flies there from the start view.</li>
+    <li>The flight itself runs in <code>untracked()</code>: it reads the camera, not signals, and nothing it touches should re-run the effect.</li>
+    <li>Deselecting doesn't move the camera.</li>
+    <li>GSAP is imported only by the globe, so it ships in the globe's lazy chunk (563 → 666 kB raw, 117 → 149 kB gzipped), not with the app.</li>
+  </ul>
+
+  <h2>5. A testing note</h2>
+  <ul>
+    <li>In a hidden browser tab, <code>requestAnimationFrame</code> doesn't fire, and GSAP's ticker runs on it: the tween was created but stayed at frame 0. That's correct behaviour (no animating in the background), but it can look like a bug. Ticking <code>gsap.ticker.tick()</code> by hand showed the flight working.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>globe/framing.ts</code>: centre and distance for a country</li>
+    <li><code>globe/globe-scene.ts</code>: <code>flyTo</code> (GSAP + slerp), interruptions; <code>globe/globe.ts</code>: the effect on <code>selected</code></li>
+    <li><code>lessons/lesson-fly-to/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+    <li>Package: <code>gsap</code> 3.15 (same as learn-angular)</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Search "japan", Enter: a smooth flight, Japan centred, about a third of the screen</li>
+    <li>Then Brazil (a long flight: watch the climb), then Monaco (as close as the camera goes)</li>
+    <li>Start a flight and drag mid-way: it stops and you're in control</li>
+    <li>Select France: the mainland is framed, not the whole Atlantic</li>
+    <li>Reduced motion on in the OS: selections jump instead of flying</li>
+  </ul>
+</app-lesson-page>

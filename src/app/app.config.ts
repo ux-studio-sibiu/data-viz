@@ -1,6 +1,6 @@
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withRouterConfig } from '@angular/router';
 
 import { routes } from './app.routes';
 
@@ -10,7 +10,9 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    // Lesson 07: every navigation keeps the current query params (?country=FRA&view=map) unless it sets them itself.
+    // Without this, opening a lesson in the window, or any routerLink, would drop the selection.
+    provideRouter(routes, withRouterConfig({ defaultQueryParamsHandling: 'merge' })),
     // Lesson 02: HttpClient (and httpResource) for the JSON in public/data. withFetch() uses fetch() instead of XHR.
     provideHttpClient(withFetch())
   ]
