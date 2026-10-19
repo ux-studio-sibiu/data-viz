@@ -106,7 +106,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 03 | Flat map first (SVG) | 2D map with hover tooltip, later the no-WebGL fallback | `d3-geo` projection + Angular SVG templates |
 | 04 | The globe | Three.js sphere, OrbitControls, atmosphere | Three.js lifecycle in Angular, render on demand, dispose |
 | 05 | Countries on the sphere | Borders + ID-map texture | lon/lat → xyz, a scanline-filled ID map (canvas anti-aliasing would corrupt the ids), `LineSegments` |
-| 06 | Picking | Hover highlight, click to select | Raycast → UV → country ID, shader uniforms |
+| 06 | Picking | Hover highlight, click to select, shared selection with the map | Ray vs. a maths sphere → lon/lat → ID map pixel, shader uniforms, click vs. drag |
 | 07 | Stores and the URL | Selection store, country search list | Signal stores, query-param sync, keyboard access, microstates |
 | 08 | Data pipeline II: CO₂ | Country-year dataset + metadata; revisit Western Sahara (de facto vs ISO borders, see lesson 02) | Typed models, `httpResource`, missing values |
 | 09 | Choropleth and legend | Colored globe + legend | `d3-scale` (log, quantile), palette texture |

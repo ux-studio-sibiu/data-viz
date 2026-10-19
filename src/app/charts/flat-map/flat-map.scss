@@ -15,7 +15,8 @@
     &:hover { fill: #34405a; }
   }
 
-  .highlight { fill: var(--accent); stroke: var(--fg); stroke-width: 1; pointer-events: none; }
+  .highlight { fill: #3a4868; stroke: var(--fg); stroke-width: 1; pointer-events: none; }
+  .selected { fill: var(--accent); stroke: var(--fg); stroke-width: 1; pointer-events: none; } // same colours as the globe
 
   .tooltip {
     position: absolute; translate: -50% calc(-100% - 10px); pointer-events: none;

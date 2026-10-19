@@ -1,12 +1,14 @@
 <figure class="nsc-flat-map">
-  <svg [attr.viewBox]="viewBox" role="img" [attr.aria-label]="label()" (pointerleave)="hovered.set(null)">
+  <svg [attr.viewBox]="viewBox" role="img" [attr.aria-label]="label()" (pointerleave)="hovered.set(null)" (click)="onClick($event)">
     <path class="sphere" [attr.d]="sphere()" />
     <path class="graticule" [attr.d]="graticule()" />
     <g class="countries" (pointerover)="onOver($event)">
       @for (c of countries(); track c.id) { <path [attr.d]="c.d" [attr.data-id]="c.id" /> }
     </g>
-    <!-- The hovered country drawn again on top, so its outline isn't hidden under its neighbours' strokes -->
+    <!-- The hovered and selected countries drawn again on top, so their outlines aren't hidden under the neighbours' strokes.
+         Selected last: it wins over hover, as on the globe. -->
     @if (active(); as c) { <path class="highlight" [attr.d]="c.d" /> }
+    @if (chosen(); as c) { <path class="selected" [attr.d]="c.d" /> }
   </svg>
 
   @if (anchor(); as a) {

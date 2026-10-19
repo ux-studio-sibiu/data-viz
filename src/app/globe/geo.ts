@@ -9,6 +9,12 @@ export function lonLatToVector3(lon: number, lat: number, radius = 1, target = n
   return target.set(radius * Math.cos(phi) * Math.sin(lambda), radius * Math.sin(phi), radius * Math.cos(phi) * Math.cos(lambda));
 }
 
+// The inverse: a point on (or near) the sphere → [lon, lat] in degrees. The same formula the Earth shader uses (lesson 05).
+export function vector3ToLonLat(v: Vector3): [number, number] {
+  const r = v.length();
+  return [Math.atan2(v.x, v.z) / RAD, Math.asin(Math.max(-1, Math.min(1, v.y / r))) / RAD];
+}
+
 // Lines given as [lon, lat] paths (country borders) → pairs of points on the sphere for LineSegments.
 // Long straight edges (the 49th parallel between the USA and Canada is a handful of points) are cut into steps of at most
 // `maxStep` degrees, so they follow the curve instead of cutting through the sphere as a chord.

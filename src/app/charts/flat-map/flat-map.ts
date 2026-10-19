@@ -17,6 +17,7 @@ const W = 960, H = 500;
 export class FlatMap {
   readonly features = input.required<CountryFeature[]>();
   readonly hovered = model<string | null>(null); // two-way: the parent can read it, and set it from elsewhere (a list, a search)
+  readonly selected = model<string | null>(null); // lesson 06: set by a click, shared with the globe
   readonly label = input('World map');
 
   protected readonly viewBox = `0 0 ${W} ${H}`;
@@ -30,6 +31,7 @@ export class FlatMap {
   protected readonly countries = computed(() => this.features().map(f => ({ id: f.id, name: f.properties.name, d: this.path()(f) ?? '' })));
 
   protected readonly active = computed(() => this.countries().find(c => c.id === this.hovered()));
+  protected readonly chosen = computed(() => this.countries().find(c => c.id === this.selected()));
   // Tooltip anchor: the label point from Natural Earth, projected, as a % of the drawing so it scales with the SVG.
   // (A centroid would land in the Atlantic for France, which includes French Guiana.)
   protected readonly anchor = computed(() => {
@@ -43,4 +45,7 @@ export class FlatMap {
     const id = (e.target as Element).getAttribute('data-id');
     if (id) this.hovered.set(id);
   }
+
+  // Same delegation for clicks. A click on the sea (the sphere path, outside the group) deselects.
+  protected onClick(e: MouseEvent) { this.selected.set((e.target as Element).getAttribute('data-id')); }
 }

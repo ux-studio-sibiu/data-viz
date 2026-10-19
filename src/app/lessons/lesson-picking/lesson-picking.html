@@ -1,0 +1,77 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 06">
+  <h1>Picking</h1>
+  <p>On the <a routerLink="/">globe</a>, hover a country to light it up and see its name; click to select it. A card in the top-left shows what's selected. The flat map does the same, and both share one selection: select France on the map, switch to the globe, France is still selected.</p>
+
+  <h2>1. From the pointer to a country</h2>
+  <pre><code>pointer (px)  → -1…1 on both axes ("normalized device coordinates")
+              → a ray from the camera through that point   raycaster.setFromCamera
+              → where it hits the sphere                   ray.intersectSphere
+              → lon / lat                                  vector3ToLonLat
+              → a pixel of the ID map                      idAt
+              → a country number → features[n - 1].id</code></pre>
+  <ul>
+    <li><strong>A maths sphere, not the mesh:</strong> the globe is a perfect sphere of radius 1 at the origin, so the ray is tested against <code>new Sphere(origin, 1)</code>. Three.js's usual <code>raycaster.intersectObject(mesh)</code> would test 49 000 triangles; this is a few multiplications, and exact.</li>
+    <li><strong>The ID map does the rest:</strong> lesson 05's texture already knows which country covers every pixel. Picking reads the same pixel the shader draws, from the CPU copy of the array (<code>idAt</code>). Reading pixels back from the GPU (<code>readPixels</code>) would stall the pipeline.</li>
+    <li>Because both use the same map, what you see lit up is exactly what the click selects, down to the 10 km pixel.</li>
+    <li><code>vector3ToLonLat</code> in <code>geo.ts</code> is the inverse of lesson 04's <code>lonLatToVector3</code>, and the same formula as the shader's.</li>
+  </ul>
+
+  <h2>2. Highlighting: two uniforms</h2>
+  <pre><code>uniform float hovered;   // country number, 0 = none
+uniform float selected;
+if (abs(id - hovered) &lt; 0.5) base = hoverColor;  // floats: compare with a tolerance, never ==
+if (abs(id - selected) &lt; 0.5) base = selectColor;</code></pre>
+  <ul>
+    <li>Changing the hovered country updates one number on the GPU and draws one frame. Nothing is rebuilt.</li>
+    <li>An <code>effect</code> maps the ids (<code>'FRA'</code>) to ID map numbers through a <code>computed</code> lookup. So it doesn't matter who changed <code>hovered</code>: the globe's pointer, the flat map, or the country list in lesson 07.</li>
+    <li>Selected wins over hovered, on both views. On the map, that's why the selected path is drawn last.</li>
+  </ul>
+
+  <h2>3. Signals vs. the DOM: what changes how often</h2>
+  <table>
+    <thead><tr><th>Value</th><th>Changes</th><th>Goes to</th></tr></thead>
+    <tbody>
+      <tr><td>Tooltip position</td><td>every pointer move (~60/s)</td><td><code>style.translate</code>, written directly</td></tr>
+      <tr><td>Hovered country</td><td>when the pointer crosses a border</td><td>a signal (<code>hovered</code>)</td></tr>
+      <tr><td>Selected country</td><td>on a click</td><td>a signal (<code>selected</code>)</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>The same rule as learn-angular's GSAP lessons: per-frame values bypass Angular, discrete state goes through signals. <code>hovered.set()</code> is only called when the id actually changes.</li>
+    <li>The tooltip's <em>content</em> comes from the explorer through a slot (<code>[globe-tooltip]</code>), like the flat map's. Its <em>visibility</em> is a separate <code>pointerOnCountry</code> signal: a country hovered on the map shouldn't pop up a tooltip on the globe at a stale position.</li>
+  </ul>
+
+  <h2>4. Click vs. drag</h2>
+  <ul>
+    <li>Dragging rotates the globe, so every drag also ends with a <code>pointerup</code>. A press counts as a click only if the pointer moved less than 5 px between down and up.</li>
+    <li>Clicking the ocean (or the map's sea) clears the selection. So does the ✕ on the card.</li>
+    <li>Touch has no hover: hover logic is skipped for <code>pointerType === 'touch'</code> and while a button is pressed. A tap still selects.</li>
+  </ul>
+
+  <h2>5. One selection, two views</h2>
+  <ul>
+    <li><code>hovered</code> and <code>selected</code> are <code>model()</code>s on both <code>Globe</code> and <code>FlatMap</code>. The explorer owns the two signals and binds both views with <code>[(hovered)]</code> and <code>[(selected)]</code>.</li>
+    <li>The views don't know about each other. The explorer is the single source of truth, ≈ lifting state up in React.</li>
+    <li>The card uses <code>aria-live="polite"</code>, so screen readers announce a new selection. Real keyboard access to countries comes with the search list in lesson 07.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>globe/globe.ts</code>: picking, pointer handlers, <code>hovered</code> / <code>selected</code> models, the tooltip</li>
+    <li><code>globe/earth-material.ts</code>: <code>hovered</code> and <code>selected</code> uniforms</li>
+    <li><code>globe/geo.ts</code>: <code>vector3ToLonLat</code>; <code>globe/id-map.ts</code>: <code>idAt</code></li>
+    <li><code>charts/flat-map/*</code>: <code>selected</code> model, click delegation, the selected path</li>
+    <li><code>pages/explorer/*</code>: shared hover and selection, the selection card</li>
+    <li><code>lessons/lesson-picking/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Hover around the globe: the lit country, the tooltip and the cursor (pointer over land, grab over sea) all agree</li>
+    <li>Click France: Corsica and French Guiana light up too. Drag the globe: the selection stays</li>
+    <li>Switch to Map: France is still selected. Click Brazil, switch back: Brazil on the globe</li>
+    <li>Click the ocean: the selection clears</li>
+    <li>Zoom far into a coast and hover right at the border: the tooltip changes exactly where the colour does</li>
+  </ul>
+</app-lesson-page>

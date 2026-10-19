@@ -3,7 +3,11 @@
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
     <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
     @defer (on immediate) {
-      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" (unsupported)="explorerView.noWebgl()" />
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="hovered" [(selected)]="selected" (unsupported)="explorerView.noWebgl()">
+        @if (country(); as c) {
+          <span globe-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
+        }
+      </app-globe>
     } @placeholder {
       <p class="status">Loading the globe…</p>
     }
@@ -12,11 +16,24 @@
   } @else if (boundaries.isLoading()) {
     <p class="status">Loading the map…</p>
   } @else {
-    <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" label="World map of countries. Hover a country to see its name.">
+    <app-flat-map [features]="boundaries.features()" [(hovered)]="hovered" [(selected)]="selected" label="World map of countries. Hover a country to see its name, click to select it.">
       @if (country(); as c) {
         <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
       }
     </app-flat-map>
   }
+
+  <!-- Lesson 06: what's selected. The full detail panel arrives in lesson 11. aria-live: screen readers announce a new selection. -->
+  <div class="selection" aria-live="polite" [hidden]="!selectedCountry()">
+    @if (selectedCountry(); as c) {
+      <button type="button" class="close" aria-label="Clear selection" (click)="selected.set(null)">✕</button>
+      <h2>{{ c.longName }}</h2>
+      <p>{{ c.subregion }} · {{ c.continent }}</p>
+      @if (c.incomeGroup) { <p>{{ income[c.incomeGroup] }}</p> }
+      @if (c.sovereign) { <p>Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}</p> }
+      <p class="code">{{ c.id }}</p>
+    }
+  </div>
+
   @if (!explorerView.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

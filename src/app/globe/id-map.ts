@@ -40,6 +40,12 @@ export function rasterizeIds(features: CountryFeature[], width: number, height: 
   return ids;
 }
 
+// Lesson 06: the country number at a [lon, lat] (0 = ocean). The same pixel the shader samples, read from the CPU copy:
+// no GPU readback, so picking costs a few multiplications, not a stall.
+export function idAt(ids: Uint8Array, width: number, height: number, lon: number, lat: number) {
+  return ids[clamp(Math.floor(((90 - lat) / 180) * height), height) * width + clamp(Math.floor(((lon + 180) / 360) * width), width)];
+}
+
 const clamp = (v: number, size: number) => Math.max(0, Math.min(size - 1, v));
 
 // Scanline fill: for each pixel row, find where the row's centre line crosses the ring edges, sort the crossings,
