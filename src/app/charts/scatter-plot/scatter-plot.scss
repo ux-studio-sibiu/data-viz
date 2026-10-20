@@ -1,0 +1,22 @@
+:host { display: block; min-height: 0; overflow: hidden; } // the svg is sized from this box (ResizeObserver)
+
+.nsc-scatter-plot {
+  display: block;
+
+  .grid { stroke: var(--line); stroke-width: 1; }
+  .x-tick, .y-tick, .axis-label { fill: var(--muted); font-family: var(--ui-mono); font-size: 10px; }
+  .x-tick { text-anchor: middle; }
+  .y-tick { text-anchor: end; dominant-baseline: middle; }
+  .axis-label { fill: var(--ink); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .dot { stroke: var(--ink); stroke-width: 0.75; stroke-opacity: 0.6; cursor: pointer; }
+
+  // The marked dots: hovered = a thin ring, selected = a heavy one; both labelled. pointer-events: none, so they never steal
+  // the hover from the dot underneath.
+  .ring { fill: none; stroke: var(--ink); stroke-width: 1.5; pointer-events: none; }
+  .ring.is-selected { stroke-width: 3; }
+  .name {
+    fill: var(--ink); font-size: 12px; font-weight: 700; dominant-baseline: middle; pointer-events: none;
+    paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; // a white halo, readable over dots
+  }
+}

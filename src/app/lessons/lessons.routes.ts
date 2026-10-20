@@ -15,5 +15,6 @@ export const lessonRoutes: Routes = [
   { path: 'choropleth', loadComponent: () => import('./lesson-choropleth/lesson-choropleth').then(m => m.LessonChoropleth), title: '09 Choropleth and legend' },
   { path: 'fly-to', loadComponent: () => import('./lesson-fly-to/lesson-fly-to').then(m => m.LessonFlyTo), title: '10 Fly to a country' }, // pulled forward
   { path: 'country-detail', loadComponent: () => import('./lesson-country-detail/lesson-country-detail').then(m => m.LessonCountryDetail), title: '11 Country detail panel' },
-  { path: 'time', loadComponent: () => import('./lesson-time/lesson-time').then(m => m.LessonTime), title: '12 Time' }
+  { path: 'time', loadComponent: () => import('./lesson-time/lesson-time').then(m => m.LessonTime), title: '12 Time' },
+  { path: 'scatter', loadComponent: () => import('./lesson-scatter/lesson-scatter').then(m => m.LessonScatter), title: '13 Linked scatter plot' }
 ];

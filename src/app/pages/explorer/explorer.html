@@ -57,5 +57,10 @@
     }
   </div>
 
+  <!-- Lesson 13: the scatter plot, in a floating window (movable, minimizable to the dock). The header's Scatter button opens it. -->
+  @if (state.scatter()) {
+    <app-scatter-panel [year]="year()" [fills]="map()?.fills ?? null" />
+  }
+
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

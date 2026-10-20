@@ -52,6 +52,9 @@ export class ExplorerState {
     return Number.isInteger(y) && y > 0 ? y : null;
   });
 
+  // Lesson 13: the scatter panel is open (?chart=scatter). In the URL, so a link can open it.
+  readonly scatter = computed(() => this.params().get('chart') === 'scatter');
+
   // Not in the URL: it changes many times a second and isn't worth sharing. A plain signal, shared by the globe, the map and the search.
   readonly hovered = signal<string | null>(null);
 
@@ -63,5 +66,7 @@ export class ExplorerState {
   showMetric(metric: MetricId) { this.router.navigate([], { queryParams: { metric: metric === DEFAULT_METRIC ? null : metric }, replaceUrl: true }); }
   // Replaces the entry: playback writes it 8 times a second, and the back button shouldn't step through 125 years
   showYear(year: number | null) { this.router.navigate([], { queryParams: { year }, replaceUrl: true }); }
+  // Replaces the entry, like the view: opening a panel isn't a step to go back through
+  showScatter(open: boolean) { this.router.navigate([], { queryParams: { chart: open ? 'scatter' : null }, replaceUrl: true }); }
   noWebgl() { this.webglWorks.set(false); }
 }

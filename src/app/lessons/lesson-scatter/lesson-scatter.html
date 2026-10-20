@@ -1,0 +1,59 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 13">
+  <h1>Linked scatter plot</h1>
+  <p>The header has a <strong>Scatter</strong> button. It opens a window with every country as a dot: GDP per person across, CO₂ per person up, dot area by population, coloured like the map. It's a second view of the same countries, linked to the first: hover a dot and the country lights up on the map; hover the map and the dot gets a ring; click either to select. <a routerLink="/" [queryParams]="{ chart: 'scatter', country: 'USA' }">Open it with the USA selected</a>.</p>
+
+  <h2>1. What it shows</h2>
+  <ul>
+    <li>164 countries in 2022. On log axes they fall along a line: the correlation of log GDP and log CO₂ per person is 0.91, and the slope is about 1. Roughly, <strong>twice as rich, twice the emissions</strong>.</li>
+    <li>The interesting countries are off the line. Switzerland ($64k) and Sweden ($47k) emit 3.7 and 3.5 t per person; the USA ($57k) and Australia ($51k) emit 14.8 and 14.7 t. Similar wealth, four times the CO₂: energy mix and policy, not income alone.</li>
+    <li>The map can't show this: it colours one variable. The scatter plot puts two side by side, and the link back to the map says <em>where</em> each dot is.</li>
+  </ul>
+
+  <h2>2. Honest axes and sizes</h2>
+  <ul>
+    <li><strong>Log axes:</strong> GDP runs from ~$700 to ~$120k per person, CO₂ from 0.03 t to 40 t. On linear axes nearly every country would crowd into the bottom-left corner. On log axes equal distances are equal <em>ratios</em>. The note under the chart says so: a log axis must never be a surprise.</li>
+    <li>Ticks only at powers of 10 ($1k, $10k, $100k); the in-between ones bunch up on a log axis. The domain is the data plus a 25% margin, not <code>.nice()</code>, which on log axes rounds out to whole powers of 10 and left half the plot empty.</li>
+    <li><strong>Area, not radius:</strong> <code>scaleSqrt</code> for the dot radius, so area ∝ population. India has ~4 times the people of the USA and gets a dot twice as wide. A linear radius would make it look 16 times bigger.</li>
+    <li>Biggest dots drawn first, so small countries sit on top and stay hoverable.</li>
+    <li><strong>One year for both axes:</strong> GDP ends in 2022, CO₂ in 2024. The chart never mixes a 2022 GDP with 2024 emissions; past 2022 it stays on 2022 and the note says "GDP data ends in 2022". It follows the timeline before that.</li>
+  </ul>
+
+  <h2>3. Linking two views: one shared store</h2>
+  <pre><code>&lt;app-scatter-plot [(hovered)]="state.hovered" [selected]="state.selected()" (pick)="state.select($event)" /&gt;
+&lt;app-flat-map     [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" /&gt;
+&lt;app-globe        [(hovered)]="state.hovered" … /&gt;</code></pre>
+  <ul>
+    <li>No view knows about the others. Each reads and writes the same two signals in <code>ExplorerState</code> (lesson 07): <code>hovered</code> and <code>selected</code>. Linking a third view is one more binding.</li>
+    <li><code>model()</code> makes <code>hovered</code> two-way, the same pattern as the globe and the map.</li>
+    <li>Hover uses <code>pointerenter</code> / <code>pointerleave</code> on each dot: the browser hit-tests the circles, so there's no need for a quadtree or a Voronoi diagram at 164 points.</li>
+    <li>The marked dots (hovered, selected) are drawn again on top with a ring and a name. The rings ignore the pointer, so they never steal the hover from the dot underneath. Names flip to the left near the right edge.</li>
+  </ul>
+
+  <h2>4. Reusing the lesson window</h2>
+  <ul>
+    <li>The chart lives in lesson 01's <code>FloatingPanel</code>: movable, resizable, minimizable to the dock, with its position remembered. One new input, <code>defaultSize</code>, for a first size other than the lesson window's.</li>
+    <li>The plot follows the window's size with a <code>ResizeObserver</code> on its host; the scales' ranges come from that box, so resizing redraws at the new size instead of stretching the text.</li>
+    <li>Open or closed is in the URL (<code>?chart=scatter</code>, <code>replaceUrl</code>), like the view and the metric.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>charts/scatter-plot/*</code>: the generic bubble chart</li>
+    <li><code>pages/explorer/scatter-panel/*</code>: the data (three metrics, one year), the readout, the window</li>
+    <li><code>pages/explorer/explorer-state.ts</code>: <code>?chart=scatter</code>; <code>explorer.*</code>: the panel; <code>app.html</code>: the Scatter button</li>
+    <li><code>ui/floating-panel/*</code>: <code>defaultSize</code></li>
+    <li><code>lessons/lesson-scatter/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Press Scatter: the window opens; the dots run bottom-left to top-right, coloured like the map</li>
+    <li>Hover a big dot: the readout names it, and the country lights up on the globe or the map</li>
+    <li>Hover a country on the map: its dot gets a thin ring and a name</li>
+    <li>Click a dot: the country is selected (heavy ring, the panel opens, the globe flies)</li>
+    <li>Find Switzerland and the USA: similar wealth, very different heights</li>
+    <li>Drag the timeline to 1990: the dots move; at 2024 the chart says GDP ends in 2022</li>
+    <li>Resize the window: the plot redraws at the new size; minimize it: it goes to the dock</li>
+  </ul>
+</app-lesson-page>

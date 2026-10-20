@@ -5,6 +5,10 @@
       <button type="button" [class.is-active]="state.view() === 'globe'" [attr.aria-pressed]="state.view() === 'globe'" [disabled]="!state.webgl()" (click)="state.show('globe')">Globe</button>
       <button type="button" [class.is-active]="state.view() === 'map'" [attr.aria-pressed]="state.view() === 'map'" (click)="state.show('map')">Map</button>
     </div>
+    <!-- Lesson 13: open or close the scatter plot window -->
+    <div class="view-switch">
+      <button type="button" [class.is-active]="state.scatter()" [attr.aria-pressed]="state.scatter()" (click)="state.showScatter(!state.scatter())">Scatter</button>
+    </div>
   } @else {
     <a routerLink="/">Explore</a>
   }

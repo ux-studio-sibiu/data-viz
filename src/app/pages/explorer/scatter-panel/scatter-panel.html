@@ -1,0 +1,22 @@
+<app-floating-panel panel-id="scatter" label="Wealth and emissions" [defaultSize]="{ w: 480, h: 420 }" (closed)="state.showScatter(false)">
+  <span panel-title>Wealth × CO₂ · {{ chartYear() }}</span>
+
+  <div class="nsc-scatter-panel">
+    <!-- The hovered or selected country; a fixed-height line, so the plot below never jumps -->
+    <p class="readout" aria-live="polite">
+      @if (active(); as a) {
+        <strong>{{ a.name }}</strong> <span>{{ a.gdp }}</span> <span>{{ a.co2 }}</span> <span>{{ a.people }} people</span>
+      } @else {
+        <span class="hint">Hover a dot, or a country on the map</span>
+      }
+    </p>
+
+    @if (loading()) {
+      <p class="status">Loading…</p>
+    } @else {
+      <app-scatter-plot class="plot" [points]="points()" xLabel="GDP per person" yLabel="CO₂ per person (t)" xPrefix="$" [label]="label()" [(hovered)]="state.hovered" [selected]="state.selected()" (pick)="state.select($event)" />
+    }
+
+    <p class="note">Both axes log scale · dot area = population · colour = the map's metric@if (gdpEnded()) { · GDP data ends in {{ chartYear() }}}</p>
+  </div>
+</app-floating-panel>

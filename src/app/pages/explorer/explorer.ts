@@ -7,6 +7,7 @@ import { Co2Data } from '../../data/co2-data';
 import { Globe } from '../../globe/globe';
 import { CountryDetail } from './country-detail/country-detail';
 import { CountrySearch } from './country-search/country-search';
+import { ScatterPanel } from './scatter-panel/scatter-panel';
 import { Timeline } from '../../ui/timeline/timeline';
 import { Backdrop } from '../../ui/backdrop/backdrop';
 import { ExplorerState, MAP_METRICS } from './explorer-state';
@@ -27,9 +28,10 @@ const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }); // 
 // Lesson 09: both views coloured by a metric (?metric=), with a legend.
 // Lesson 11: the selection card becomes CountryDetail, with the country's history.
 // Lesson 12: a year slider with playback (?year=); the map, the panel and the tooltips follow it.
+// Lesson 13: a scatter plot of wealth × emissions in a floating panel (?chart=scatter), linked to the map.
 @Component({
   selector: 'app-explorer',
-  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop],
+  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterPanel],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss'
 })

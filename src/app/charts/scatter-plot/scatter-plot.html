@@ -1,0 +1,23 @@
+@let b = box();
+<svg class="nsc-scatter-plot" [attr.viewBox]="'0 0 ' + b.w + ' ' + b.h" [attr.width]="b.w" [attr.height]="b.h" role="img" [attr.aria-label]="label()">
+  @for (t of xTicks(); track t.v) {
+    <line class="grid" [attr.x1]="t.at" [attr.x2]="t.at" [attr.y1]="M.top" [attr.y2]="b.h - M.bottom" />
+    <text class="x-tick" [attr.x]="t.at" [attr.y]="b.h - M.bottom + 14">{{ t.label }}</text>
+  }
+  @for (t of yTicks(); track t.v) {
+    <line class="grid" [attr.x1]="M.left" [attr.x2]="b.w - M.right" [attr.y1]="t.at" [attr.y2]="t.at" />
+    <text class="y-tick" [attr.x]="M.left - 6" [attr.y]="t.at">{{ t.label }}</text>
+  }
+  <text class="axis-label" [attr.x]="b.w - M.right" [attr.y]="b.h - 4" text-anchor="end">{{ xLabel() }}</text>
+  <text class="axis-label" [attr.x]="M.left" [attr.y]="M.top - 2" dy="-0.2em">{{ yLabel() }}</text>
+
+  <!-- pointerenter on each dot (not pointermove on the svg): the browser does the hit-testing, round shapes included -->
+  @for (d of dots(); track d.id) {
+    <circle class="dot" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r" [style.fill]="d.color" (pointerenter)="hovered.set(d.id)" (pointerleave)="hovered.set(null)" (click)="pick.emit(d.id)" />
+  }
+
+  @for (d of marked(); track d.id) {
+    <circle class="ring" [class.is-selected]="d.isSelected" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r + 3" />
+    <text class="name" [attr.x]="d.labelX" [attr.y]="d.cy" [attr.text-anchor]="d.anchor">{{ d.label }}</text>
+  }
+</svg>
