@@ -22,6 +22,15 @@ export function createPaletteTexture() {
 // The texture position is computed per pixel from the surface point, with the inverse of lonLatToVector3 (geo.ts):
 //   lon = atan(x, z), lat = asin(y)
 // instead of from SphereGeometry's built-in UVs, which start at lon -90° and would shift every country a quarter turn.
+// Each country's centre (its label point) as a unit vector, slot n = country number n, packed into bytes: (v + 1) / 2 · 255.
+// The hatching takes its direction from it (see hatchDirection in the shader). 1 kB, written once per page load.
+export function createCentresTexture() {
+  const texture = new DataTexture(new Uint8Array(PALETTE_SIZE * 4).fill(128), PALETTE_SIZE, 1);
+  texture.magFilter = texture.minFilter = NearestFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 export function createEarthMaterial() {
   const empty = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); // all ocean, until the ID map is ready
   empty.needsUpdate = true;
@@ -36,6 +45,10 @@ export function createEarthMaterial() {
       hovered: { value: 0 },
       selected: { value: 0 },
       palette: { value: createPaletteTexture() },
+      centres: { value: createCentresTexture() },
+      // Lesson 12: the palette before the last change, and how far the fade from it has gone (1 = fully the new one)
+      previousPalette: { value: createPaletteTexture() },
+      paletteMix: { value: 1 },
       colored: { value: 0 }, // 0 until a palette is set: plain white land, not "no data" everywhere while the data loads
       pixelRatio: { value: 1 }, // line widths are in CSS pixels, so they look the same on a 2× screen
       hatchScale: { value: 1 }  // the selection hatch's spacing and width: 1 from mid zoom out, finer zoomed in (GlobeScene sets it)
@@ -54,6 +67,9 @@ export function createEarthMaterial() {
       uniform float hovered;
       uniform float selected;
       uniform sampler2D palette;
+      uniform sampler2D centres;
+      uniform sampler2D previousPalette;
+      uniform float paletteMix;
       uniform float colored;
       uniform float pixelRatio;
       uniform float hatchScale;
@@ -87,6 +103,23 @@ export function createEarthMaterial() {
         return mix(hatch(p, direction, exp2(coarse), widthPx), hatch(p, direction, exp2(coarse + 1.0), widthPx), fine);
       }
 
+      // The hatching direction for one country: diagonal across the surface at the country's centre.
+      // Each hatch family is a set of parallel planes slicing the sphere, and those slices are circles around the planes' normal.
+      // One fixed normal for the whole globe put the rings' centre somewhere on land (the US north-east showed a bullseye).
+      // A normal lying flat along the surface at the country's own centre puts the rings' centre 90° away, beyond the country:
+      // across it the lines run almost straight. turn = +1 or -1 picks one diagonal or the other.
+      vec3 hatchDirection(vec3 centre, float turn) {
+        vec3 east = cross(vec3(0.0, 1.0, 0.0), centre);
+        east = length(east) < 1e-3 ? vec3(1.0, 0.0, 0.0) : normalize(east); // a centre at a pole has no east: pick one
+        vec3 north = cross(centre, east);
+        return normalize(east * turn + north);
+      }
+
+      // A country's fill from its palette slot: the data colour, or "no data" hatching when the slot is empty (alpha 0)
+      vec3 dataColor(vec4 slot, float noDataLines) {
+        return slot.a > 0.5 ? slot.rgb : mix(land, ink, 0.3 * noDataLines);
+      }
+
       void main() {
         vec3 p = normalize(vPosition);
         float lon = atan(p.x, p.z);              // -π … π, 0 at Greenwich
@@ -94,17 +127,20 @@ export function createEarthMaterial() {
         vec2 uv = vec2(lon / 6.2831853 + 0.5, 0.5 - lat / 3.1415927); // ÷ 2π, ÷ π. Row 0 of the ID map is the north edge
 
         float id = floor(texture2D(idMap, uv).r * 255.0 + 0.5); // the byte back as a whole number
+        vec2 slot = vec2((id + 0.5) / 256.0, 0.5); // the centre of slot "id" in the 256 × 1 textures
+        vec3 centre = normalize(texture2D(centres, slot).xyz * 2.0 - 1.0);
         // Computed for every pixel, before the ifs: fwidth() compares neighbouring pixels, and inside an if a neighbour that
         // took the other branch (the selected country vs its neighbour, right at a border) leaves it undefined.
-        float selectedLines = zoomHatch(p, normalize(vec3(-1.0, 1.0, 0.35)), 6.0 * hatchScale, 2.0 * hatchScale); // 6–12 px apart, 2 px wide; finer up close
-        float noDataLines = hatch(p, normalize(vec3(1.0, 1.0, 0.35)), 110.0, 0.8);    // the other direction, finer, lighter
+        float selectedLines = zoomHatch(p, hatchDirection(centre, -1.0), 6.0 * hatchScale, 2.0 * hatchScale); // 6–12 px apart, 2 px wide; finer up close
+        float noDataLines = hatch(p, hatchDirection(centre, 1.0), 110.0, 0.8);         // the other diagonal, finer, lighter
 
-        vec4 data = texture2D(palette, vec2((id + 0.5) / 256.0, 0.5)); // the centre of slot "id"
+        vec4 data = texture2D(palette, slot);
+        vec4 before = texture2D(previousPalette, slot);
         vec3 color;
         if (id < 0.5) color = ocean;
         else {
           // No data: white with light grey hatching, so it can never be mistaken for "the lowest class"
-          color = colored < 0.5 ? land : data.a > 0.5 ? data.rgb : mix(land, ink, 0.3 * noDataLines);
+          color = colored < 0.5 ? land : mix(dataColor(before, noDataLines), dataColor(data, noDataLines), paletteMix);
           if (abs(id - hovered) < 0.5) color = mix(color, ink, 0.18);              // floats: compare with a tolerance, not ==
           if (abs(id - selected) < 0.5) color = mix(color, ink, 0.85 * selectedLines); // ink over the data colour, which stays visible between lines
         }

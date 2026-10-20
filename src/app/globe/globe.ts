@@ -58,7 +58,7 @@ export class Globe {
       effect(() => scene.setFeatures(this.features()), { injector });
       effect(() => scene.setBorders(this.borders()), { injector });
       effect(() => scene.setHighlight(this.hovered(), this.selected()), { injector });
-      effect(() => scene.setFills(this.fills()), { injector });
+      effect(() => scene.setFills(this.fills(), !motion.reduced()), { injector }); // lesson 12: crossfade, unless reduced motion
 
       // Selected → fly there. Also on load with ?country=… in the URL, and when switching from the map with a country selected.
       // untracked(): only the selection and the features should re-run this, not what the flight reads.

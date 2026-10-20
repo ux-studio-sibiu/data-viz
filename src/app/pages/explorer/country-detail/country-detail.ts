@@ -28,6 +28,7 @@ const MODES: { id: Mode; label: string; unit: string; noun: string }[] = [
 })
 export class CountryDetail {
   readonly country = input.required<Country>();
+  readonly year = input<number | null>(null); // lesson 12: the year on the map; null = the latest
 
   protected readonly boundaries = inject(Boundaries);
   protected readonly state = inject(ExplorerState);
@@ -54,7 +55,8 @@ export class CountryDetail {
   // --- lesson 08: the latest figures, each with its own year -------------------------------------------------------------
   protected readonly readings = computed(() => {
     const id = this.current().id;
-    return { perCapita: latest(this.perCapita.value(), id), total: latest(this.total.value(), id), historicShare: latest(this.historicShare.value(), id) };
+    const year = this.year() ?? undefined; // the latest value at or before the year on the map
+    return { perCapita: latest(this.perCapita.value(), id, year), total: latest(this.total.value(), id, year), historicShare: latest(this.historicShare.value(), id, year) };
   });
   // The year shown once above the figures: per person's, else the total's. A figure from another year shows its own.
   protected readonly figuresYear = computed(() => {
@@ -86,9 +88,9 @@ export class CountryDetail {
     return { firstYear: s.firstYear, lines, label: this.describe(c, own, s.firstYear) };
   });
 
-  // "3rd highest of 58 high-income countries in 2024", for the chart's metric and the country's latest year
+  // "3 of 58 high-income countries, 2024" (1 = the highest), for the chart's metric and the year on the map
   protected readonly rank = computed(() => {
-    const s = this.series(), c = this.current(), last = latest(s, c.id);
+    const s = this.series(), c = this.current(), last = latest(s, c.id, this.year() ?? undefined);
     if (!s || !last || !c.incomeGroup) return null;
     const r = rankIn(s, this.peers(), c.id, last.year);
     return r && { ...r, year: last.year, group: PEERS[c.incomeGroup] };
@@ -104,7 +106,7 @@ export class CountryDetail {
   }
 
   protected format(n: number) { return figure.format(n); }
-  protected ordinal(n: number) { return n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'); }
+  protected readonly peerDigits = computed(() => String(this.peers().length).length); // the widest a rank or a count can be
 
   private async swap(next: Country) {
     const first = !this.shown();

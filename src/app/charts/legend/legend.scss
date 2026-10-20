@@ -3,7 +3,7 @@
 :host { display: block; }
 
 .nsc-legend {
-  --swatch: 32px;
+  --swatch: 28px; // 8 classes + "no data" fit the 340px column
   position: relative; margin: 0; padding: 10px 12px; // positioned: the hatched lift is drawn outside the box
   @include paper.panel;
 

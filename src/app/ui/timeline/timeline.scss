@@ -1,0 +1,32 @@
+@use '../../../styles/paper' as paper;
+
+:host { display: block; position: relative; @include paper.panel; } // positioned: the hatched lift is drawn outside the box
+
+.nsc-timeline {
+  display: flex; align-items: center; gap: 14px; padding: 10px 14px;
+
+  // A square ink button, like the panel's close box
+  .play {
+    display: grid; place-items: center; flex: none; width: 34px; height: 34px; padding: 0;
+    border: paper.$border solid var(--ink); border-radius: 0; background: var(--surface); color: var(--ink); cursor: pointer;
+
+    svg { width: 12px; height: 12px; fill: currentColor; }
+  }
+  .play:hover { background: var(--tint); }
+
+  .track { flex: 1; min-width: 0; }
+  .ends { display: flex; justify-content: space-between; margin-top: 2px; color: var(--muted); @include paper.mono-label(0.625rem, 0.1em); }
+  .year { flex: none; min-width: 4ch; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+
+  // The slider: a 2px ink rule with a square ink thumb. Each engine has its own pseudo-elements, so both are spelled out.
+  input[type='range'] {
+    display: block; width: 100%; height: 18px; margin: 0; background: none; cursor: pointer;
+    appearance: none;
+
+    &::-webkit-slider-runnable-track { height: 2px; background: var(--ink); }
+    &::-moz-range-track { height: 2px; background: var(--ink); }
+    &::-webkit-slider-thumb { appearance: none; width: 12px; height: 18px; margin-top: -8px; border: 0; border-radius: 0; background: var(--ink); }
+    &::-moz-range-thumb { width: 12px; height: 18px; border: 0; border-radius: 0; background: var(--ink); }
+    &:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+  }
+}

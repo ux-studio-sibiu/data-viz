@@ -46,6 +46,12 @@ export class ExplorerState {
     return m && MAP_METRICS.includes(m) ? m : DEFAULT_METRIC;
   });
 
+  // Lesson 12: the year the map shows. null = the metric's latest year, which leaves the URL clean.
+  readonly year = computed(() => {
+    const y = Number(this.params().get('year'));
+    return Number.isInteger(y) && y > 0 ? y : null;
+  });
+
   // Not in the URL: it changes many times a second and isn't worth sharing. A plain signal, shared by the globe, the map and the search.
   readonly hovered = signal<string | null>(null);
 
@@ -55,5 +61,7 @@ export class ExplorerState {
   show(view: View) { this.router.navigate([], { queryParams: { view: view === 'globe' ? null : view }, replaceUrl: true }); }
   // Replaces the entry, like the view: switching what the map shows isn't something to step back through
   showMetric(metric: MetricId) { this.router.navigate([], { queryParams: { metric: metric === DEFAULT_METRIC ? null : metric }, replaceUrl: true }); }
+  // Replaces the entry: playback writes it 8 times a second, and the back button shouldn't step through 125 years
+  showYear(year: number | null) { this.router.navigate([], { queryParams: { year }, replaceUrl: true }); }
   noWebgl() { this.webglWorks.set(false); }
 }

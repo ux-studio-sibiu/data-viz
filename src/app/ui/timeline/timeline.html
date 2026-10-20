@@ -1,0 +1,17 @@
+<div class="nsc-timeline">
+  <button type="button" class="play" (click)="toggle()" [attr.aria-label]="playing() ? 'Pause' : 'Play through the years'" [attr.aria-pressed]="playing()">
+    @if (playing()) {
+      <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2.2v8H2zM5.8 1H8v8H5.8z" /></svg>
+    } @else {
+      <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1l6 4-6 4z" /></svg>
+    }
+  </button>
+
+  <!-- The range input does the hard parts: keyboard (arrows, Home, End, Page keys), touch, and announcing the value -->
+  <div class="track">
+    <input type="range" step="1" [min]="min()" [max]="max()" [value]="value()" (input)="scrub($event)" [attr.aria-label]="label()" />
+    <div class="ends" aria-hidden="true"><span>{{ min() }}</span><span>{{ max() }}</span></div>
+  </div>
+
+  <span class="year" aria-hidden="true">{{ value() }}</span>
+</div>

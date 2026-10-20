@@ -1,0 +1,78 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 12">
+  <h1>Time</h1>
+  <p>A timeline in the bottom-left corner, above the legend, sets the year, from 1900 to the metric's latest. The play button runs through the years at 8 a second. The map, the legend, the tooltips and the detail panel all follow. The year is in the URL: <a routerLink="/" [queryParams]="{ year: 1950 }">1950</a>, <a routerLink="/" [queryParams]="{ year: 1990, country: 'CHN' }">China in 1990</a>, <a routerLink="/" [queryParams]="{ year: null }">today</a>.</p>
+
+  <h2>1. One set of class breaks for every year</h2>
+  <pre><code>choropleth(series, year, breaksYear)   // explorer: breaksYear = the metric's latest year
+// colours from `year`, class breaks from `breaksYear`</code></pre>
+  <ul>
+    <li>Lesson 09 computed the breaks from the year on screen. Over time that hides the story: with breaks recomputed every year, a seventh of the countries is always the darkest orange, in 1900 as in 2024. Every year looks equally unequal, and nothing seems to grow.</li>
+    <li>Now the breaks come from the latest year, for every year. One colour means the same tonnes in 1950 as today: in 1950, 83 of 174 countries with data are in the palest class (under 0.43 t per person) and 10 in the darkest. Playing forward, the world visibly darkens.</li>
+    <li>The cost: early years use few colours. That's honest. The alternative (breaks per year) answers "who was relatively high <em>that year</em>", a different question, and would need saying so on the legend.</li>
+    <li><strong>A darkest class for the extremes.</strong> The palette is now BrwnYl one step lighter, plus its original darkest plum as an 8th class kept for the 10 largest values (8 to 10 countries, depending on the metric and rounding). Seven equal classes put ~30 countries in the darkest colour, which then said little; now the main seven split everyone else, and the darkest marks the handful at the top.</li>
+    <li>Fewer countries have data the further back you go (72 in 1900, 212 today). Before independence many have none; they're hatched as "no data", never painted as zero.</li>
+  </ul>
+
+  <h2>2. Steps, not a slide: when interpolating is honest</h2>
+  <ul>
+    <li>The data is yearly. A slider that glides through "1987.4" with blended colours would show values nobody measured. So playback <strong>steps</strong>: GSAP tweens a plain number from the current year to the last (<code>ease: 'none'</code>, so every year gets the same time), and each time it passes a whole year, the year is set.</li>
+    <li>What <em>is</em> interpolated is the change between two shown years: each country's colour crossfades over 0.1 s. That's a transition, not data: it lets the eye follow which countries changed instead of seeing the whole map flicker. It's shorter than one year of playback (0.125 s), so each year is shown, settled, before the next.</li>
+    <li>Reduced motion (lesson 00): no crossfade, the colours switch. Playback still steps; it's something the user asked for, not decoration.</li>
+  </ul>
+
+  <h2>3. The crossfade on the globe: two palettes and a mix</h2>
+  <pre><code>// globe-scene.ts, setFills(fills, fade)
+previousPalette ← the current 1 kB palette
+palette         ← the new colours
+gsap.to(paletteMix, &#123; value: 1, duration: 0.1 &#125;)       // 0 → 1, each step only redraws
+
+// earth-material.ts
+color = mix(dataColor(previous), dataColor(current), paletteMix)</code></pre>
+  <ul>
+    <li>Lesson 09's 256 × 1 palette texture gets a twin. Changing years copies 1 kB and uploads 2 kB; the 8 MB ID map isn't touched, and nothing is rebuilt.</li>
+    <li><code>dataColor()</code> turns a slot into a colour, including "no data" hatching, so a country that gains data fades from hatched to orange.</li>
+    <li>A change mid-fade (scrubbing fast) kills the running fade and starts from the old fade's target: at most a 0.1 s jump.</li>
+    <li>The flat map gets the same for free: its paths have <code>transition: fill 0.15s</code> since lesson 09.</li>
+  </ul>
+
+  <h2>4. The timeline component</h2>
+  <ul>
+    <li><code>ui/timeline</code> is generic: <code>min</code>, <code>max</code> and a two-way <code>value</code> (<code>model()</code>), no knowledge of CO₂. A native <code>&lt;input type="range"&gt;</code> does the hard parts: arrow keys, Home and End, touch, and announcing the value to screen readers. It's restyled as a 2px ink rule with a square thumb.</li>
+    <li>Dragging or using the keys pauses playback. Pressing play at the end starts again from the first year.</li>
+    <li>The year goes to <code>?year=</code> with <code>replaceUrl</code>: playback writes it 8 times a second, and the back button shouldn't step through 125 years. The latest year leaves the URL clean. A year past the metric's last (GDP stops in 2022) is clamped.</li>
+  </ul>
+
+  <h2>5. The panel follows the year</h2>
+  <ul>
+    <li>The figures show the latest value <em>at or before</em> the year (lesson 08's <code>latest(series, id, year)</code>), under that year's heading.</li>
+    <li>The chart's rule and readout rest on the year when the pointer isn't on the chart (<code>LineChart</code>'s new <code>markYear</code> input). Hovering still reads any year.</li>
+    <li>The rank is the rank in that year.</li>
+  </ul>
+
+  <h2>6. Bug: the metric select showed the wrong metric</h2>
+  <ul>
+    <li>With <code>?metric=co2</code> the legend read "CO₂ emissions per capita" over Mt figures. <code>[value]</code> on the <code>&lt;select&gt;</code> was set before its <code>&#64;for</code> options existed; the browser found no matching option and showed the first one.</li>
+    <li>Fix: <code>[selected]</code> on each <code>&lt;option&gt;</code>. Each option says whether it's the chosen one when it's created, so the order no longer matters.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>ui/timeline/*</code>: the slider and playback</li>
+    <li><code>charts/choropleth.ts</code>: <code>breaksYear</code></li>
+    <li><code>globe/earth-material.ts</code>: <code>previousPalette</code>, <code>paletteMix</code>, <code>dataColor()</code>; <code>globe/globe-scene.ts</code>: <code>setFills(fills, fade)</code>; <code>globe/globe.ts</code>: fade unless reduced motion</li>
+    <li><code>pages/explorer/explorer-state.ts</code>: <code>?year=</code>; <code>explorer.*</code>: the year range, the clamped year, the timeline above the legend; the metric select fix (section 6)</li>
+    <li><code>pages/explorer/country-detail/*</code>: <code>year</code> input; <code>charts/line-chart/line-chart.ts</code>: <code>markYear</code></li>
+    <li><code>lessons/lesson-time/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Drag the slider to 1900: most of the world pale or hatched, the UK and the USA dark; the legend says 1900, its breaks unchanged</li>
+    <li>Press play: the years step, the colours settle each year, the URL's year follows; press again to pause</li>
+    <li>Select Germany and play: the figures and the chart's rule follow the year</li>
+    <li>Switch to GDP per capita at 2024: the slider ends at 2022</li>
+    <li>Reload mid-way: same year (it's in the URL); the back button doesn't step through years</li>
+    <li>With reduced motion on: the colours switch without fading</li>
+  </ul>
+</app-lesson-page>

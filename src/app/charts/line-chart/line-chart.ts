@@ -26,6 +26,7 @@ export class LineChart {
   readonly firstYear = input.required<number>();
   readonly unit = input('');
   readonly label = input(''); // what the chart shows, for screen readers
+  readonly markYear = input<number | null>(null); // the year the readout rests on when not hovering; null = the latest with data
 
   protected readonly W = W;
   protected readonly H = H;
@@ -58,6 +59,8 @@ export class LineChart {
   protected readonly year = computed(() => {
     const hovered = this.hoverYear();
     if (hovered !== null) return hovered;
+    const mark = this.markYear();
+    if (mark !== null) return Math.min(this.lastYear(), Math.max(this.firstYear(), mark));
     const main = this.lines()[0]?.values ?? [];
     const last = lastIndexWithValue(main);
     return this.firstYear() + Math.max(0, last);

@@ -4,8 +4,8 @@
 
 .nsc-country-detail {
   padding: 12px 14px;
-  // Tall content scrolls inside the panel, clear of the legend below
-  max-height: calc(100dvh - 220px); overflow-y: auto;
+  // Tall content scrolls inside the panel, clear of the timeline and the legend below it
+  max-height: calc(100dvh - 300px); overflow-y: auto;
 
   header { position: relative; } // the meter's tooltip is placed against the header, so it never runs out of the panel's side
   h2 { margin: 0 36px 4px 0; font-size: 1.1rem; } // clear of the close box
@@ -50,6 +50,8 @@
     button.is-active { background: var(--ink); color: var(--surface); }
   }
   .rank { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; }
+  .rank strong { color: var(--ink); font-variant-numeric: tabular-nums; } // tabular: every digit 1ch wide, so min-width in ch holds
+  .rank .num { display: inline-block; text-align: right; }
 
   // A square ink box. z-index: the header after it is positioned (for the meter's tooltip) and would otherwise paint over it.
   .close {

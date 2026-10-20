@@ -7,6 +7,8 @@ import { Co2Data } from '../../data/co2-data';
 import { Globe } from '../../globe/globe';
 import { CountryDetail } from './country-detail/country-detail';
 import { CountrySearch } from './country-search/country-search';
+import { Timeline } from '../../ui/timeline/timeline';
+import { Backdrop } from '../../ui/backdrop/backdrop';
 import { ExplorerState, MAP_METRICS } from './explorer-state';
 
 // Short units for tooltips and the legend (OWID's are long: "tonnes per person (t/person)")
@@ -24,9 +26,10 @@ const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }); // 
 // Lesson 08: the selection card shows the country's latest CO₂ figures.
 // Lesson 09: both views coloured by a metric (?metric=), with a legend.
 // Lesson 11: the selection card becomes CountryDetail, with the country's history.
+// Lesson 12: a year slider with playback (?year=); the map, the panel and the tooltips follow it.
 @Component({
   selector: 'app-explorer',
-  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend],
+  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss'
 })
@@ -48,10 +51,23 @@ export class Explorer {
     return untracked(() => this.co2.metric(id));
   });
 
-  // Every country's colour for the metric's latest year, plus the legend's classes. Recomputed when the metric or its data changes.
+  // --- lesson 12: time ------------------------------------------------------------------------------------------------
+  // The slider runs from the data's first year to the metric's last (2024 for CO₂, 2022 for GDP)
+  protected readonly yearRange = computed(() => {
+    const meta = this.co2.meta.value(), info = this.metricInfo();
+    return meta && info ? { min: meta.firstYear, max: info.lastYear } : null;
+  });
+  // The year on screen: ?year= clamped to the range (a link from another metric may point past its last year), else the latest
+  protected readonly year = computed(() => {
+    const range = this.yearRange();
+    return range ? Math.min(range.max, Math.max(range.min, this.state.year() ?? range.max)) : null;
+  });
+  protected setYear(year: number) { this.state.showYear(year === this.yearRange()?.max ? null : year); }
+
+  // Every country's colour in the chosen year, plus the legend's classes. The breaks always come from the latest year (lesson 12).
   protected readonly map = computed(() => {
-    const series = this.mapSeries().value(), info = this.metricInfo();
-    return series && info ? choropleth(series, info.lastYear) : null;
+    const series = this.mapSeries().value(), info = this.metricInfo(), year = this.year();
+    return series && info && year !== null ? choropleth(series, year, info.lastYear) : null;
   });
 
   // The hovered country's value, for the tooltips

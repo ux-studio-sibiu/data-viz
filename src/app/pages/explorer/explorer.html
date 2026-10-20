@@ -1,4 +1,7 @@
 <section class="nsc-explorer" aria-label="The Carbon Divide: explore country-level climate data">
+  <!-- The paper: white with a faint graph-paper grid, behind everything -->
+  <app-backdrop class="backdrop" />
+
   <!-- [(hovered)]="state.hovered": two-way binding straight to a store signal. Selection goes through select(), which writes the URL. -->
   @if (state.view() === 'globe') {
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
@@ -30,21 +33,29 @@
 
     <!-- Lesson 11: the detail panel. The wrapper stays in the DOM so aria-live announces each new selection. -->
     <div aria-live="polite">
-      @if (selectedCountry(); as c) { <app-country-detail [country]="c" /> }
+      @if (selectedCountry(); as c) { <app-country-detail [country]="c" [year]="year()" /> }
     </div>
   </div>
 
-  <!-- Lesson 09: what the colours mean, and what they're of. The metric switcher goes in the legend's title slot. -->
-  @if (map(); as m) {
-    <app-legend class="legend" [thresholds]="m.thresholds" [colors]="m.colors" [unit]="shortUnit()" [year]="m.year">
-      <label legend-title class="metric">
-        <span class="visually-hidden">Colour the map by</span>
-        <select [value]="state.metric()" (change)="state.showMetric($any($event.target).value)">
-          @for (m of mapMetrics(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
-        </select>
-      </label>
-    </app-legend>
-  }
+  <!-- Bottom-left, under the search and the panel, in the same column: the year (lesson 12), then what the colours mean (lesson 09) -->
+  <div class="bottom">
+    @if (yearRange(); as r) {
+      <app-timeline [min]="r.min" [max]="r.max" [value]="year() ?? r.max" (valueChange)="setYear($event)" label="Year shown on the map" />
+    }
+    <!-- The metric switcher goes in the legend's title slot -->
+    @if (map(); as m) {
+      <app-legend [thresholds]="m.thresholds" [colors]="m.colors" [unit]="shortUnit()" [year]="m.year">
+        <label legend-title class="metric">
+          <span class="visually-hidden">Colour the map by</span>
+          <select (change)="state.showMetric($any($event.target).value)">
+            <!-- [selected] on each option, not [value] on the select: the options render after the select's value is set,
+                 so a select-level value found no matching option and the first one showed, whatever the metric -->
+            @for (m of mapMetrics(); track m.id) { <option [value]="m.id" [selected]="m.id === state.metric()">{{ m.title }}</option> }
+          </select>
+        </label>
+      </app-legend>
+    }
+  </div>
 
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

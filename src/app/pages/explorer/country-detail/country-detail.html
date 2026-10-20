@@ -35,10 +35,12 @@
           }
         </div>
         @if (chart(); as ch) {
-          <app-line-chart [lines]="ch.lines" [firstYear]="ch.firstYear" [unit]="modeInfo().unit" [label]="ch.label" />
+          <app-line-chart [lines]="ch.lines" [firstYear]="ch.firstYear" [unit]="modeInfo().unit" [label]="ch.label" [markYear]="year()" />
         }
-        @if (rank(); as rk) {
-          <p class="rank">{{ ordinal(rk.rank) }} highest of {{ rk.of }} {{ rk.group }} countries, {{ rk.year }}</p>
+        <!-- 1 = the highest. The line is always there (empty in years without a rank), and each number has a fixed width for its
+             largest value, so nothing moves while playing through the years. -->
+        @if (peers().length) {
+          <p class="rank">@if (rank(); as rk) {<strong class="num" [style.min-width.ch]="peerDigits()">{{ rk.rank }}</strong> of <strong class="num" [style.min-width.ch]="peerDigits()">{{ rk.of }}</strong> {{ rk.group }} countries, <strong>{{ rk.year }}</strong>} @else {&nbsp;}</p>
         }
       </div>
     }

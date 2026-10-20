@@ -24,6 +24,8 @@ const ZOOM = { closest: 1.8, farthest: 6 };
 // Up close the borders are thick and the country fills the screen, so a full-size hatch reads as heavy stripes.
 const HATCH_FULL_FROM = 2.6;
 const HATCH_FINEST = 0.55;
+// Colour crossfade when the data changes (lesson 12). Shorter than one year of playback (1 / 8 s), so fades never pile up.
+const PALETTE_FADE_S = 0.1;
 const FRAME_FARTHEST = 4; // the fly-to never backs off further than this, even for Russia
 const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
 const ID_MAP_TEXEL = (2 * Math.PI) / ID_MAP_WIDTH; // one ID map pixel, as a distance on the unit sphere (≈ 10 km)
@@ -83,6 +85,7 @@ export class GlobeScene {
   private userTookOver = false;
   private autoRotateWanted = true;
   private flight: gsap.core.Tween | null = null;
+  private paletteFade: gsap.core.Tween | null = null;
   private down: { x: number; y: number } | null = null;
   private dragging = false; // the press has moved past CLICK_TOLERANCE: it's a drag, not a click
   private zoomTarget: number | null = null; // where an eased wheel zoom is heading (distance from the centre); null = not zooming
@@ -153,6 +156,14 @@ export class GlobeScene {
     this.ids = ids;
     this.features = features;
     this.numberById = new Map(features.map((f, i) => [f.id, i + 1]));
+    // Each country's centre, for its hatching direction (earth-material.ts): slot n = country n, xyz packed into bytes
+    const centres = this.earthMaterial.uniforms['centres'].value as DataTexture;
+    const bytes = centres.image.data as Uint8Array;
+    features.forEach((f, i) => {
+      const v = lonLatToVector3(...f.properties.label);
+      bytes.set([v.x, v.y, v.z, 1].map(c => Math.round((c + 1) * 127.5)), (i + 1) * 4);
+    });
+    centres.needsUpdate = true;
     this.earthMaterial.uniforms['idMap'].value = texture;
     this.setHighlight(this.highlight.hovered, this.highlight.selected); // ids → numbers, now that the numbers exist
     this.setFills(this.fills);
@@ -179,10 +190,23 @@ export class GlobeScene {
 
   // Country colours → the palette texture (lesson 09): slot n gets the colour of country number n, alpha 0 = no data.
   // null = not coloured (plain white land), e.g. while the data loads.
-  setFills(fills: ReadonlyMap<string, string> | null) {
+  // Lesson 12: fade = crossfade from the old colours (another year, another metric). The old bytes go to previousPalette and
+  // GSAP runs paletteMix from 0 to 1; each step only redraws. A new change mid-fade starts from the old fade's target.
+  setFills(fills: ReadonlyMap<string, string> | null, fade = false) {
+    const hadFills = !!this.fills;
     this.fills = fills;
-    const palette = this.earthMaterial.uniforms['palette'].value as DataTexture;
+    const uniforms = this.earthMaterial.uniforms;
+    const palette = uniforms['palette'].value as DataTexture, previous = uniforms['previousPalette'].value as DataTexture;
     const bytes = palette.image.data as Uint8Array;
+    this.paletteFade?.kill();
+    this.paletteFade = null;
+    uniforms['paletteMix'].value = 1;
+    if (fade && hadFills && fills) {
+      (previous.image.data as Uint8Array).set(bytes);
+      previous.needsUpdate = true;
+      uniforms['paletteMix'].value = 0;
+      this.paletteFade = gsap.to(uniforms['paletteMix'], { value: 1, duration: PALETTE_FADE_S, ease: 'none', onUpdate: () => this.invalidate() });
+    }
     bytes.fill(0);
     if (fills) {
       for (const [id, n] of this.numberById) {
@@ -416,6 +440,9 @@ export class GlobeScene {
     for (const disposable of [this.earthGeometry, this.earthMaterial, this.gridGeometry, this.gridMaterial, this.bordersGeometry, this.bordersMaterial, this.auraGeometry, this.auraMaterial]) disposable.dispose();
     this.idMap?.dispose();
     (this.earthMaterial.uniforms['palette'].value as DataTexture).dispose();
+    (this.earthMaterial.uniforms['previousPalette'].value as DataTexture).dispose();
+    (this.earthMaterial.uniforms['centres'].value as DataTexture).dispose();
+    this.paletteFade?.kill();
     this.renderer.dispose();
     this.renderer.forceContextLoss(); // hand the WebGL context back now; browsers allow only ~16 at once
   }
