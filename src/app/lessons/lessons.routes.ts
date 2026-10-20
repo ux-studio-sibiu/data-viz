@@ -12,5 +12,6 @@ export const lessonRoutes: Routes = [
   { path: 'picking', loadComponent: () => import('./lesson-picking/lesson-picking').then(m => m.LessonPicking), title: '06 Picking' },
   { path: 'state-url', loadComponent: () => import('./lesson-state-url/lesson-state-url').then(m => m.LessonStateUrl), title: '07 Stores and the URL' },
   { path: 'co2-data', loadComponent: () => import('./lesson-co2-data/lesson-co2-data').then(m => m.LessonCo2Data), title: '08 Data pipeline: CO₂' },
+  { path: 'choropleth', loadComponent: () => import('./lesson-choropleth/lesson-choropleth').then(m => m.LessonChoropleth), title: '09 Choropleth and legend' },
   { path: 'fly-to', loadComponent: () => import('./lesson-fly-to/lesson-fly-to').then(m => m.LessonFlyTo), title: '10 Fly to a country' } // pulled forward
 ];

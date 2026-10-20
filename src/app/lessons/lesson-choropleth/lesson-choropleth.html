@@ -1,0 +1,79 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 09">
+  <h1>Choropleth and legend</h1>
+  <p>The globe and the map are now coloured by data: CO₂ per person in the latest year by default. A legend in the bottom-left corner says what the colours mean, and its title is a switch: per person, per year, share of all CO₂ since 1750, consumption-based, GDP per person. Try <a routerLink="/" [queryParams]="{ metric: null }">per person</a>, <a routerLink="/" [queryParams]="{ metric: 'co2' }">per year</a>, <a routerLink="/" [queryParams]="{ metric: 'share_global_cumulative_co2' }">historical share</a>.</p>
+
+  <h2>1. Colour by the job: one hue, light → dark</h2>
+  <ul>
+    <li>CO₂ per person is a <strong>magnitude</strong>, more or less of one thing. That calls for a <strong>sequential</strong> scale: one hue, from light (little) to dark (a lot). No rainbows: a rainbow has no natural order, so the eye can't tell whether green is more than yellow.</li>
+    <li>The palette is ColorBrewer's <strong>Oranges</strong> (7 classes), designed by cartographers for exactly this: perceptually ordered and colour-blind safe. Orange is warm, fitting for carbon, and stays clear of the bluish-grey sea.</li>
+    <li><strong>"No data" isn't a colour on the scale.</strong> It's white with light grey hatching, so it can never be read as "the lowest class". Western Sahara, Kosovo and the small dependencies from lesson 08 show up this way.</li>
+    <li>The selection hatching is now <strong>ink</strong>, not red: red lines on dark orange disappeared. The hatching leaves gaps, so the selected country's own colour stays readable.</li>
+  </ul>
+
+  <h2>2. Classes, and where to cut them</h2>
+  <pre><code>// charts/choropleth.ts
+breaks     = quantiles at 1/7, 2/7 … 6/7 of all countries' values   (d3-array quantileSorted)
+thresholds = breaks rounded to 2 significant digits                  0.43 · 1.2 · 2.4 · 3.7 · 5.3 · 8.6 t
+colour(v)  = scaleThreshold(thresholds, 7 colours)(v)                (d3-scale)</code></pre>
+  <ul>
+    <li><strong>Classed, not continuous:</strong> 7 colours the eye can tell apart and match back to the legend. A smooth gradient looks richer, but nobody can read "4.3 t" off it.</li>
+    <li><strong>Quantile breaks:</strong> each class holds about the same number of countries (28–32 here). CO₂ per person runs from 0.03 t to 41 t. Equal-width classes (0–6, 6–12, …) would paint nearly every country the palest orange and spend six colours on a dozen Gulf states. A log scale is the other common fix; quantiles also handle metrics that aren't log-shaped, like GDP.</li>
+    <li><strong>The price of quantiles:</strong> the classes are unequal in width (0.43 to 1.2 is narrow, 8.6 to 41 is wide), so the legend must show the breaks. Each metric gets its own breaks, recomputed when you switch.</li>
+    <li><strong>Rounded breaks:</strong> 2 significant digits, so the legend reads 1.2, not 1.1839. Rounding can make two breaks equal; those are merged, so the thresholds stay strictly increasing.</li>
+    <li><strong>One year, honestly:</strong> the metric's latest year (2024; 2023 for consumption; 2022 for GDP). A country without a value in that year is "no data"; its older figure isn't shown in its place. The legend prints the year.</li>
+  </ul>
+
+  <h2>3. On the globe: a 1 kB palette texture</h2>
+  <ul>
+    <li>Lesson 05's ID map already tells the shader which country every pixel belongs to. Colouring adds a second, tiny texture: <strong>256 × 1 pixels, slot n = the colour of country n</strong>. Alpha 255 = has a value, alpha 0 = no data.</li>
+    <li>Switching metrics rewrites those 1 024 bytes (<code>GlobeScene.setFills</code>) and draws one frame. The 8 MB ID map isn't touched.</li>
+    <li>The texture is marked <code>SRGBColorSpace</code>: its bytes are CSS-style colours, and Three.js converts them to linear for the shader, so <code>#d94801</code> on the globe matches <code>#d94801</code> in the legend.</li>
+    <li>Hover darkens a country's colour by 18% instead of replacing it, so you still see its class while pointing at it.</li>
+  </ul>
+
+  <h2>4. On the flat map: inline fills</h2>
+  <ul>
+    <li><code>FlatMap</code> gets a <code>fills</code> input (country id → colour) and binds <code>[style.fill]</code> on each path. The 240 path strings from lesson 03 aren't rebuilt; only the fills change, with a short CSS transition.</li>
+    <li><strong>The bug:</strong> the first version bound <code>[attr.fill]</code> and every country stayed white. The stylesheet's <code>fill: var(--surface)</code> outranks an SVG <em>attribute</em>, but not an inline <em>style</em>.</li>
+    <li>No data uses an SVG <code>&lt;pattern&gt;</code>, the same hatching as on the globe. The selection pattern is now transparent between its lines.</li>
+  </ul>
+
+  <h2>5. The legend: generic, with a slot</h2>
+  <ul>
+    <li><code>charts/legend/legend.ts</code> takes thresholds, colours, a unit and a year. It draws the swatches, the breaks between them, and a "no data" swatch. It knows nothing about CO₂.</li>
+    <li>The metric switcher is the explorer's <code>&lt;select&gt;</code>, projected into the legend's <code>[legend-title]</code> slot: same pattern as <code>FloatingPanel</code> (lesson 01) and the tooltips.</li>
+    <li>The metric lives in the URL (<code>?metric=co2</code>), like the country and the view (lesson 07). Switching replaces the history entry. The default leaves the URL clean.</li>
+    <li>Tooltips now show the hovered country's value: "United States of America · 4,900 Mt per year", or "no data".</li>
+  </ul>
+
+  <h2>6. Loading the right metric</h2>
+  <pre><code>private readonly mapSeries = computed(() => &#123;
+  const id = this.state.metric();
+  return untracked(() => this.co2.metric(id)); // creates the resource on first use
+&#125;);</code></pre>
+  <ul>
+    <li><code>Co2Data.metric(id)</code> creates a resource the first time, which starts a request and registers effects: a side effect. Angular doesn't allow that inside a tracking <code>computed</code>. <code>untracked()</code> runs it outside tracking, while the computed still re-runs when <code>metric()</code> changes.</li>
+    <li>Per person is shared with the selection card (lesson 08), so the default view loads nothing extra. Other metrics are downloaded the first time they're chosen, then cached for the session.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>charts/choropleth.ts</code>: classes and colours; <code>charts/legend/legend.ts</code>: the legend</li>
+    <li><code>globe/earth-material.ts</code>: palette texture, no-data hatching, darkened hover, ink selection; <code>globe/globe-scene.ts</code>: <code>setFills</code>; <code>globe/globe.ts</code>: <code>fills</code> input</li>
+    <li><code>charts/flat-map/*</code>: <code>fills</code> input, hatch patterns</li>
+    <li><code>pages/explorer/*</code>: the metric, the choropleth, the legend, tooltip values; <code>explorer-state.ts</code>: <code>?metric=</code></li>
+    <li><code>ui/dock/dock-bar.ts</code>: moved to the bottom centre, making room for the legend</li>
+    <li>Packages: <code>d3-scale</code>, <code>d3-array</code> (+ types)</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Default view: Europe, Russia, the Gulf dark; the Sahel and Central Africa palest; Western Sahara hatched</li>
+    <li>Switch to "Annual CO₂ emissions": China, the USA, India darkest; small countries go pale; the legend's breaks change</li>
+    <li>Switch to GDP per capita: the year in the legend becomes 2022</li>
+    <li>Hover a few countries: the tooltip value falls in the class its colour shows</li>
+    <li>Select France: ink hatching over its orange, which stays readable</li>
+    <li>Switch to the map: same colours, same legend; reload: same metric (it's in the URL)</li>
+  </ul>
+</app-lesson-page>

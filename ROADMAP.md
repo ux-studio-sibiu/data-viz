@@ -109,7 +109,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 06 | Picking | Hover highlight, click to select, shared selection with the map | Ray vs. a maths sphere → lon/lat → ID map pixel, shader uniforms, click vs. drag |
 | 07 | Stores and the URL | Selection store, country search list | Signal stores, query-param sync, keyboard access, microstates |
 | 08 | Data pipeline II: CO₂ | OWID CO₂ → 7 per-metric files + meta; CO₂ figures in the selection card; Western Sahara revisited (kept de facto: OWID has no data for it) | Typed models, `httpResource` with `parse`, missing values with years |
-| 09 | Choropleth and legend | Colored globe + legend | `d3-scale` (log, quantile), palette texture |
+| 09 | Choropleth and legend | Globe and map coloured by a metric (?metric=), legend with a metric switcher, hatched no-data | `d3-scale` threshold + quantile breaks, 256×1 palette texture, legend slot |
 | 10 | Fly to a country ✓ (done after 07) | Camera flight to the selected country, framed at 30% of the screen; the panel reveal moves to 11 | GSAP driving a slerp + climb, camera ownership, reduced motion |
 | 11 | Country detail panel | Historical chart, per-capita vs total, income-group peers | D3 line chart in an Angular SVG template |
 | 12 | Time | Year slider + play | GSAP palette transitions, when interpolating between years is honest |

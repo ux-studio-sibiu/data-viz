@@ -1,33 +1,38 @@
+@use '../../../styles/paper' as paper;
+
 // Starts docked to the bottom-right corner; Draggable's translate moves it from there.
+// The studio panel look: a 2px ink edge and a solid black title bar. The lift is the portfolio's hard offset shadow, not
+// the hatched L: `resize` needs overflow: hidden, which would clip strips drawn outside the box.
 .nsc-floating-panel {
   position: fixed; inset: auto 24px 24px auto; z-index: 20; margin: 0; padding: 0;
   display: flex; flex-direction: column;
   width: 440px; height: min(70dvh, 640px); min-width: 280px; min-height: 160px; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px);
   resize: both; overflow: hidden;
-  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg);
-  box-shadow: 0 16px 48px var(--shadow);
+  border: paper.$border solid var(--ink); border-radius: 0; background: var(--surface); color: var(--fg);
+  box-shadow: 4px 6px #00000033;
 
   &.is-minimized { display: none; }
   &.is-dragging { opacity: 0.92; user-select: none; }
 
+  // The one solid black band, and the handle the whole window is dragged by
   .title-bar {
-    display: flex; align-items: center; gap: 8px; flex: none; padding: 6px 6px 6px 10px;
-    border-bottom: 1px solid var(--line); cursor: grab; user-select: none;
+    display: flex; align-items: center; gap: 8px; flex: none; height: 36px; padding: 0 4px 0 10px;
+    background: var(--ink); color: var(--surface); cursor: grab; user-select: none;
 
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   }
   &.is-dragging .title-bar { cursor: grabbing; }
 
-  .grip { color: var(--muted); }
-  .title { flex: 1; min-width: 0; overflow: hidden; font-size: 0.9rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+  .grip { opacity: 0.6; }
+  .title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 700; @include paper.mono-label(0.6875rem, 0.16em); }
   .actions { display: flex; align-items: center; gap: 2px; }
 
   // Applies to projected [panel-actions] buttons too: ::ng-deep is needed because projected content carries the parent's style scope
   .actions ::ng-deep :is(button, a) {
     display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px;
-    border: 0; border-radius: 6px; background: none; color: var(--muted); font: inherit; text-decoration: none; cursor: pointer;
+    border: 0; border-radius: 0; background: none; color: var(--surface); font: inherit; text-decoration: none; cursor: pointer;
 
-    &:hover:not(:disabled) { background: var(--code-bg); color: var(--fg); }
+    &:hover:not(:disabled) { background: var(--surface); color: var(--ink); } // inverted under the pointer, like the studio's buttons
     &:disabled { opacity: 0.35; cursor: default; }
   }
 

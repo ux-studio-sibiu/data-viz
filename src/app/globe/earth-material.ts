@@ -1,7 +1,19 @@
-import { Color, DataTexture, ShaderMaterial } from 'three';
+import { Color, DataTexture, NearestFilter, ShaderMaterial, SRGBColorSpace } from 'three';
+
+export const PALETTE_SIZE = 256; // one colour slot per ID map number (0 = ocean, 1…240 = countries)
+
+// The choropleth palette (lesson 09): a 256 × 1 texture, slot n = the colour of country number n.
+// Alpha 255 = has a value, alpha 0 = no data. Recolouring the globe for another metric or year rewrites 1 kB, nothing else.
+export function createPaletteTexture() {
+  const texture = new DataTexture(new Uint8Array(PALETTE_SIZE * 4), PALETTE_SIZE, 1);
+  texture.magFilter = texture.minFilter = NearestFilter; // never blend two countries' colours
+  texture.colorSpace = SRGBColorSpace;                   // the bytes are sRGB, like CSS colours; the shader gets linear values
+  texture.needsUpdate = true;
+  return texture;
+}
 
 // The Earth's surface, coloured from the ID map (id-map.ts): 0 = ocean, anything else = land.
-// Lesson 06: the hovered and the selected country are marked. Lesson 09 adds a colour per country.
+// Lesson 06: the hovered and the selected country are marked. Lesson 09: each country coloured by its data (the palette).
 //
 // Drawn like an architectural plan: white land, a flat bluish-grey sea, the selection hatched in red. The hatching is engraved on the globe:
 // each line is where one of a family of parallel planes slices the sphere, so it turns with the globe and spreads apart as you
@@ -23,8 +35,8 @@ export function createEarthMaterial() {
       // Country numbers from the ID map (1…240); 0 = none. Changing one is a uniform update, nothing is rebuilt.
       hovered: { value: 0 },
       selected: { value: 0 },
-      hoverColor: { value: new Color('#e6e3dc') },
-      selectColor: { value: new Color('#d1261b') },
+      palette: { value: createPaletteTexture() },
+      colored: { value: 0 }, // 0 until a palette is set: plain white land, not "no data" everywhere while the data loads
       pixelRatio: { value: 1 } // line widths are in CSS pixels, so they look the same on a 2× screen
     },
     vertexShader: `
@@ -40,8 +52,8 @@ export function createEarthMaterial() {
       uniform vec3 ink;
       uniform float hovered;
       uniform float selected;
-      uniform vec3 hoverColor;
-      uniform vec3 selectColor;
+      uniform sampler2D palette;
+      uniform float colored;
       uniform float pixelRatio;
       varying vec3 vPosition;
 
@@ -69,12 +81,17 @@ export function createEarthMaterial() {
         // Computed for every pixel, before the ifs: fwidth() compares neighbouring pixels, and inside an if a neighbour that
         // took the other branch (the selected country vs its neighbour, right at a border) leaves it undefined.
         float selectedLines = hatch(p, normalize(vec3(-1.0, 1.0, 0.35)), 170.0, 1.2); // ~37 km apart
+        float noDataLines = hatch(p, normalize(vec3(1.0, 1.0, 0.35)), 110.0, 0.8);    // the other direction, finer, lighter
 
+        vec4 data = texture2D(palette, vec2((id + 0.5) / 256.0, 0.5)); // the centre of slot "id"
         vec3 color;
         if (id < 0.5) color = ocean;
-        else if (abs(id - selected) < 0.5) color = mix(land, selectColor, 0.9 * selectedLines);
-        else if (abs(id - hovered) < 0.5) color = hoverColor;                                          // floats: compare with a tolerance, not ==
-        else color = land;
+        else {
+          // No data: white with light grey hatching, so it can never be mistaken for "the lowest class"
+          color = colored < 0.5 ? land : data.a > 0.5 ? data.rgb : mix(land, ink, 0.3 * noDataLines);
+          if (abs(id - hovered) < 0.5) color = mix(color, ink, 0.18);              // floats: compare with a tolerance, not ==
+          if (abs(id - selected) < 0.5) color = mix(color, ink, 0.85 * selectedLines); // ink over the data colour, which stays visible between lines
+        }
 
         gl_FragColor = vec4(color, 1.0);
         #include <colorspace_fragment>

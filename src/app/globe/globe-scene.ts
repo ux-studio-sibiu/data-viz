@@ -24,6 +24,14 @@ const FRAME_FARTHEST = 4; // the fly-to never backs off further than this, even 
 const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
 const ID_MAP_TEXEL = (2 * Math.PI) / ID_MAP_WIDTH; // one ID map pixel, as a distance on the unit sphere (≈ 10 km)
 const CLICK_TOLERANCE = 5; // px: a press that moves further than this is a drag (rotating the globe), not a click
+// Wheel zoom: each pixel of scroll multiplies the target distance by e^(px · 0.0015): one mouse notch (100 px) ≈ ×1.16.
+// Multiplicative, so a notch feels the same close up and far away. The camera eases toward the target with a ~90 ms time
+// constant: ~95% of the way in 0.27 s, so a notch becomes a short glide and a trackpad stays continuous.
+const ZOOM_PER_PIXEL = 0.0015;
+const ZOOM_EASE_MS = 90;
+// Drag sensitivity. 1 = "grab and follow": the point you press on stays under the cursor (see updateRotateSpeed).
+// Above 1 the globe turns faster than the cursor moves, below 1 slower.
+const DRAG_FEEL = 1;
 
 // Built once per page load, not once per globe. The data never changes during a visit, so a Map → Globe switch reuses
 // these instead of rasterizing (~90 ms) and densifying the borders again. WeakMap: keyed by the data arrays themselves,
@@ -63,6 +71,7 @@ export class GlobeScene {
   private features: CountryFeature[] = [];
   private numberById = new Map<string, number>(); // 'FRA' → its number in the ID map (features[0] is 1)
   private highlight = { hovered: null as string | null, selected: null as string | null };
+  private fills: ReadonlyMap<string, string> | null = null; // country id → colour (lesson 09)
 
   private running = false;
   private dirty = false; // something changed that the next frame must show (invalidate)
@@ -71,6 +80,9 @@ export class GlobeScene {
   private autoRotateWanted = true;
   private flight: gsap.core.Tween | null = null;
   private down: { x: number; y: number } | null = null;
+  private dragging = false; // the press has moved past CLICK_TOLERANCE: it's a drag, not a click
+  private zoomTarget: number | null = null; // where an eased wheel zoom is heading (distance from the centre); null = not zooming
+  private lastTick = 0;
 
   private readonly raycaster = new Raycaster();
   private readonly pointer = new Vector2();
@@ -97,10 +109,12 @@ export class GlobeScene {
       new Mesh(this.auraGeometry, this.auraMaterial)
     );
 
-    // Drag to rotate, wheel/pinch to zoom. Damping = it glides to a stop instead of halting.
+    // Drag to rotate, pinch to zoom. Damping = it glides to a stop instead of halting.
+    // The mouse wheel is handled here instead (onWheel): OrbitControls applies each wheel notch as an instant jump.
     this.controls = new OrbitControls(this.camera, canvas);
-    Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: ZOOM.closest, maxDistance: ZOOM.farthest, rotateSpeed: 0.5, zoomSpeed: 0.7, autoRotateSpeed: 0.35 });
+    Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: ZOOM.closest, maxDistance: ZOOM.farthest, zoomSpeed: 0.7, autoRotateSpeed: 0.35 });
 
+    this.updateRotateSpeed();
     this.resizeObserver.observe(canvas);
     this.visibility.observe(canvas);
     this.resize(); // size the buffer now; the observer's first report can come a frame later (or not at all in a hidden tab)
@@ -108,7 +122,9 @@ export class GlobeScene {
     canvas.addEventListener('pointermove', this.onPointerMove);
     canvas.addEventListener('pointerup', this.onPointerUp);
     canvas.addEventListener('pointerleave', this.onPointerLeave);
-    canvas.addEventListener('wheel', this.onWheel, { passive: true });
+    // Capture phase: on the canvas itself, capture listeners run before OrbitControls' own wheel listener, so onWheel can stop it.
+    // Not passive: preventDefault() keeps ctrl+wheel (a trackpad pinch) from zooming the whole page.
+    canvas.addEventListener('wheel', this.onWheel, { capture: true, passive: false });
     this.controls.addEventListener('start', this.onControlsStart);
   }
 
@@ -132,6 +148,7 @@ export class GlobeScene {
     this.numberById = new Map(features.map((f, i) => [f.id, i + 1]));
     this.earthMaterial.uniforms['idMap'].value = texture;
     this.setHighlight(this.highlight.hovered, this.highlight.selected); // ids → numbers, now that the numbers exist
+    this.setFills(this.fills);
   }
 
   // Borders → fat line segments on the sphere (lesson 05), densified once per page load (bordersCache)
@@ -150,6 +167,26 @@ export class GlobeScene {
     this.highlight = { hovered, selected };
     this.earthMaterial.uniforms['hovered'].value = this.numberById.get(hovered ?? '') ?? 0;
     this.earthMaterial.uniforms['selected'].value = this.numberById.get(selected ?? '') ?? 0;
+    this.invalidate();
+  }
+
+  // Country colours → the palette texture (lesson 09): slot n gets the colour of country number n, alpha 0 = no data.
+  // null = not coloured (plain white land), e.g. while the data loads.
+  setFills(fills: ReadonlyMap<string, string> | null) {
+    this.fills = fills;
+    const palette = this.earthMaterial.uniforms['palette'].value as DataTexture;
+    const bytes = palette.image.data as Uint8Array;
+    bytes.fill(0);
+    if (fills) {
+      for (const [id, n] of this.numberById) {
+        const hex = fills.get(id);
+        if (!hex) continue;
+        const rgb = parseInt(hex.slice(1), 16);
+        bytes.set([(rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, 255], n * 4);
+      }
+    }
+    palette.needsUpdate = true; // upload the 1 kB again
+    this.earthMaterial.uniforms['colored'].value = fills ? 1 : 0;
     this.invalidate();
   }
 
@@ -182,14 +219,42 @@ export class GlobeScene {
     this.renderer.setAnimationLoop(null);
   }
 
-  private readonly tick = () => {
+  private readonly tick = (time: number) => {
+    // Time since the last frame, for frame-rate-independent easing. After a pause (the loop was asleep) assume one 60 Hz frame.
+    const dt = this.lastTick && time - this.lastTick < 100 ? time - this.lastTick : 1000 / 60;
+    this.lastTick = time;
+    const zooming = this.easeZoom(dt);
+    this.updateRotateSpeed(); // the zoom may have changed since the last frame
     const moved = this.controls.update(); // true while the camera is still changing
     // Auto-rotation always renders and keeps the loop alive: with damping it ramps up from almost nothing,
     // so its first frames move less than update()'s threshold and would otherwise be skipped, and the loop stopped.
-    if (moved || this.dirty || this.controls.autoRotate) this.render();
+    if (moved || zooming || this.dirty || this.controls.autoRotate) this.render();
     this.dirty = false;
-    if (!moved && !this.controls.autoRotate) this.sleep();
+    if (!moved && !zooming && !this.controls.autoRotate) this.sleep();
   };
+
+  // Drag speed that follows the zoom. OrbitControls turns the globe by 2π · rotateSpeed radians per screen height of drag.
+  // One pixel on screen spans 2 · tan(fov/2) · (distance − 1) / height on the surface facing the camera (distance − 1 = how far
+  // the camera is from it), and on a unit sphere that length is also the angle. Equal when
+  //   rotateSpeed = tan(fov/2) · (distance − 1) / π
+  // ≈ 0.22 at the start distance (2.9), 0.09 fully zoomed in, 0.58 zoomed out. A fixed speed (it was 0.5) is too fast up close,
+  // where a small drag should move a small part of the world.
+  private updateRotateSpeed() {
+    const toSurface = this.camera.position.length() - 1;
+    this.controls.rotateSpeed = DRAG_FEEL * Math.tan(MathUtils.degToRad(this.camera.fov / 2)) * toSurface / Math.PI;
+  }
+
+  // One step of the eased wheel zoom: move the camera a fraction of the remaining way to zoomTarget, along its own direction.
+  // 1 − e^(−dt/τ) is that fraction: the same glide at 60 Hz and 144 Hz. Returns whether a zoom is still in progress.
+  private easeZoom(dt: number) {
+    if (this.zoomTarget === null) return false;
+    const distance = this.camera.position.length();
+    const next = distance + (this.zoomTarget - distance) * (1 - Math.exp(-dt / ZOOM_EASE_MS));
+    const arrived = Math.abs(this.zoomTarget - next) < 1e-4;
+    this.camera.position.setLength(arrived ? this.zoomTarget : next);
+    if (arrived) this.zoomTarget = null;
+    return true;
+  }
 
   private render() {
     this.updateLineWidth();
@@ -224,6 +289,7 @@ export class GlobeScene {
     const target = frameCountry(feature, this.camera.fov, this.camera.aspect, 0.3, { min: ZOOM.closest, max: FRAME_FARTHEST });
     this.flight?.kill();
     this.flight = null;
+    this.zoomTarget = null; // the flight decides the distance now
     this.userTookOver = true; // a chosen country should stay put, not rotate away
     this.controls.autoRotate = false;
     this.sleep();
@@ -278,7 +344,15 @@ export class GlobeScene {
   private readonly onPointerMove = (e: PointerEvent) => {
     this.wake();
     // Hover only for a mouse or pen that isn't dragging. Touch has no hover, and while dragging the globe slides under the pointer.
-    if (e.buttons || e.pointerType === 'touch') return;
+    if (e.buttons || e.pointerType === 'touch') {
+      // When a press turns into a drag, clear the hover once: the tooltip and the highlight would otherwise hang where they were
+      // while the globe turns under them. A plain click keeps them; they come back with the first move after the drag.
+      if (this.down && !this.dragging && Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) >= CLICK_TOLERANCE) {
+        this.dragging = true;
+        this.on.hover(null, 0, 0);
+      }
+      return;
+    }
     const rect = this.canvas.getBoundingClientRect(); // read once, shared by picking and the tooltip position
     this.on.hover(this.pick(e, rect), e.clientX - rect.left, e.clientY - rect.top);
   };
@@ -288,10 +362,22 @@ export class GlobeScene {
       this.on.select(this.pick(e, this.canvas.getBoundingClientRect())); // the ocean deselects
     }
     this.down = null;
+    this.dragging = false;
   };
 
   private readonly onPointerLeave = () => this.on.hover(null, 0, 0);
-  private readonly onWheel = () => this.wake();
+  // The wheel moves a target distance; the render loop eases the camera there (easeZoom). Scrolling again mid-glide
+  // continues from the target, not from where the camera happens to be, so fast scrolling adds up instead of stalling.
+  private readonly onWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    e.stopImmediatePropagation(); // OrbitControls would jump; we ease
+    const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? this.canvas.clientHeight : 1); // lines / pages → pixels
+    this.flight?.kill(); // scrolling takes the camera back from a flight
+    this.flight = null;
+    const from = this.zoomTarget ?? this.camera.position.length();
+    this.zoomTarget = MathUtils.clamp(from * Math.exp(px * ZOOM_PER_PIXEL), ZOOM.closest, ZOOM.farthest);
+    this.wake();
+  };
 
   // A drag interrupts a flight, and stops auto-rotation for good
   private readonly onControlsStart = () => {
@@ -311,11 +397,12 @@ export class GlobeScene {
     this.canvas.removeEventListener('pointermove', this.onPointerMove);
     this.canvas.removeEventListener('pointerup', this.onPointerUp);
     this.canvas.removeEventListener('pointerleave', this.onPointerLeave);
-    this.canvas.removeEventListener('wheel', this.onWheel);
+    this.canvas.removeEventListener('wheel', this.onWheel, { capture: true }); // same capture flag, or it isn't removed
     this.controls.removeEventListener('start', this.onControlsStart);
     this.controls.dispose();
     for (const disposable of [this.earthGeometry, this.earthMaterial, this.gridGeometry, this.gridMaterial, this.bordersGeometry, this.bordersMaterial, this.auraGeometry, this.auraMaterial]) disposable.dispose();
     this.idMap?.dispose();
+    (this.earthMaterial.uniforms['palette'].value as DataTexture).dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss(); // hand the WebGL context back now; browsers allow only ~16 at once
   }

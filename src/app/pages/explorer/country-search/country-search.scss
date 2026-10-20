@@ -1,29 +1,32 @@
+@use '../../../../styles/paper' as paper;
+
 :host { display: block; }
 
 .nsc-country-search {
   position: relative; width: 100%;
 
   input {
-    width: 100%; padding: 8px 12px; border: 1px solid var(--ink); border-radius: 2px; background: rgb(255 255 255 / 0.9); backdrop-filter: blur(6px);
-    color: var(--fg); font: inherit; font-size: 0.9rem;
+    @include paper.field;
+    width: 100%; height: 38px; padding: 0 12px; font-size: 0.9rem;
 
-    &::placeholder { color: var(--muted); letter-spacing: 0.04em; }
+    &::placeholder { color: var(--muted); @include paper.mono-label(0.6875rem, 0.14em); }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   }
 
   .results {
-    position: absolute; top: calc(100% - 1px); left: 0; right: 0; z-index: 1; margin: 0; padding: 0; list-style: none;
-    border: 1px solid var(--ink); background: var(--surface); box-shadow: 0 8px 24px var(--shadow);
+    position: absolute; top: calc(100% - 2px); left: 0; right: 0; z-index: 1; margin: 0; padding: 0; list-style: none;
+    border: paper.$border solid var(--ink); background: var(--surface); box-shadow: 3px 5px #00000033;
   }
 
   li {
     display: grid; grid-template-columns: 1fr auto; gap: 0 12px; padding: 6px 12px; cursor: pointer;
 
-    &.is-active { background: var(--hover-fill); }
+    &.is-active { background: var(--ink); color: var(--surface); } // inverted, like the studio's controls under the pointer
+    &.is-active :is(.meta, .code) { color: var(--line); }
   }
   .name { font-size: 0.9rem; }
   .meta { grid-column: 1; color: var(--muted); font-size: 0.75rem; }
-  .code { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-family: ui-monospace, Consolas, monospace; font-size: 0.75rem; color: var(--muted); }
+  .code { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--muted); @include paper.mono-label(0.6875rem, 0.1em); }
 
   .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }

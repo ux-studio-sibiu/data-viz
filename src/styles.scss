@@ -6,6 +6,7 @@
   --hover-fill: #e6e3dc;     // a hovered country
   --sea: #d9e1e7;            // flat bluish grey (the globe shader uses the same value)
   --shadow: rgb(20 20 20 / 0.12);
+  --ui-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; // the studio's label face (used if installed)
   color-scheme: light;
 }
 
@@ -27,3 +28,6 @@ kbd { font-family: ui-monospace, Consolas, monospace; font-size: 0.85em; padding
 table { width: 100%; border-collapse: collapse; margin: 16px 0; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
+
+// The tooltip card's fade-in (styles/_paper.scss). Global: keyframes in a component stylesheet would be scoped to it.
+@keyframes paper-card-in { from { opacity: 0; } }

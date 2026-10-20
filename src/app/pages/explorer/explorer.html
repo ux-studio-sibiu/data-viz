@@ -4,9 +4,9 @@
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
     <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
     @defer (on immediate) {
-      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" (unsupported)="state.noWebgl()">
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" (unsupported)="state.noWebgl()">
         @if (country(); as c) {
-          <span globe-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
+          <span globe-tooltip><span class="card-title">{{ c.name }}</span><span class="card-role">{{ hoveredValue() }}</span></span>
         }
       </app-globe>
     } @placeholder {
@@ -17,9 +17,9 @@
   } @else if (boundaries.isLoading()) {
     <p class="status">Loading the map…</p>
   } @else {
-    <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" label="World map of countries. Hover a country to see its name, click to select it.">
+    <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" label="World map of countries, coloured by the chosen metric. Hover a country to see its value, click to select it.">
       @if (country(); as c) {
-        <span map-tooltip><strong>{{ c.name }}</strong> · {{ c.subregion }}</span>
+        <span map-tooltip><span class="card-title">{{ c.name }}</span><span class="card-role">{{ hoveredValue() }}</span></span>
       }
     </app-flat-map>
   }
@@ -57,6 +57,18 @@
       }
     </div>
   </div>
+
+  <!-- Lesson 09: what the colours mean, and what they're of. The metric switcher goes in the legend's title slot. -->
+  @if (map(); as m) {
+    <app-legend class="legend" [thresholds]="m.thresholds" [colors]="m.colors" [unit]="shortUnit()" [year]="m.year">
+      <label legend-title class="metric">
+        <span class="visually-hidden">Colour the map by</span>
+        <select [value]="state.metric()" (change)="state.showMetric($any($event.target).value)">
+          @for (m of mapMetrics(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
+        </select>
+      </label>
+    </app-legend>
+  }
 
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

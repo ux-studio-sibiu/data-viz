@@ -16,23 +16,14 @@ import { GlobeScene } from './globe-scene';
     <!-- Lesson 06: content from the parent, moved with the pointer by writing style.translate directly (no signal per mouse move) -->
     <div #tooltip class="tooltip" [hidden]="!pointerOnCountry()"><ng-content select="[globe-tooltip]" /></div>
   `,
-  styles: `
-    :host { display: block; position: relative; }
-    .nsc-globe { display: block; width: 100%; height: 100%; cursor: grab; }
-    .nsc-globe.is-over-country { cursor: pointer; }
-    .nsc-globe:active { cursor: grabbing; }
-    .tooltip {
-      position: absolute; top: 0; left: 0; pointer-events: none; margin: 14px 0 0 14px;
-      padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
-      font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px var(--shadow);
-    }
-  `
+  styleUrl: './globe.scss'
 })
 export class Globe {
   readonly features = input<CountryFeature[]>([]); // lesson 05: drawn through the ID map
   readonly borders = input<number[][][]>([]);       // lesson 05: every border once, as [lon, lat] lines
   readonly hovered = model<string | null>(null);   // lesson 06: two-way, like FlatMap's, so either view can light up a country
   readonly selected = model<string | null>(null);  // lesson 06: set by a click; lesson 10: the camera flies to it
+  readonly fills = input<ReadonlyMap<string, string> | null>(null); // lesson 09: country id → colour; missing = no data
   readonly autoRotate = input(true);
   readonly label = input('A globe you can rotate by dragging and zoom with the mouse wheel or a pinch. Click a country to select it.');
   readonly unsupported = output(); // no WebGL: the parent shows the flat map instead
@@ -67,6 +58,7 @@ export class Globe {
       effect(() => scene.setFeatures(this.features()), { injector });
       effect(() => scene.setBorders(this.borders()), { injector });
       effect(() => scene.setHighlight(this.hovered(), this.selected()), { injector });
+      effect(() => scene.setFills(this.fills()), { injector });
 
       // Selected → fly there. Also on load with ?country=… in the URL, and when switching from the map with a country selected.
       // untracked(): only the selection and the features should re-run this, not what the flight reads.

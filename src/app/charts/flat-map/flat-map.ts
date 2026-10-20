@@ -18,6 +18,7 @@ export class FlatMap {
   readonly features = input.required<CountryFeature[]>();
   readonly hovered = model<string | null>(null); // two-way: the parent can read it, and set it from elsewhere (a list, a search)
   readonly selected = model<string | null>(null); // lesson 06: set by a click, shared with the globe
+  readonly fills = input<ReadonlyMap<string, string> | null>(null); // lesson 09: country id → colour; missing = no data
   readonly label = input('World map');
 
   protected readonly viewBox = `0 0 ${W} ${H}`;
@@ -29,6 +30,14 @@ export class FlatMap {
   protected readonly sphere = computed(() => this.path()({ type: 'Sphere' }) ?? '');
   protected readonly graticule = computed(() => this.path()(geoGraticule10()) ?? '');
   protected readonly countries = computed(() => this.features().map(f => ({ id: f.id, name: f.properties.name, d: this.path()(f) ?? '' })));
+
+  // Lesson 09: the fill for each path. Separate from `countries`, so recolouring doesn't rebuild the 240 path strings.
+  // Bound as [style.fill], not [attr.fill]: the stylesheet's `fill: var(--surface)` would beat an SVG fill attribute.
+  // null fills = not coloured yet (plain white); a country missing from the fills = no data (hatched).
+  protected fill(id: string) {
+    const fills = this.fills();
+    return fills ? (fills.get(id) ?? 'url(#no-data-hatch)') : null;
+  }
 
   protected readonly active = computed(() => this.countries().find(c => c.id === this.hovered()));
   protected readonly chosen = computed(() => this.countries().find(c => c.id === this.selected()));

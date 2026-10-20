@@ -1,0 +1,13 @@
+@use '../../styles/paper' as paper;
+
+:host { display: block; position: relative; }
+
+.nsc-globe { display: block; width: 100%; height: 100%; cursor: grab; }
+.nsc-globe.is-over-country { cursor: pointer; }
+.nsc-globe:active { cursor: grabbing; }
+
+// The cursor card (web-portfolio): follows the pointer, offset down-right so it's never under it
+.tooltip {
+  position: absolute; top: 0; left: 0; pointer-events: none; margin: 16px 0 0 16px;
+  @include paper.tooltip-card;
+}

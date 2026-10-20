@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Dock } from './dock';
 
-// Minimized windows, docked at the bottom-left. Click one to restore it where it was.
+// Minimized windows, docked at the bottom centre. Click one to restore it where it was.
 @Component({
   selector: 'app-dock-bar',
   template: `
@@ -13,10 +13,13 @@ import { Dock } from './dock';
   `,
   styles: `
     .nsc-dock-bar {
-      position: fixed; left: 16px; bottom: 16px; z-index: 30; display: flex; gap: 8px;
+      position: fixed; left: 50%; translate: -50% 0; bottom: 16px; z-index: 30; display: flex; gap: 8px;
 
-      button { font: inherit; font-size: 0.85rem; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg); cursor: pointer; }
-      button:hover { border-color: var(--accent); }
+      button {
+        height: 32px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 0; background: var(--surface); color: var(--fg); cursor: pointer;
+        box-shadow: 3px 5px #00000033; font-family: var(--ui-mono); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      }
+      button:hover { background: var(--ink); color: var(--surface); }
     }
   `
 })

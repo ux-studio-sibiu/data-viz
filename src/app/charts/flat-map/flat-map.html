@@ -2,12 +2,14 @@
   <svg [attr.viewBox]="viewBox" role="img" [attr.aria-label]="label()" (pointerleave)="hovered.set(null)" (click)="onClick($event)">
     <!-- The selection's hatching as an SVG pattern, lines rotated 45°. The globe draws the same thing in its shader. -->
     <defs>
-      <pattern id="selected-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="4" height="4" fill="#ffffff" /><line class="selected-lines" x1="0" y1="0" x2="0" y2="4" /></pattern>
+      <!-- Transparent between the lines: the selected country's own colour shows through (lesson 09) -->
+      <pattern id="selected-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line class="selected-lines" x1="0" y1="0" x2="0" y2="4" /></pattern>
+      <pattern id="no-data-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="#ffffff" /><line class="no-data-lines" x1="0" y1="0" x2="0" y2="4" /></pattern>
     </defs>
     <path class="sphere" [attr.d]="sphere()" />
     <path class="graticule" [attr.d]="graticule()" />
     <g class="countries" (pointerover)="onOver($event)">
-      @for (c of countries(); track c.id) { <path [attr.d]="c.d" [attr.data-id]="c.id" /> }
+      @for (c of countries(); track c.id) { <path [attr.d]="c.d" [attr.data-id]="c.id" [style.fill]="fill(c.id)" /> }
     </g>
     <!-- The hovered and selected countries drawn again on top, so their outlines aren't hidden under the neighbours' strokes.
          Selected last: it wins over hover, as on the globe. -->

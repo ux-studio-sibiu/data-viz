@@ -74,6 +74,19 @@ z = r · cos(lat) · cos(lon) // lon 0° (Greenwich) faces the camera</code></pr
     <li>Behaviour is unchanged: the same flights, picking, hover, render on demand and cleanup, checked in the browser after the split.</li>
   </ul>
 
+  <h2>7. Later: smooth zoom, natural drag</h2>
+  <ul>
+    <li><strong>The problem:</strong> OrbitControls' damping smooths rotation, not zoom. Each mouse-wheel notch moved the camera in one jump, so zooming felt jaggy.</li>
+    <li><strong>The fix:</strong> the wheel no longer moves the camera; it moves a <em>target distance</em>. Every frame the camera covers a fixed fraction of what's left (<code>easeZoom</code> in <code>globe-scene.ts</code>), so a notch becomes a 0.3 s glide. Measured for one notch: 2.9 → 2.83 → 2.73 → 2.69 … → 2.5.</li>
+    <li><strong>Multiplicative steps:</strong> a notch multiplies the target by <code>e^(px · 0.0015)</code>, about ×1.16, so it feels the same close up and far away. Scrolling again mid-glide continues from the target, so fast scrolling adds up instead of stalling. The target is clamped to the zoom limits (1.8–6).</li>
+    <li><strong>Frame-rate independent:</strong> the fraction is <code>1 − e^(−dt / 90 ms)</code>, using the time since the last frame, so the glide takes the same time at 60 Hz and 144 Hz. A plain "move 15% per frame" would zoom twice as fast on a 120 Hz screen.</li>
+    <li><strong>Taking the wheel from OrbitControls:</strong> the listener is registered in the <em>capture</em> phase. On the canvas itself, capture listeners run before OrbitControls' own wheel listener, and <code>stopImmediatePropagation()</code> keeps it from also jumping. Touch pinch is still OrbitControls' job. The listener isn't passive, so <code>preventDefault()</code> can stop ctrl+wheel (a trackpad pinch) from zooming the whole page.</li>
+    <li>Wheel deltas come in pixels, lines (Firefox mice) or pages; all three are converted to pixels first.</li>
+    <li><strong>Drag speed follows the zoom ("grab and follow"):</strong> a fixed <code>rotateSpeed</code> (it was 0.5) turns the globe the same angle per pixel at every zoom, far too much up close. OrbitControls turns by <code>2π · rotateSpeed</code> per screen height of drag, and one pixel covers <code>2 · tan(fov/2) · (distance − 1) / height</code> of the surface facing the camera. Setting them equal gives <code>rotateSpeed = tan(fov/2) · (distance − 1) / π</code>: 0.22 at the start, 0.09 fully zoomed in, 0.58 zoomed out. It's updated every frame, and <code>DRAG_FEEL</code> scales it if you want more or less.</li>
+    <li>Measured by projecting the grabbed point back to the screen after a drag: a vertical 80 px drag moved it 78 px (72 px zoomed in). A horizontal 120 px drag moved it about 100 px. That's not an error: dragging sideways turns the globe around its north–south axis, and away from the equator a point travels a smaller circle (cos 32° ≈ 0.85 at the start view's latitude), which is how a real globe behaves.</li>
+    <li><strong>The tooltip on drag:</strong> while a button is held, hover isn't updated, so the tooltip used to hang where it was while the globe turned under it. Now, the moment a press moves past the 5 px click tolerance, the hover is cleared once (tooltip and highlight). A plain click keeps them; they come back with the first move after the drag.</li>
+  </ul>
+
   <h2>Files in this lesson</h2>
   <ul class="note">
     <li><code>globe/globe.ts</code>: the component (split in two after lesson 10, see section 6); <code>globe/geo.ts</code>: lon/lat → xyz, the grid</li>

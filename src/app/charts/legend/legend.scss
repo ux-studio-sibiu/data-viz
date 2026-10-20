@@ -1,0 +1,22 @@
+@use '../../../styles/paper' as paper;
+
+:host { display: block; }
+
+.nsc-legend {
+  --swatch: 32px;
+  position: relative; margin: 0; padding: 10px 12px; // positioned: the hatched lift is drawn outside the box
+  @include paper.panel;
+
+  .title { margin-bottom: 8px; }
+  .scale { display: flex; gap: 2px; }
+  .swatch { width: var(--swatch); height: 12px; }
+  .no-data {
+    margin-left: 10px; border: 1px solid var(--line);
+    background: repeating-linear-gradient(45deg, #fff 0 3px, rgb(20 20 20 / 0.3) 3px 4px); // same hatching as the globe
+  }
+  .ticks { position: relative; height: 16px; margin-top: 2px; color: var(--muted); font-variant-numeric: tabular-nums; @include paper.mono-label(0.625rem, 0.02em); }
+  // Boundary i sits between swatch i-1 and i: (swatch width + 2px gap) × i, centred
+  .tick { position: absolute; left: calc((var(--swatch) + 2px) * var(--i) - 1px); translate: -50% 0; white-space: nowrap; }
+  .no-data-label { left: calc((var(--swatch) + 2px) * var(--classes) + 10px); translate: none; }
+  .caption { margin: 2px 0 0; color: var(--muted); @include paper.mono-label(0.625rem, 0.12em); }
+}

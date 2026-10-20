@@ -1,3 +1,5 @@
+@use '../../../styles/paper' as paper;
+
 :host { display: block; }
 
 .nsc-flat-map {
@@ -13,17 +15,17 @@
     fill: var(--surface); stroke: var(--ink); stroke-width: 0.5; stroke-linejoin: round; cursor: pointer;
     transition: fill 0.15s;
 
-    &:hover { fill: var(--hover-fill); }
+    &:hover { filter: brightness(0.85); } // darken the data colour, don't replace it
   }
 
-  .highlight { fill: var(--hover-fill); stroke: var(--ink); stroke-width: 1; pointer-events: none; }
+  .highlight { fill: rgb(20 20 20 / 0.15); stroke: var(--ink); stroke-width: 1; pointer-events: none; }
   .selected { fill: url(#selected-hatch); stroke: var(--ink); stroke-width: 1; pointer-events: none; } // same look as the globe
 
-  .selected-lines { stroke: var(--accent); stroke-width: 1.1; }
+  .selected-lines { stroke: var(--ink); stroke-opacity: 0.85; stroke-width: 1.1; }
+  .no-data-lines { stroke: var(--ink); stroke-opacity: 0.3; stroke-width: 0.6; }
 
   .tooltip {
-    position: absolute; translate: -50% calc(-100% - 10px); pointer-events: none;
-    padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
-    font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 16px var(--shadow);
+    position: absolute; translate: -50% calc(-100% - 12px); pointer-events: none;
+    @include paper.tooltip-card;
   }
 }
