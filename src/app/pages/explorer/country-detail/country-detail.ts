@@ -6,7 +6,7 @@ import { Co2Data } from '../../../data/co2-data';
 import { figure } from '../../../data/format';
 import { INCOME_ADJECTIVE, INCOME_LABEL, type Country } from '../../../data/country';
 import { MotionPreference } from '../../../shared/motion-preference';
-import { ExplorerState } from '../explorer-state';
+import { ExplorerState, MAX_COMPARED } from '../explorer-state';
 import { IncomeMeter } from '../income-meter/income-meter';
 
 
@@ -47,6 +47,10 @@ export class CountryDetail {
   private swapping = false;
 
   protected readonly income = INCOME_LABEL;
+
+  // Lesson 14: this country in the compare tray, and whether the tray has room for another
+  protected readonly pinned = computed(() => this.state.compared().includes(this.current().id));
+  protected readonly trayFull = computed(() => this.state.compared().length >= MAX_COMPARED);
   protected readonly modes = MODES;
 
   // Shared with the map through Co2Data: one request each, whoever asks first

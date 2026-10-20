@@ -7,6 +7,10 @@
          Its tooltip is CSS-only (shown on :hover, no delay), in the globe tooltip's style; screen readers get the aria-label. -->
     <h2>{{ c.longName }}@if (c.incomeGroup; as g) {<app-income-meter class="income" [group]="g" /><span class="tip" aria-hidden="true"><span class="tip-title">{{ income[g] }}</span><span class="tip-role">World Bank income group</span></span>}</h2>
     <p class="meta">{{ c.subregion }}@if (c.sovereign) { · Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}}</p>
+    <!-- Lesson 14: pin this country to the compare tray (up to three) -->
+    <div class="pin">
+      <button type="button" [class.is-active]="pinned()" [attr.aria-pressed]="pinned()" [disabled]="!pinned() && trayFull()" (click)="state.togglePin(c.id)">{{ pinned() ? '✓ Comparing' : trayFull() ? 'Compare: 3 is the most' : '+ Compare' }}</button>
+    </div>
   </header>
 
   <!-- Lesson 08: the latest CO₂ figures. One year on top; a figure from another year says so next to it. Missing data is said plainly, never shown as 0. -->

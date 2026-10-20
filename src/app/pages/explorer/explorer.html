@@ -1,4 +1,4 @@
-<section class="nsc-explorer" aria-label="The Carbon Divide: explore country-level climate data">
+<section class="nsc-explorer" [class.has-compare]="state.compared().length > 0" aria-label="The Carbon Divide: explore country-level climate data">
   <!-- The paper: white with a faint graph-paper grid, behind everything -->
   <app-backdrop class="backdrop" />
 
@@ -65,6 +65,9 @@
       </app-legend>
     }
   </div>
+
+  <!-- Lesson 14: the pinned countries side by side. Top right, under Lessons; empty (and not drawn) until something is pinned. -->
+  <app-compare-tray class="compare" [year]="year()" />
 
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

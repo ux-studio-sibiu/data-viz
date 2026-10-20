@@ -1,0 +1,25 @@
+@if (rows().length) {
+  <section class="nsc-compare-tray" aria-label="Compared countries">
+    <header class="head">
+      <h2 class="title">Compare</h2>
+      <div class="modes" role="group" aria-label="Units">
+        @for (m of modes; track m.id) {
+          <button type="button" [class.is-active]="mode() === m.id" [attr.aria-pressed]="mode() === m.id" (click)="mode.set(m.id)">{{ m.label }}</button>
+        }
+      </div>
+    </header>
+
+    <ol class="rows">
+      @for (r of rows(); track r.id) {
+        <li class="row" [class.is-selected]="r.id === state.selected()">
+          <button type="button" class="name" (click)="state.select(r.id)">{{ r.name }}</button>
+          <app-sparkline class="spark" [values]="r.values" [firstYear]="firstYear()" [domain]="domain()" [markYear]="year()" [reference]="mode() === 'index' ? 100 : null" [label]="r.label" />
+          <span class="value">{{ r.value }}</span>
+          <button type="button" class="remove" [attr.aria-label]="'Stop comparing ' + r.name" (click)="state.togglePin(r.id)">✕</button>
+        </li>
+      }
+    </ol>
+
+    <p class="note">{{ note() }}</p>
+  </section>
+}

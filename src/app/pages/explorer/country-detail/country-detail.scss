@@ -16,6 +16,7 @@
   header { position: relative; } // the meter's tooltip is placed against the header, so it never runs out of the panel's side
   h2 { margin: 0 36px 4px 0; font-size: 1.1rem; } // clear of the close box
   .meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
+  .pin { margin-top: 10px; }
   // The income meter: four rising bars, filled up to the group (1 = low … 4 = high), like a signal-strength icon
   .income { margin-left: 10px; } // the meter itself: income-meter.ts
   // The globe tooltip's card, under the name, shown at once while the meter is hovered
@@ -38,10 +39,9 @@
 
   .history { margin-top: 22px; }
   // A two-way switch in the studio's style: ink-edged segments, the active one inverted
-  .modes {
-    display: inline-flex; margin-bottom: 8px;
-    @include paper.segmented(24px, 0.625rem, 0.1em);
-  }
+  .modes { margin-bottom: 8px; }
+  // The Per person / Total switch and the Compare button: one rule, so the mixin's CSS is emitted once (component budget)
+  .modes, .pin { display: inline-flex; @include paper.segmented(24px, 0.625rem, 0.1em); }
   .rank { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; }
   .rank strong { color: var(--ink); font-variant-numeric: tabular-nums; } // tabular: every digit 1ch wide, so min-width in ch holds
   .rank .num { display: inline-block; text-align: right; }

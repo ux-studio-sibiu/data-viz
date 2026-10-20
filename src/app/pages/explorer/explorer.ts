@@ -8,6 +8,7 @@ import { Globe } from '../../globe/globe';
 import { CountryDetail } from './country-detail/country-detail';
 import { CountrySearch } from './country-search/country-search';
 import { ScatterView } from './scatter-view/scatter-view';
+import { CompareTray } from './compare-tray/compare-tray';
 import { IncomeMeter } from './income-meter/income-meter';
 import { Timeline } from '../../ui/timeline/timeline';
 import { Backdrop } from '../../ui/backdrop/backdrop';
@@ -29,9 +30,10 @@ const SHORT_UNIT: Record<string, string> = {
 // Lesson 11: the selection card becomes CountryDetail, with the country's history.
 // Lesson 12: a year slider with playback (?year=); the map, the panel and the tooltips follow it.
 // Lesson 13: a scatter plot of wealth × emissions, a third view beside the globe and the map (?view=scatter).
+// Lesson 14: up to three countries pinned side by side in a compare tray (?compare=).
 @Component({
   selector: 'app-explorer',
-  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter],
+  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter, CompareTray],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss'
 })

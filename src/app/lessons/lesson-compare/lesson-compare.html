@@ -1,0 +1,51 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 14">
+  <h1>Compare countries</h1>
+  <p>The detail panel has a <strong>+ Compare</strong> button. Pin up to three countries and a tray appears in the top right: one row each, with a sparkline of CO₂ since 1900, the value in the timeline's year, and ✕ to remove it. A switch above them changes the units: per person, total, or indexed to 1990. Try <a routerLink="/" [queryParams]="{ compare: 'DEU,CHN,IND', country: 'DEU' }">Germany, China and India</a>.</p>
+
+  <h2>1. Sparklines, and why they share one scale</h2>
+  <pre><code>&lt;app-sparkline [values]="row" [firstYear]="1900" [domain]="[0, max over ALL rows]" [markYear]="year" /&gt;</code></pre>
+  <ul>
+    <li>A sparkline is a "word-sized" chart (Edward Tufte's term): no axes, no labels, just the shape. Small enough to sit in a row next to a name and a number.</li>
+    <li><strong>The domain comes from outside.</strong> Fitted to its own data, each sparkline fills its box: India at 2 t per person and Germany at 7 t draw the same height, and the comparison the tray exists for is gone. One y range for all the rows, from 0, keeps heights comparable.</li>
+    <li>Small multiples rather than three lines in one chart: each shape stays readable on its own, and no colour key is needed. The rows line up because every row uses the same grid columns (name · sparkline · value · ✕).</li>
+    <li>Gaps stay gaps (<code>line().defined()</code>, as in lesson 11); the dot marks the timeline's year, so playing the timeline runs three dots along three lines.</li>
+  </ul>
+
+  <h2>2. Raw units vs an index</h2>
+  <pre><code>index(year) = value(year) ÷ value(1990) × 100</code></pre>
+  <ul>
+    <li><strong>Raw</strong> (t per person, Mt per year) answers <em>how much</em>. China (12,300 Mt) dwarfs Germany (572 Mt) in total; per person they are close (8.7 t vs 6.8 t). Two raw units, two different stories: both stay.</li>
+    <li><strong>Indexed</strong> answers <em>how fast it changed</em>. Every line starts at 100 in 1990, whatever its size: Germany is now at 51 (about half its 1990 emissions per person), China at 402, India at 329. In raw units, India's line hugs the floor and its growth is invisible.</li>
+    <li>1990 is the Kyoto Protocol's reference year, and late enough that almost every country has data. A country without a 1990 value says so ("no 1990 value") rather than borrowing another base year: a different base would make its 100 mean something else.</li>
+    <li>On the index the reference line at 100 is drawn dashed: above it, more than in 1990; below it, less. The domain includes 100 so that line is always on screen.</li>
+  </ul>
+
+  <h2>3. Pins in the URL</h2>
+  <ul>
+    <li><code>?compare=DEU,CHN,IND</code>: a comparison is something to share, so it's in the link. <code>ExplorerState.compared</code> parses it, drops unknown codes and repeats, and keeps at most three, so a hand-edited link can't break the tray.</li>
+    <li>Pinning goes through the same one-line URL writer as the view, the metric and the year (the tidy-up after lesson 13). The last country out removes the param.</li>
+    <li>A full tray disables the button and says why ("Compare: 3 is the most") instead of silently replacing a pin.</li>
+    <li>The units switch is local to the tray, not in the URL: a way of looking, not a different comparison.</li>
+    <li>The scatter view makes room for the tray (its right edge moves in) only while something is pinned.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>charts/sparkline/sparkline.ts</code>: the generic sparkline</li>
+    <li><code>pages/explorer/compare-tray/*</code>: the rows, the shared domain, the three modes</li>
+    <li><code>pages/explorer/explorer-state.ts</code>: <code>compared</code>, <code>togglePin</code>, <code>MAX_COMPARED</code>; <code>country-detail/*</code>: the Compare button; <code>explorer.*</code>: the tray's place</li>
+    <li><code>angular.json</code>: component style warning raised from 4 kB to 6 kB (the detail panel has grown past the default)</li>
+    <li><code>lessons/lesson-compare/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Select Germany, press + Compare: the tray appears with one row; the button says ✓ Comparing</li>
+    <li>Pin China and India: three rows, India's line low and flat next to the others</li>
+    <li>Switch to 1990 = 100: all three cross the dashed line at 1990; Germany ends below it, China and India far above</li>
+    <li>Select a fourth country: its button is disabled and says 3 is the most</li>
+    <li>Play the timeline: three dots move along three lines; the values follow</li>
+    <li>Remove a row with ✕; reload: the same pins (they're in the URL)</li>
+  </ul>
+</app-lesson-page>

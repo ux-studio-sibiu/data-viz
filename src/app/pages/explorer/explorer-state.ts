@@ -10,6 +10,8 @@ export type View = 'globe' | 'map' | 'scatter';
 // The metrics the map can be coloured by (lesson 09). Population is left out: it's context, not part of the story.
 export const MAP_METRICS: MetricId[] = ['co2_per_capita', 'co2', 'share_global_cumulative_co2', 'consumption_co2_per_capita', 'gdp_per_capita'];
 const DEFAULT_METRIC: MetricId = 'co2_per_capita';
+// Lesson 14: how many countries can be pinned for comparison. Three lines are easy to tell apart; a fourth starts to be a tangle.
+export const MAX_COMPARED = 3;
 
 // The explorer's state, in one root store (lesson 07). What's worth sharing lives in the URL, which is the source of truth:
 //   /?country=FRA&view=map&metric=co2
@@ -57,6 +59,13 @@ export class ExplorerState {
     return Number.isInteger(y) && y > 0 ? y : null;
   });
 
+  // Lesson 14: the countries pinned for comparison, in the order they were pinned (?compare=DEU,CHN,USA). Unknown codes and
+  // repeats are dropped, and anything past the third, so a hand-edited link can't break the tray.
+  readonly compared = computed(() => {
+    const ids = (this.params().get('compare') ?? '').split(',').map(id => id.trim().toUpperCase());
+    return ids.filter((id, i) => this.boundaries.countries().has(id) && ids.indexOf(id) === i).slice(0, MAX_COMPARED);
+  });
+
   // Not in the URL: it changes many times a second and isn't worth sharing. A plain signal, shared by the globe, the map and the search.
   readonly hovered = signal<string | null>(null);
 
@@ -67,6 +76,12 @@ export class ExplorerState {
   show(view: View) { this.write('view', view === 'globe' ? null : view); }
   showMetric(metric: MetricId) { this.write('metric', metric === DEFAULT_METRIC ? null : metric); }
   showYear(year: number | null) { this.write('year', year); }
+  // Pin or unpin. A full tray refuses a fourth (the button says so); the last one out leaves the URL clean.
+  togglePin(id: string) {
+    const now = this.compared();
+    const next = now.includes(id) ? now.filter(c => c !== id) : now.length < MAX_COMPARED ? [...now, id] : now;
+    this.write('compare', next.length ? next.join(',') : null);
+  }
 
   // One query param; null removes it. The other params stay (defaultQueryParamsHandling: 'merge', app.config.ts).
   private write(key: string, value: string | number | null, { history = false } = {}) {

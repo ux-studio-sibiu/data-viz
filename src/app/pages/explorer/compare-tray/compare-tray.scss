@@ -1,0 +1,30 @@
+@use '../../../../styles/paper' as paper;
+
+:host { display: block; }
+
+.nsc-compare-tray {
+  position: relative; padding: 12px 14px 10px; @include paper.panel; // positioned: the hatched lift is drawn outside the box
+
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .title { margin: 0; font-size: 1rem; }
+  .modes { display: inline-flex; @include paper.segmented(22px, 0.5625rem, 0.08em); }
+
+  .rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  // name · sparkline · value · remove, the same columns in every row so the sparklines line up
+  .row { display: grid; grid-template-columns: 92px 1fr 64px 22px; align-items: center; gap: 8px; padding: 2px 0; }
+  .row.is-selected .name { text-decoration: underline; text-underline-offset: 3px; }
+
+  .name {
+    padding: 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 0.85rem; font-weight: 700;
+    text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;
+  }
+  .name:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .value { font-size: 0.8rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .remove {
+    display: grid; place-items: center; width: 22px; height: 22px; padding: 0;
+    border: 0; border-radius: 0; background: none; color: var(--muted); cursor: pointer;
+  }
+  .remove:hover { background: var(--tint); color: var(--ink); }
+
+  .note { margin: 8px 0 0; color: var(--muted); font-size: 0.75rem; }
+}
