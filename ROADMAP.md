@@ -113,7 +113,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 10 | Fly to a country ✓ (done after 07) | Camera flight to the selected country, framed at 30% of the screen; the panel reveal moves to 11 | GSAP driving a slerp + climb, camera ownership, reduced motion |
 | 11 | Country detail panel | Historical chart, per-capita vs total, income-group median and rank; the panel reveal | D3 line chart in an Angular SVG template |
 | 12 | Time | Year slider + play, fixed class breaks, panel follows the year | GSAP palette transitions, when interpolating between years is honest |
-| 13 | Linked scatter plot | GDP × CO₂ per capita, size by population, in a floating window (?chart=scatter) | Linked selection between two views |
+| 13 | Linked scatter plot | GDP × CO₂ per capita, size by population, a third view beside Globe and Map (?view=scatter) | Linked selection between two views |
 | 14 | Compare countries | Pin up to 3, sparklines | Normalized vs raw units |
 | 15 | ⭐ Extrusion mode | Countries rise by total emissions | earcut, subdivision, antimeridian crossings, GSAP grow animation |
 | 16 | The "divide" view | Bivariate responsibility × vulnerability map | 3×3 bivariate palette, second dataset |

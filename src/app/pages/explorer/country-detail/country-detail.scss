@@ -17,13 +17,7 @@
   h2 { margin: 0 36px 4px 0; font-size: 1.1rem; } // clear of the close box
   .meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
   // The income meter: four rising bars, filled up to the group (1 = low … 4 = high), like a signal-strength icon
-  .income { display: inline-flex; align-items: flex-end; gap: 2px; margin-left: 10px; vertical-align: -1px; }
-  .step { width: 5px; border: 1.5px solid var(--ink); background: var(--surface); }
-  .step:nth-child(1) { height: 6px; }
-  .step:nth-child(2) { height: 9px; }
-  .step:nth-child(3) { height: 12px; }
-  .step:nth-child(4) { height: 15px; }
-  .step.is-on { background: var(--ink); }
+  .income { margin-left: 10px; } // the meter itself: income-meter.ts
   // The globe tooltip's card, under the name, shown at once while the meter is hovered
   .tip { display: none; position: absolute; top: 100%; left: 0; z-index: 1; margin-top: 4px; pointer-events: none; font-weight: 400; @include paper.tooltip-card; }
   .income:hover + .tip { display: block; }
@@ -45,15 +39,8 @@
   .history { margin-top: 22px; }
   // A two-way switch in the studio's style: ink-edged segments, the active one inverted
   .modes {
-    display: inline-flex; margin-bottom: 8px; border: paper.$border solid var(--ink);
-
-    button {
-      height: 24px; padding: 0 10px; border: 0; border-radius: 0; background: var(--surface); color: var(--ink); cursor: pointer;
-      @include paper.mono-label(0.625rem, 0.1em); font-weight: 700;
-    }
-    button + button { border-left: paper.$border solid var(--ink); }
-    button:hover { background: var(--hover-fill); }
-    button.is-active { background: var(--ink); color: var(--surface); }
+    display: inline-flex; margin-bottom: 8px;
+    @include paper.segmented(24px, 0.625rem, 0.1em);
   }
   .rank { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; }
   .rank strong { color: var(--ink); font-variant-numeric: tabular-nums; } // tabular: every digit 1ch wide, so min-width in ch holds

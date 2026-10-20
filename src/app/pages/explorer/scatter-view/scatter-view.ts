@@ -2,23 +2,22 @@ import { Component, computed, inject, input } from '@angular/core';
 import { ScatterPlot, ScatterPoint } from '../../../charts/scatter-plot/scatter-plot';
 import { Boundaries } from '../../../data/boundaries';
 import { Co2Data } from '../../../data/co2-data';
-import { FloatingPanel } from '../../../ui/floating-panel/floating-panel';
+import { figure, money, people } from '../../../data/format';
 import { ExplorerState } from '../explorer-state';
 
-const money = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD', notation: 'compact', maximumSignificantDigits: 3 });
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 });
-const people = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 });
 
 // Wealth against emissions (lesson 13): GDP per person × CO₂ per person, one dot per country, sized by population and
-// coloured like the map. A second view of the same countries, linked to the first through ExplorerState:
-// hover a dot and the country lights up on the globe; hover the globe and the dot gets a ring; click either to select.
+// coloured like the map. A third view beside the globe and the map (?view=scatter), filling the stage like them.
+// It shares ExplorerState with them: a dot clicked here is the selection there (the panel opens; switch to the globe
+// and it flies to it), and the timeline and the metric's colours apply here too.
+// (It started as a floating window over the globe; as a full view it has room to read, and one place to open it.)
 @Component({
-  selector: 'app-scatter-panel',
-  imports: [FloatingPanel, ScatterPlot],
-  templateUrl: './scatter-panel.html',
-  styleUrl: './scatter-panel.scss'
+  selector: 'app-scatter-view',
+  imports: [ScatterPlot],
+  templateUrl: './scatter-view.html',
+  styleUrl: './scatter-view.scss'
 })
-export class ScatterPanel {
+export class ScatterView {
   readonly year = input<number | null>(null);                        // the year on the map; null = the latest
   readonly fills = input<ReadonlyMap<string, string> | null>(null);  // the map's colours, reused for the dots
 
@@ -52,15 +51,34 @@ export class ScatterPanel {
     return points;
   });
 
-  // The readout: the hovered country, else the selected one
+  // The axes and the dot sizes over EVERY year the chart can show (from the first year with GDP to its last), not just the
+  // one on screen. Playing the timeline then moves the dots against a still grid: a country getting richer slides right.
+  // Fitted to each year instead, the axes rescaled every step and everything seemed to move at once, including the grid.
+  protected readonly ranges = computed(() => {
+    const gdp = this.gdp.value(), co2 = this.perCapita.value(), pop = this.population.value();
+    if (!gdp || !co2 || !pop) return null;
+    let xLo = Infinity, xHi = 0, yLo = Infinity, yHi = 0, sizeHi = 0;
+    for (const c of this.boundaries.countries().values()) {
+      const gx = gdp.values[c.id], cy = co2.values[c.id], ps = pop.values[c.id];
+      if (!gx || !cy || !ps) continue;
+      for (let i = 0; i < gx.length; i++) {
+        const year = gdp.firstYear + i, x = gx[i], y = cy[year - co2.firstYear], size = ps[year - pop.firstYear];
+        if (x === null || y === null || y === undefined || size === null || size === undefined || x <= 0 || y <= 0) continue;
+        xLo = Math.min(xLo, x); xHi = Math.max(xHi, x);
+        yLo = Math.min(yLo, y); yHi = Math.max(yHi, y);
+        sizeHi = Math.max(sizeHi, size);
+      }
+    }
+    return sizeHi ? { x: [xLo, xHi] as [number, number], y: [yLo, yHi] as [number, number], sizeMax: sizeHi } : null;
+  });
+
+  // The tooltip: the hovered country
   protected readonly active = computed(() => {
-    const id = this.state.hovered() ?? this.state.selected();
+    const id = this.state.hovered();
     const p = this.points().find(p => p.id === id);
     return p ? { name: p.label, gdp: money.format(p.x), co2: `${figure.format(p.y)} t`, people: people.format(p.size) } : null;
   });
 
-  // The map is on a later year than GDP reaches: say why the chart shows an older one
-  protected readonly gdpEnded = computed(() => { const y = this.year(), c = this.chartYear(); return y !== null && c !== null && y > c; });
   protected readonly loading = computed(() => this.gdp.isLoading() || this.perCapita.isLoading() || this.population.isLoading());
   protected readonly label = computed(() =>
     `Scatter plot of ${this.points().length} countries in ${this.chartYear()}: GDP per person on the horizontal axis, CO₂ per person on the vertical axis, both on log scales, dot size by population.`);

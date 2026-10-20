@@ -1,5 +1,5 @@
 @let b = box();
-<svg class="nsc-scatter-plot" [attr.viewBox]="'0 0 ' + b.w + ' ' + b.h" [attr.width]="b.w" [attr.height]="b.h" role="img" [attr.aria-label]="label()">
+<svg class="nsc-scatter-plot" [attr.viewBox]="'0 0 ' + b.w + ' ' + b.h" [attr.width]="b.w" [attr.height]="b.h" role="img" [attr.aria-label]="label()" (pointermove)="follow($event)">
   @for (t of xTicks(); track t.v) {
     <line class="grid" [attr.x1]="t.at" [attr.x2]="t.at" [attr.y1]="M.top" [attr.y2]="b.h - M.bottom" />
     <text class="x-tick" [attr.x]="t.at" [attr.y]="b.h - M.bottom + 14">{{ t.label }}</text>
@@ -8,16 +8,37 @@
     <line class="grid" [attr.x1]="M.left" [attr.x2]="b.w - M.right" [attr.y1]="t.at" [attr.y2]="t.at" />
     <text class="y-tick" [attr.x]="M.left - 6" [attr.y]="t.at">{{ t.label }}</text>
   }
-  <text class="axis-label" [attr.x]="b.w - M.right" [attr.y]="b.h - 4" text-anchor="end">{{ xLabel() }}</text>
-  <text class="axis-label" [attr.x]="M.left" [attr.y]="M.top - 2" dy="-0.2em">{{ yLabel() }}</text>
+  <!-- The axes: ink lines along the bottom and left edges, with arrowheads the way values grow. Not lines at 0: on a log
+       scale there is no 0 (each step down divides by ten), so the axes simply sit at the edges of the plotted range. -->
+  <defs>
+    <!-- The selection's hatching, as on the flat map: ink lines at -45°, the dot's own colour showing between them -->
+    <pattern id="scatter-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line class="hatch-lines" x1="0" y1="0" x2="0" y2="4" /></pattern>
+    <marker id="scatter-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path class="arrow" d="M0 0L10 5L0 10z" />
+    </marker>
+  </defs>
+  <line class="axis" [attr.x1]="M.left" [attr.y1]="b.h - M.bottom" [attr.x2]="b.w - M.right + 10" [attr.y2]="b.h - M.bottom" marker-end="url(#scatter-arrow)" />
+  <line class="axis" [attr.x1]="M.left" [attr.y1]="b.h - M.bottom" [attr.x2]="M.left" [attr.y2]="M.top - 10" marker-end="url(#scatter-arrow)" />
+
+  <!-- Each axis label inside the plot, along its axis and close to the line, ending ~10px short of the arrowhead (which is
+       ~6px long): the x label just above the axis at its far end; the y label turned 90° (reading upwards) just right of
+       the axis at its top -->
+  <text class="axis-label" [attr.x]="b.w - M.right - 6" [attr.y]="b.h - M.bottom - 6" text-anchor="end">{{ xLabel() }}</text>
+  <text class="axis-label" [attr.transform]="'translate(' + (M.left + 15) + ' ' + (M.top + 6) + ') rotate(-90)'" text-anchor="end">{{ yLabel() }}</text>
+  <text class="title" [attr.x]="M.left + 16" [attr.y]="b.h - M.bottom - 26">{{ title() }}</text>
 
   <!-- pointerenter on each dot (not pointermove on the svg): the browser does the hit-testing, round shapes included -->
+  <!-- Each dot is a faint ink edge and, on it, the fill with a white rim. Where dots overlap, the rim of the one on top
+       cuts a thin white gap into the one below, so a cluster reads as separate dots, not one blob. The positions are
+       never moved apart to make room: each dot stays exactly at its country's values. -->
   @for (d of dots(); track d.id) {
-    <circle class="dot" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r" [style.fill]="d.color" (pointerenter)="hovered.set(d.id)" (pointerleave)="hovered.set(null)" (click)="pick.emit(d.id)" />
+    <circle class="edge" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r + 1.75" />
+    <circle class="dot" [class.is-hovered]="d.id === hovered()" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r" [style.fill]="d.color" (pointerenter)="enter(d.id)" (pointerleave)="leave()" (click)="pick.emit(d.id)" />
   }
 
   @for (d of marked(); track d.id) {
-    <circle class="ring" [class.is-selected]="d.isSelected" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r + 3" />
+    <circle class="selected" [attr.cx]="d.cx" [attr.cy]="d.cy" [attr.r]="d.r" />
     <text class="name" [attr.x]="d.labelX" [attr.y]="d.cy" [attr.text-anchor]="d.anchor">{{ d.label }}</text>
   }
 </svg>
+<div #tooltip class="tooltip" [hidden]="!pointerOnDot()"><ng-content select="[scatter-tooltip]" /></div>

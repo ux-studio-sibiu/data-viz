@@ -20,7 +20,6 @@ import { PanelMemory } from './panel-memory';
 export class FloatingPanel {
   readonly label = input.required<string>(); // for screen readers and the dock
   readonly minimized = model(false);
-  readonly defaultSize = input<{ w: number; h: number } | null>(null); // until the user resizes it (then the remembered size wins)
   readonly closed = output();
 
   // A static attribute, read once in the constructor (inputs aren't set yet there). It never changes, so it doesn't need to be an input.

@@ -5,7 +5,7 @@ import { filter, map } from 'rxjs';
 import { Boundaries } from '../../data/boundaries';
 import type { MetricId } from '../../data/co2';
 
-export type View = 'globe' | 'map';
+export type View = 'globe' | 'map' | 'scatter';
 
 // The metrics the map can be coloured by (lesson 09). Population is left out: it's context, not part of the story.
 export const MAP_METRICS: MetricId[] = ['co2_per_capita', 'co2', 'share_global_cumulative_co2', 'consumption_co2_per_capita', 'gdp_per_capita'];
@@ -38,7 +38,12 @@ export class ExplorerState {
 
   private readonly webglWorks = signal(true);
   readonly webgl = this.webglWorks.asReadonly();
-  readonly view = computed<View>(() => (this.webglWorks() && this.params().get('view') !== 'map' ? 'globe' : 'map'));
+  // Lesson 13 added 'scatter'. Without WebGL the globe falls back to the map; the other two don't need it.
+  readonly view = computed<View>(() => {
+    const view = this.params().get('view');
+    if (view === 'map' || view === 'scatter') return view;
+    return this.webglWorks() ? 'globe' : 'map';
+  });
 
   // Lesson 09: what the map is coloured by. Unknown values fall back to the default; the default leaves the URL clean.
   readonly metric = computed<MetricId>(() => {
@@ -52,21 +57,20 @@ export class ExplorerState {
     return Number.isInteger(y) && y > 0 ? y : null;
   });
 
-  // Lesson 13: the scatter panel is open (?chart=scatter). In the URL, so a link can open it.
-  readonly scatter = computed(() => this.params().get('chart') === 'scatter');
-
   // Not in the URL: it changes many times a second and isn't worth sharing. A plain signal, shared by the globe, the map and the search.
   readonly hovered = signal<string | null>(null);
 
   // A new history entry: the back button undoes a selection
-  select(id: string | null) { this.router.navigate([], { queryParams: { country: id } }); }
-  // Replaces the entry: switching views isn't something to step back through. The default view leaves the URL clean.
-  show(view: View) { this.router.navigate([], { queryParams: { view: view === 'globe' ? null : view }, replaceUrl: true }); }
-  // Replaces the entry, like the view: switching what the map shows isn't something to step back through
-  showMetric(metric: MetricId) { this.router.navigate([], { queryParams: { metric: metric === DEFAULT_METRIC ? null : metric }, replaceUrl: true }); }
-  // Replaces the entry: playback writes it 8 times a second, and the back button shouldn't step through 125 years
-  showYear(year: number | null) { this.router.navigate([], { queryParams: { year }, replaceUrl: true }); }
-  // Replaces the entry, like the view: opening a panel isn't a step to go back through
-  showScatter(open: boolean) { this.router.navigate([], { queryParams: { chart: open ? 'scatter' : null }, replaceUrl: true }); }
+  select(id: string | null) { this.write('country', id, { history: true }); }
+  // The rest replace the entry: switching views or metrics isn't something to step back through, and playback writes the
+  // year 8 times a second (the back button shouldn't step through 125 years). Defaults leave the URL clean.
+  show(view: View) { this.write('view', view === 'globe' ? null : view); }
+  showMetric(metric: MetricId) { this.write('metric', metric === DEFAULT_METRIC ? null : metric); }
+  showYear(year: number | null) { this.write('year', year); }
+
+  // One query param; null removes it. The other params stay (defaultQueryParamsHandling: 'merge', app.config.ts).
+  private write(key: string, value: string | number | null, { history = false } = {}) {
+    this.router.navigate([], { queryParams: { [key]: value }, replaceUrl: !history });
+  }
   noWebgl() { this.webglWorks.set(false); }
 }

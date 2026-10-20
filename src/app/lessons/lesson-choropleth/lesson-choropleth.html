@@ -62,7 +62,7 @@ colour(v)  = scaleThreshold(thresholds, 7 colours)(v)                (d3-scale)<
     <li><code>charts/choropleth.ts</code>: classes and colours; <code>charts/legend/legend.ts</code>: the legend</li>
     <li><code>globe/earth-material.ts</code>: palette texture, no-data hatching, darkened hover, ink selection; <code>globe/globe-scene.ts</code>: <code>setFills</code>; <code>globe/globe.ts</code>: <code>fills</code> input</li>
     <li><code>charts/flat-map/*</code>: <code>fills</code> input, hatch patterns</li>
-    <li><code>pages/explorer/*</code>: the metric, the choropleth, the legend, tooltip values; <code>explorer-state.ts</code>: <code>?metric=</code></li>
+    <li><code>pages/explorer/*</code>: the metric, the choropleth, the legend; <code>explorer-state.ts</code>: <code>?metric=</code></li>
     <li><code>ui/dock/dock-bar.ts</code>: moved to the bottom centre, making room for the legend</li>
     <li>Packages: <code>d3-scale</code>, <code>d3-array</code> (+ types)</li>
   </ul>
@@ -72,7 +72,7 @@ colour(v)  = scaleThreshold(thresholds, 7 colours)(v)                (d3-scale)<
     <li>Default view: Europe, Russia, the Gulf dark; the Sahel and Central Africa palest; Western Sahara hatched</li>
     <li>Switch to "Annual CO₂ emissions": China, the USA, India darkest; small countries go pale; the legend's breaks change</li>
     <li>Switch to GDP per capita: the year in the legend becomes 2022</li>
-    <li>Hover a few countries: the tooltip value falls in the class its colour shows</li>
+    <li>Select a few countries: the figure in the panel falls in the class its colour shows (the tooltip showed the value at first; it now shows the name and the income meter)</li>
     <li>Select France: ink hatching over its orange, which stays readable</li>
     <li>Switch to the map: same colours, same legend; reload: same metric (it's in the URL)</li>
   </ul>

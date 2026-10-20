@@ -2,6 +2,7 @@ import { Component, computed, input, signal } from '@angular/core';
 import { scaleLinear } from 'd3-scale';
 import { line } from 'd3-shape';
 import { lastIndexWithValue } from '../../data/co2';
+import { figure } from '../../data/format';
 
 // One line: a value per year from the chart's firstYear. null = no value that year (drawn as a gap, never as 0).
 export type ChartLine = { id: string; label: string; values: (number | null)[]; reference?: boolean };
@@ -10,7 +11,6 @@ const W = 300, H = 150;
 // The y labels start at the left edge (x = 0) and the plot runs to the right edge, so the chart lines up with the content
 // around it. right: 4 leaves room for the end dot (radius 3 + its stroke).
 const M = { top: 8, right: 4, bottom: 20, left: 24 };
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 });
 
 // A line chart over years, drawn by Angular (lesson 11).
 // D3 only does the maths: scales map years and values to pixels, line() turns points into a path's `d`.

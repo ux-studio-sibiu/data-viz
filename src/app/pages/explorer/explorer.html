@@ -9,11 +9,14 @@
     @defer (on immediate) {
       <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" (unsupported)="state.noWebgl()">
         @if (country(); as c) {
-          <span globe-tooltip><span class="card-title">{{ c.name }}</span><span class="card-role">{{ hoveredValue() }}</span></span>
+          <span globe-tooltip class="card-title">{{ c.name }}</span>
         }
       </app-globe>
     }
     <!-- No placeholder: the empty paper is the loading state, and the globe fades in once it has something to show -->
+  } @else if (state.view() === 'scatter') {
+    <!-- Lesson 13: the third view. Shares the selection, the year and the map's colours with the other two. -->
+    <app-scatter-view [year]="year()" [fills]="map()?.fills ?? null" />
   } @else if (boundaries.error()) {
     <p class="status">The map data couldn't be loaded.</p>
   } @else if (boundaries.isLoading()) {
@@ -21,13 +24,20 @@
   } @else {
     <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" label="World map of countries, coloured by the chosen metric. Hover a country to see its value, click to select it.">
       @if (country(); as c) {
-        <span map-tooltip><span class="card-title">{{ c.name }}</span><span class="card-role">{{ hoveredValue() }}</span></span>
+        <span map-tooltip class="card-title">{{ c.name }}@if (c.incomeGroup) {<app-income-meter class="income" [group]="c.incomeGroup" />}</span>
       }
     </app-flat-map>
   }
 
   <!-- Top-left, opposite the header: find a country, then what's selected -->
   <div class="side">
+    <!-- Which view fills the stage. Three equal buttons across the column, above the search. -->
+    <div class="view-switch" role="group" aria-label="View">
+      <button type="button" [class.is-active]="state.view() === 'globe'" [attr.aria-pressed]="state.view() === 'globe'" [disabled]="!state.webgl()" (click)="state.show('globe')">Globe</button>
+      <button type="button" [class.is-active]="state.view() === 'map'" [attr.aria-pressed]="state.view() === 'map'" (click)="state.show('map')">Map</button>
+      <!-- Lesson 13: the third view -->
+      <button type="button" [class.is-active]="state.view() === 'scatter'" [attr.aria-pressed]="state.view() === 'scatter'" (click)="state.show('scatter')">Scatter</button>
+    </div>
     <app-country-search />
 
     <!-- Lesson 11: the detail panel. The wrapper stays in the DOM so aria-live announces each new selection. -->
@@ -55,11 +65,6 @@
       </app-legend>
     }
   </div>
-
-  <!-- Lesson 13: the scatter plot, in a floating window (movable, minimizable to the dock). The header's Scatter button opens it. -->
-  @if (state.scatter()) {
-    <app-scatter-panel [year]="year()" [fills]="map()?.fills ?? null" />
-  }
 
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

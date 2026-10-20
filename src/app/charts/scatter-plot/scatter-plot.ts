@@ -1,12 +1,16 @@
-import { afterNextRender, Component, computed, DestroyRef, ElementRef, inject, input, model, output, signal } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, ElementRef, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { extent, max } from 'd3-array';
 import { scaleLog, scaleSqrt } from 'd3-scale';
 
 // One dot: two values on log axes, a size value (area ∝ size), and its colour
 export type ScatterPoint = { id: string; label: string; x: number; y: number; size: number; color: string };
 
-const M = { top: 24, right: 14, bottom: 36, left: 42 }; // top: room for the y axis label above the plot
-const MAX_RADIUS = 20;
+// top: the y arrowhead; right: the x arrowhead; bottom: the tick row; left: the tick labels (the axis labels are inside)
+const M = { top: 16, right: 22, bottom: 26, left: 48 }; // left: "0.001" at 12px mono is ~36px wide
+// The biggest dot's radius: a share of the plot's shorter side, so dots grow with the screen (about 75px on a full HD
+// stage, where a fixed 20 looked tiny, 37 still small, and 110 a pile-up), held between a floor for small windows and a ceiling for very large ones.
+const MAX_RADIUS = { share: 0.09, min: 28, max: 88 };
+const MIN_RADIUS = 2.5; // the smallest countries stay big enough to see and to hover
 
 // A bubble chart on two log axes (lesson 13). Generic: points in, hover and selection out; it knows nothing about CO₂.
 //   <app-scatter-plot [points]="points" xLabel="…" yLabel="…" [(hovered)]="state.hovered" [selected]="id" (pick)="select($event)" />
@@ -19,10 +23,16 @@ const MAX_RADIUS = 20;
 })
 export class ScatterPlot {
   readonly points = input.required<ScatterPoint[]>();
+  readonly title = input('');  // drawn in the plot's bottom-left corner
   readonly xLabel = input('');
   readonly yLabel = input('');
   readonly xPrefix = input(''); // e.g. "$" before the x tick labels
   readonly label = input('');   // what the chart shows, for screen readers
+  // Fixed ranges, when the points change over time (a year slider): the axes and the dot sizes then hold still and the dots
+  // move against them. Without them, each set of points is fitted on its own, and the grid would slide under a playing chart.
+  readonly xDomain = input<[number, number] | null>(null);
+  readonly yDomain = input<[number, number] | null>(null);
+  readonly sizeMax = input<number | null>(null);
   readonly hovered = model<string | null>(null); // two-way: shared with the map and the globe through the explorer's store
   readonly selected = input<string | null>(null);
   readonly pick = output<string>();
@@ -30,8 +40,14 @@ export class ScatterPlot {
   protected readonly M = M;
   protected readonly box = signal({ w: 400, h: 300 });
 
+  // The tooltip: content from the parent through [scatter-tooltip], shown while the pointer is on a dot, moved with the
+  // pointer by writing style.translate directly (no signal per mouse move), like the globe's (lesson 06).
+  protected readonly pointerOnDot = signal(false);
+  private readonly tooltip = viewChild.required<ElementRef<HTMLElement>>('tooltip');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
   constructor() {
-    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement, destroyRef = inject(DestroyRef);
+    const host = this.host, destroyRef = inject(DestroyRef);
     afterNextRender(() => {
       const observer = new ResizeObserver(([entry]) => {
         const { inlineSize: w, blockSize: h } = entry.contentBoxSize[0];
@@ -45,15 +61,19 @@ export class ScatterPlot {
   // Log axes: GDP runs from ~$700 to ~$120 000 per person, CO₂ from 0.03 t to 40 t. On linear axes nearly every country
   // would crowd into the bottom-left corner. On log axes equal distances are equal ratios: twice as rich is always the same step.
   private readonly x = computed(() => {
-    const [lo, hi] = extent(this.points(), p => p.x);
+    const [lo, hi] = this.xDomain() ?? extent(this.points(), p => p.x);
     return scaleLog().domain(pad(lo, hi)).range([M.left, this.box().w - M.right]);
   });
   private readonly y = computed(() => {
-    const [lo, hi] = extent(this.points(), p => p.y);
+    const [lo, hi] = this.yDomain() ?? extent(this.points(), p => p.y);
     return scaleLog().domain(pad(lo, hi)).range([this.box().h - M.bottom, M.top]);
   });
   // Area, not radius, ∝ size: a country with 4× the people gets a dot 2× as wide. A radius scale would make it look 4× bigger.
-  private readonly r = computed(() => scaleSqrt().domain([0, max(this.points(), p => p.size) ?? 1]).range([0, MAX_RADIUS]));
+  private readonly r = computed(() => {
+    const { w, h } = this.box(), plot = Math.min(w - M.left - M.right, h - M.top - M.bottom);
+    const biggest = Math.min(MAX_RADIUS.max, Math.max(MAX_RADIUS.min, plot * MAX_RADIUS.share));
+    return scaleSqrt().domain([0, this.sizeMax() ?? max(this.points(), p => p.size) ?? 1]).range([0, biggest]);
+  });
 
   // Ticks at powers of 10 only: on a log axis the in-between ones (2, 3, 4…) bunch up and their labels collide
   protected readonly xTicks = computed(() => powersOf10(this.x().domain()).map(v => ({ v, at: this.x()(v), label: this.xPrefix() + si(v) })));
@@ -63,19 +83,32 @@ export class ScatterPlot {
   protected readonly dots = computed(() => {
     const x = this.x(), y = this.y(), r = this.r();
     return this.points()
-      .map(p => ({ ...p, cx: x(p.x), cy: y(p.y), r: Math.max(2, r(p.size)) }))
+      .map(p => ({ ...p, cx: x(p.x), cy: y(p.y), r: Math.max(MIN_RADIUS, r(p.size)) }))
       .sort((a, b) => b.r - a.r);
   });
-  // The hovered and the selected dot again, on top of everything, with a ring and a name
+  // The selected dot again, on top of everything, hatched like the selection on the map, with its name.
+  // (Hover only darkens a dot in place: see .is-hovered in the stylesheet.)
   protected readonly marked = computed(() => {
-    const ids = new Set([this.selected(), this.hovered()].filter(Boolean));
+    const id = this.selected();
     const right = this.box().w - M.right;
-    return this.dots().filter(d => ids.has(d.id)).map(d => {
+    return this.dots().filter(d => d.id === id).map(d => {
       // The name goes right of the dot, or left of it when it would run past the edge (~7 px per character at 12 px bold)
       const flip = d.cx + d.r + 6 + d.label.length * 7 > right;
-      return { ...d, isSelected: d.id === this.selected(), labelX: flip ? d.cx - d.r - 6 : d.cx + d.r + 6, anchor: flip ? 'end' : 'start' };
+      return { ...d, labelX: flip ? d.cx - d.r - 6 : d.cx + d.r + 6, anchor: flip ? 'end' : 'start' };
     });
   });
+
+  protected enter(id: string) { this.hovered.set(id); this.pointerOnDot.set(true); }
+  protected leave() { this.hovered.set(null); this.pointerOnDot.set(false); }
+
+  // Below-right of the pointer; flipped to the left near the right edge and above it near the bottom, so it stays inside
+  protected follow(e: PointerEvent) {
+    const tip = this.tooltip().nativeElement, box = this.host.getBoundingClientRect();
+    let x = e.clientX - box.left + 16, y = e.clientY - box.top + 16;
+    if (x + tip.offsetWidth > box.width) x -= tip.offsetWidth + 32;
+    if (y + tip.offsetHeight > box.height) y -= tip.offsetHeight + 32;
+    tip.style.translate = `${x}px ${y}px`;
+  }
 }
 
 // The data's range plus a 25% margin on each side (a ratio, on log axes), so the biggest dots at the edges stay inside.

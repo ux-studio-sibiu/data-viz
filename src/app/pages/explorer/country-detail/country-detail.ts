@@ -3,13 +3,12 @@ import { ChartLine, LineChart } from '../../../charts/line-chart/line-chart';
 import { Boundaries } from '../../../data/boundaries';
 import { lastIndexWithValue, latest, medianSeries, rankIn } from '../../../data/co2';
 import { Co2Data } from '../../../data/co2-data';
-import type { Country, IncomeGroup } from '../../../data/country';
+import { figure } from '../../../data/format';
+import { INCOME_ADJECTIVE, INCOME_LABEL, type Country } from '../../../data/country';
 import { MotionPreference } from '../../../shared/motion-preference';
 import { ExplorerState } from '../explorer-state';
+import { IncomeMeter } from '../income-meter/income-meter';
 
-const INCOME: Record<IncomeGroup, string> = { high: 'High income', 'upper-middle': 'Upper-middle income', 'lower-middle': 'Lower-middle income', low: 'Low income' };
-const PEERS: Record<IncomeGroup, string> = { high: 'high-income', 'upper-middle': 'upper-middle-income', 'lower-middle': 'lower-middle-income', low: 'low-income' };
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }); // 4.07, 270, 23.5: as precise as the data deserves
 
 // What the chart plots. Per person and in total tell different stories: China tops the totals, Qatar the per-person figures.
 type Mode = 'co2_per_capita' | 'co2';
@@ -22,7 +21,7 @@ const MODES: { id: Mode; label: string; unit: string; noun: string }[] = [
 // next to its income-group peers, and where it ranks among them.
 @Component({
   selector: 'app-country-detail',
-  imports: [LineChart],
+  imports: [LineChart, IncomeMeter],
   templateUrl: './country-detail.html',
   styleUrl: './country-detail.scss',
   host: { '[class.is-visible]': 'visible()' } // the whole panel, frame included, fades in on this (first open)
@@ -47,9 +46,7 @@ export class CountryDetail {
   protected readonly current = computed(() => this.shown() ?? this.country());
   private swapping = false;
 
-  protected readonly income = INCOME;
-  protected readonly level: Record<IncomeGroup, number> = { low: 1, 'lower-middle': 2, 'upper-middle': 3, high: 4 };
-  protected readonly steps = [1, 2, 3, 4];
+  protected readonly income = INCOME_LABEL;
   protected readonly modes = MODES;
 
   // Shared with the map through Co2Data: one request each, whoever asks first
@@ -98,7 +95,7 @@ export class CountryDetail {
     const s = this.series(), c = this.current(), last = latest(s, c.id, this.year() ?? undefined);
     if (!s || !last || !c.incomeGroup) return null;
     const r = rankIn(s, this.peers(), c.id, last.year);
-    return r && { ...r, year: last.year, group: PEERS[c.incomeGroup] };
+    return r && { ...r, year: last.year, group: INCOME_ADJECTIVE[c.incomeGroup] };
   });
 
   constructor() {

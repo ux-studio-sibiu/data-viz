@@ -1,20 +1,31 @@
-:host { display: block; min-height: 0; overflow: hidden; } // the svg is sized from this box (ResizeObserver)
+@use '../../../styles/paper' as paper;
+
+:host { display: block; position: relative; min-height: 0; overflow: hidden; } // the svg is sized from this box (ResizeObserver)
+
+// The cursor card, like the globe's and the map's tooltips
+.tooltip { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; @include paper.tooltip-card; }
 
 .nsc-scatter-plot {
   display: block;
 
   .grid { stroke: var(--line); stroke-width: 1; }
-  .x-tick, .y-tick, .axis-label { fill: var(--muted); font-family: var(--ui-mono); font-size: 10px; }
+  .x-tick, .y-tick { fill: var(--ink); font-family: var(--ui-mono); font-size: 12px; } // ink, like the axis names
   .x-tick { text-anchor: middle; }
   .y-tick { text-anchor: end; dominant-baseline: middle; }
-  .axis-label { fill: var(--ink); letter-spacing: 0.08em; text-transform: uppercase; }
+  .axis-label { fill: var(--ink); font-size: 13px; } // the body font, as written (not mono capitals): readable
+  .title { fill: var(--ink); font-size: 35px; font-weight: 700; }
+  .axis { stroke: var(--ink); stroke-width: 1.5; }
+  .arrow { fill: var(--ink); }
 
-  .dot { stroke: var(--ink); stroke-width: 0.75; stroke-opacity: 0.6; cursor: pointer; }
+  // r + 1.75 against the white rim's 0.75 outside the dot: a 1px dark ring shows. At r + 1 the rim covered all but a hair of it.
+  .edge { fill: var(--ink); fill-opacity: 0.7; pointer-events: none; }
+  .dot { stroke: var(--surface); stroke-width: 1.5; cursor: pointer; }
+  .dot.is-hovered { filter: brightness(0.86); } // just a touch darker, like a hovered country on the map
 
-  // The marked dots: hovered = a thin ring, selected = a heavy one; both labelled. pointer-events: none, so they never steal
-  // the hover from the dot underneath.
-  .ring { fill: none; stroke: var(--ink); stroke-width: 1.5; pointer-events: none; }
-  .ring.is-selected { stroke-width: 3; }
+  // The selected dot: the map's diagonal hatch over its colour, an ink edge, its name. pointer-events: none, so it never
+  // steals the hover or the click from the dot underneath.
+  .selected { fill: url(#scatter-hatch); stroke: var(--ink); stroke-width: 1.5; pointer-events: none; }
+  .hatch-lines { stroke: var(--ink); stroke-opacity: 0.85; stroke-width: 1.1; }
   .name {
     fill: var(--ink); font-size: 12px; font-weight: 700; dominant-baseline: middle; pointer-events: none;
     paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; // a white halo, readable over dots

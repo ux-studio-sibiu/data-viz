@@ -5,8 +5,8 @@ import { Boundaries } from '../../data/boundaries';
 import { latest, MetricId, MetricSeries } from '../../data/co2';
 import { Co2Data } from '../../data/co2-data';
 import { LessonPage } from '../lesson-page/lesson-page';
+import { figure } from '../../data/format';
 
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 });
 
 @Component({
   selector: 'app-lesson-co2-data',

@@ -7,7 +7,8 @@ import { Co2Data } from '../../data/co2-data';
 import { Globe } from '../../globe/globe';
 import { CountryDetail } from './country-detail/country-detail';
 import { CountrySearch } from './country-search/country-search';
-import { ScatterPanel } from './scatter-panel/scatter-panel';
+import { ScatterView } from './scatter-view/scatter-view';
+import { IncomeMeter } from './income-meter/income-meter';
 import { Timeline } from '../../ui/timeline/timeline';
 import { Backdrop } from '../../ui/backdrop/backdrop';
 import { ExplorerState, MAP_METRICS } from './explorer-state';
@@ -20,7 +21,6 @@ const SHORT_UNIT: Record<string, string> = {
   consumption_co2_per_capita: 't per person',
   gdp_per_capita: '$ per person (2011 prices)'
 };
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }); // 4.07, 270, 23.5: as precise as the data deserves
 
 // The product page: the globe or the flat map, filling the whole screen. The Globe / Map switch is in the app header.
 // Lesson 07: hover, selection and view live in ExplorerState (selection and view in the URL), shared by both views and the search.
@@ -28,10 +28,10 @@ const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }); // 
 // Lesson 09: both views coloured by a metric (?metric=), with a legend.
 // Lesson 11: the selection card becomes CountryDetail, with the country's history.
 // Lesson 12: a year slider with playback (?year=); the map, the panel and the tooltips follow it.
-// Lesson 13: a scatter plot of wealth × emissions in a floating panel (?chart=scatter), linked to the map.
+// Lesson 13: a scatter plot of wealth × emissions, a third view beside the globe and the map (?view=scatter).
 @Component({
   selector: 'app-explorer',
-  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterPanel],
+  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss'
 })
@@ -72,12 +72,6 @@ export class Explorer {
     return series && info && year !== null ? choropleth(series, year, info.lastYear) : null;
   });
 
-  // The hovered country's value, for the tooltips
-  protected readonly hoveredValue = computed(() => {
-    const id = this.state.hovered(), map = this.map();
-    const v = id && map ? map.values.get(id) : undefined;
-    return v === undefined ? 'no data' : `${figure.format(v)} ${this.shortUnit()}`;
-  });
   protected readonly shortUnit = computed(() => SHORT_UNIT[this.state.metric()] ?? '');
 
 }

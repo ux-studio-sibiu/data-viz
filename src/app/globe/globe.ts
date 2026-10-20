@@ -62,11 +62,13 @@ export class Globe {
       effect(() => scene.setHighlight(this.hovered(), this.selected()), { injector });
       effect(() => scene.setFills(this.fills(), !motion.reduced()), { injector }); // lesson 12: crossfade, unless reduced motion
 
-      // Selected → fly there. Also on load with ?country=… in the URL, and when switching from the map with a country selected.
-      // untracked(): only the selection and the features should re-run this, not what the flight reads.
+      // Selected → fly there. untracked(): only the selection and the features should re-run this, not what the flight reads.
+      // Before the globe has faded in (on load with ?country=…, or switching back from the map or the scatter with a country
+      // selected) it doesn't fly: it starts centred on the country, and fades in already there. A flight nobody saw begin,
+      // from a view that was never shown, would only be motion for its own sake.
       effect(() => {
         const id = this.selected(), feature = this.features().find(f => f.id === id);
-        if (feature) untracked(() => scene.flyTo(feature, motion.reduced()));
+        if (feature) untracked(() => scene.flyTo(feature, motion.reduced() || !this.ready()));
       }, { injector });
 
       // Ready once the countries and the borders have reached the scene and been drawn. Two frames: the scene draws on the next

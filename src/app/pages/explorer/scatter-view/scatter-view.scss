@@ -1,12 +1,23 @@
 @use '../../../../styles/paper' as paper;
 
-.nsc-scatter-panel {
-  display: flex; flex-direction: column; height: 100%; padding: 10px 12px 8px;
+// The whole stage, plain white (it covers the graph-paper backdrop: the chart has its own grid), with the chart sitting
+// straight on it — no box, no border. Padded clear of the left column (search, panel, timeline, legend), which is
+// drawn later in the page and so stays on top, and of the header. The title is drawn by the plot, in its bottom-left corner.
+:host {
+  position: absolute; inset: 0;
+  display: block;
+  padding: 72px 32px 24px calc(16px + var(--side-width) + 40px);
+  background: var(--surface);
+}
 
-  .readout { display: flex; gap: 10px; align-items: baseline; height: 1.4em; margin: 0 0 4px; overflow: hidden; white-space: nowrap; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
-  .readout span { color: var(--muted); }
-  .readout .hint { font-size: 0.8rem; }
+.nsc-scatter-view {
+  display: flex; flex-direction: column; height: 100%;
+
+  // Tooltip content (the card itself is styled by the plot): name in bold, then label .......... value rows
+  @include paper.card-content;
   .plot { flex: 1; }
   .status { flex: 1; margin: 0; color: var(--muted); }
-  .note { margin: 6px 0 0; color: var(--muted); @include paper.mono-label(0.5625rem, 0.08em); }
 }
+
+// Narrow screens: the left column stacks over the stage, so the chart takes the full width below the header
+@media (max-width: 700px) { :host { padding-left: 16px; } }

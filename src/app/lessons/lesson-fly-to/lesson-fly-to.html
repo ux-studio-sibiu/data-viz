@@ -38,6 +38,7 @@
     <li><strong>A drag interrupts:</strong> OrbitControls' <code>start</code> event kills the tween, and the user is in control from where the camera is.</li>
     <li><strong>A selection stops auto-rotation for good:</strong> a country you chose shouldn't rotate away.</li>
     <li><strong>Reduced motion:</strong> the camera jumps to the target, no flight.</li>
+    <li><strong>No flight before the globe is shown</strong> (added after lesson 13): on load with <code>?country=</code>, or coming back to the globe from the map or the scatter with a country selected, the camera starts on the country and the globe fades in already there. A flight from a view nobody saw would only be motion for its own sake. Choosing a country while the globe is on screen still flies.</li>
   </ul>
 
   <h2>4. When it flies</h2>

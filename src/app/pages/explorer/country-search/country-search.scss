@@ -36,5 +36,4 @@
   .meta { grid-column: 1; color: var(--muted); font-size: 0.75rem; }
   .code { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--muted); @include paper.mono-label(0.6875rem, 0.1em); }
 
-  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
