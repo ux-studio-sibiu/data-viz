@@ -24,11 +24,16 @@ const MODES: { id: Mode; label: string; unit: string; noun: string }[] = [
   selector: 'app-country-detail',
   imports: [LineChart],
   templateUrl: './country-detail.html',
-  styleUrl: './country-detail.scss'
+  styleUrl: './country-detail.scss',
+  host: { '[class.is-visible]': 'visible()' } // the whole panel, frame included, fades in on this (first open)
 })
 export class CountryDetail {
   readonly country = input.required<Country>();
   readonly year = input<number | null>(null); // lesson 12: the year on the map; null = the latest
+
+  // First open: hidden until the CO₂ data is in and drawn, then the whole panel fades in at once. Showing it straight away
+  // flickered: the frame and "Loading…" for a frame or two, then the figures and the chart popping in under them.
+  protected readonly visible = signal(false);
 
   protected readonly boundaries = inject(Boundaries);
   protected readonly state = inject(ExplorerState);
@@ -103,6 +108,11 @@ export class CountryDetail {
       const next = this.country();
       untracked(() => this.swap(next));
     });
+    // Once the data has arrived (or failed: the panel then shows why), wait for that render, then show the panel. Once only.
+    effect(() => {
+      if (this.visible() || this.loading()) return;
+      afterNextRender(() => this.visible.set(true), { injector: this.injector });
+    });
   }
 
   protected format(n: number) { return figure.format(n); }
@@ -111,8 +121,7 @@ export class CountryDetail {
   private async swap(next: Country) {
     const first = !this.shown();
     if (first || this.motion.reduced()) {
-      this.shown.set(next);
-      if (first) this.fadeInAfterRender();
+      this.shown.set(next); // the first country goes straight in: the panel is still hidden, the reveal is the panel's fade-in
       return;
     }
     if (next === this.shown() || this.swapping) return; // a fade-out already running picks up the latest country when it ends

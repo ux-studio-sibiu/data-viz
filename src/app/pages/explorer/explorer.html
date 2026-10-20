@@ -12,9 +12,8 @@
           <span globe-tooltip><span class="card-title">{{ c.name }}</span><span class="card-role">{{ hoveredValue() }}</span></span>
         }
       </app-globe>
-    } @placeholder {
-      <p class="status">Loading the globe…</p>
     }
+    <!-- No placeholder: the empty paper is the loading state, and the globe fades in once it has something to show -->
   } @else if (boundaries.error()) {
     <p class="status">The map data couldn't be loaded.</p>
   } @else if (boundaries.isLoading()) {

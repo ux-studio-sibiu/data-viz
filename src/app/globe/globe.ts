@@ -16,7 +16,8 @@ import { GlobeScene } from './globe-scene';
     <!-- Lesson 06: content from the parent, moved with the pointer by writing style.translate directly (no signal per mouse move) -->
     <div #tooltip class="tooltip" [hidden]="!pointerOnCountry()"><ng-content select="[globe-tooltip]" /></div>
   `,
-  styleUrl: './globe.scss'
+  styleUrl: './globe.scss',
+  host: { '[class.is-ready]': 'ready()' } // globe.scss fades the globe in on this
 })
 export class Globe {
   readonly features = input<CountryFeature[]>([]); // lesson 05: drawn through the ID map
@@ -28,6 +29,7 @@ export class Globe {
   readonly label = input('A globe you can rotate by dragging and zoom with the mouse wheel or a pinch. Click a country to select it.');
   readonly unsupported = output(); // no WebGL: the parent shows the flat map instead
 
+  protected readonly ready = signal(false); // countries and borders drawn: time to fade in
   protected readonly pointerOnCountry = signal(false); // only the pointer shows the tooltip, not a hover coming from elsewhere
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
@@ -65,6 +67,14 @@ export class Globe {
       effect(() => {
         const id = this.selected(), feature = this.features().find(f => f.id === id);
         if (feature) untracked(() => scene.flyTo(feature, motion.reduced()));
+      }, { injector });
+
+      // Ready once the countries and the borders have reached the scene and been drawn. Two frames: the scene draws on the next
+      // one, and the fade should start from a finished picture, not a white ball that fills in. (The colours may come a moment
+      // later; they crossfade in on their own, lesson 12.)
+      effect(() => {
+        if (this.ready() || !this.features().length || !this.borders().length) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => this.ready.set(true)));
       }, { injector });
 
       destroyRef.onDestroy(() => scene.dispose());

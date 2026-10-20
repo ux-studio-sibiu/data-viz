@@ -14,8 +14,9 @@ import { frameCountry } from './framing';
 import { graticulePositions, lonLatToVector3, sphereLinePositions, vector3ToLonLat } from './geo';
 import { idAt, rasterizeIds } from './id-map';
 
-// Where the camera starts: above the Atlantic off Morocco, so Europe and Africa face you. Distance 2.9 ≈ the globe fills the screen height.
-const START = { lon: -8, lat: 32, distance: 2.9 };
+// Where the camera starts: above Iraq, with Europe on the left. The auto-spin then turns Europe towards the centre.
+// Distance 2.9 ≈ the globe fills the screen height.
+const START = { lon: 45, lat: 30, distance: 2.9 };
 // Camera distance limits, from the globe's centre (globe radius = 1). One place for both scroll/pinch and the fly-to framing.
 //   closest 1.8: Europe fills the screen, about Hungary-sized countries at their most detailed (adjust here)
 //   farthest 6: the whole globe small in the middle

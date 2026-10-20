@@ -1,6 +1,12 @@
 @use '../../../../styles/paper' as paper;
 
-:host { display: block; position: relative; @include paper.panel; } // positioned: the hatched lift is drawn outside the box
+:host {
+  display: block; position: relative; @include paper.panel; // positioned: the hatched lift is drawn outside the box
+  opacity: 0; // until CountryDetail.visible: no half-filled panel on the first open
+}
+// Sharp: short and eased out, so it reads as "there" rather than as an animation
+:host(.is-visible) { opacity: 1; transition: opacity 0.15s ease-out; }
+@media (prefers-reduced-motion: reduce) { :host(.is-visible) { transition: none; } }
 
 .nsc-country-detail {
   padding: 12px 14px;
