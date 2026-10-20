@@ -111,7 +111,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 08 | Data pipeline II: CO₂ | OWID CO₂ → 7 per-metric files + meta; CO₂ figures in the selection card; Western Sahara revisited (kept de facto: OWID has no data for it) | Typed models, `httpResource` with `parse`, missing values with years |
 | 09 | Choropleth and legend | Globe and map coloured by a metric (?metric=), legend with a metric switcher, hatched no-data | `d3-scale` threshold + quantile breaks, 256×1 palette texture, legend slot |
 | 10 | Fly to a country ✓ (done after 07) | Camera flight to the selected country, framed at 30% of the screen; the panel reveal moves to 11 | GSAP driving a slerp + climb, camera ownership, reduced motion |
-| 11 | Country detail panel | Historical chart, per-capita vs total, income-group peers | D3 line chart in an Angular SVG template |
+| 11 | Country detail panel | Historical chart, per-capita vs total, income-group median and rank; the panel reveal | D3 line chart in an Angular SVG template |
 | 12 | Time | Year slider + play | GSAP palette transitions, when interpolating between years is honest |
 | 13 | Linked scatter plot | GDP × CO₂ per capita, size by population | Linked selection between two views |
 | 14 | Compare countries | Pin up to 3, sparklines | Normalized vs raw units |

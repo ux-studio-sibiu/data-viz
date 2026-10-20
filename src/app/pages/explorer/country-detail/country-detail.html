@@ -1,0 +1,46 @@
+@let c = current();
+<section class="nsc-country-detail" [attr.aria-label]="c.longName">
+  <button type="button" class="close" aria-label="Clear selection" (click)="state.select(null)">✕</button>
+
+  <header>
+    <!-- The income group as a 4-step meter (low → high) right after the name, so it follows the last word when the name wraps.
+         Its tooltip is CSS-only (shown on :hover, no delay), in the globe tooltip's style; screen readers get the aria-label. -->
+    <h2>{{ c.longName }}@if (c.incomeGroup; as g) {<span class="income" role="img" [attr.aria-label]="income[g]">@for (step of steps; track step) {<span class="step" [class.is-on]="step <= level[g]"></span>}</span><span class="tip" aria-hidden="true"><span class="tip-title">{{ income[g] }}</span><span class="tip-role">World Bank income group</span></span>}</h2>
+    <p class="meta">{{ c.subregion }}@if (c.sovereign) { · Part of {{ boundaries.countries().get(c.sovereign)?.name ?? c.sovereign }}}</p>
+  </header>
+
+  <!-- Lesson 08: the latest CO₂ figures. One year on top; a figure from another year says so next to it. Missing data is said plainly, never shown as 0. -->
+  @if (failed()) {
+    <p class="note">The CO₂ data couldn't be loaded.</p>
+  } @else if (loading()) {
+    <p class="note">Loading CO₂ data…</p>
+  } @else if (readings(); as r) {
+    @if (!r.perCapita && !r.total) {
+      <p class="note">No CO₂ data for {{ c.name }} in Our World in Data.</p>
+    } @else {
+      <div class="figures">
+        <p class="figures-year">{{ figuresYear() }}</p>
+        <dl>
+          @if (r.perCapita; as v) { <dt>CO₂ per person</dt><dd>{{ format(v.value) }} t @if (v.year !== figuresYear()) { <span class="year">{{ v.year }}</span> }</dd> }
+          @if (r.total; as v) { <dt>CO₂ per year</dt><dd>{{ format(v.value) }} Mt @if (v.year !== figuresYear()) { <span class="year">{{ v.year }}</span> }</dd> }
+          @if (r.historicShare; as v) { <dt>Share of all CO₂ since 1750</dt><dd>{{ format(v.value) }}% @if (v.year !== figuresYear()) { <span class="year">{{ v.year }}</span> }</dd> }
+        </dl>
+      </div>
+
+      <!-- Lesson 11: the history, next to the income group's median -->
+      <div class="history">
+        <div class="modes" role="group" aria-label="Chart">
+          @for (m of modes; track m.id) {
+            <button type="button" [class.is-active]="mode() === m.id" [attr.aria-pressed]="mode() === m.id" (click)="mode.set(m.id)">{{ m.label }}</button>
+          }
+        </div>
+        @if (chart(); as ch) {
+          <app-line-chart [lines]="ch.lines" [firstYear]="ch.firstYear" [unit]="modeInfo().unit" [label]="ch.label" />
+        }
+        @if (rank(); as rk) {
+          <p class="rank">{{ ordinal(rk.rank) }} highest of {{ rk.of }} {{ rk.group }} countries, {{ rk.year }}</p>
+        }
+      </div>
+    }
+  }
+</section>

@@ -75,3 +75,33 @@ export function latest(series: MetricSeries | undefined, id: string, year?: numb
   }
   return null;
 }
+
+// --- peers (lesson 11) ----------------------------------------------------------------------------------------------------
+
+// Year by year, the median of a group of countries: "a typical high-income country". A median, not a mean, so one
+// outlier (Qatar's 40 t per person) doesn't drag the line. Years where fewer than 3 of them have a value stay null.
+export function medianSeries(series: MetricSeries, ids: string[]): (number | null)[] {
+  const rows = ids.map(id => series.values[id]).filter(row => !!row);
+  const length = Math.max(0, ...rows.map(row => row.length));
+  return Array.from({ length }, (_, i) => {
+    const values = rows.map(row => row[i]).filter((v): v is number => v !== null && v !== undefined).sort((a, b) => a - b);
+    if (values.length < 3) return null;
+    const mid = values.length >> 1;
+    return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+  });
+}
+
+// Where a country stands among a group in one year: 1 = the highest value. null if it has no value that year.
+export function rankIn(series: MetricSeries, ids: string[], id: string, year: number): { rank: number; of: number } | null {
+  const at = (c: string) => series.values[c]?.[year - series.firstYear] ?? null;
+  const own = at(id);
+  if (own === null) return null;
+  const values = ids.map(at).filter((v): v is number => v !== null);
+  return { rank: values.filter(v => v > own).length + 1, of: values.length };
+}
+
+// The index of the last non-null value, or -1 (Array.findLastIndex is ES2023; this project's lib is ES2022)
+export function lastIndexWithValue(values: (number | null)[]): number {
+  for (let i = values.length - 1; i >= 0; i--) if (values[i] !== null) return i;
+  return -1;
+}

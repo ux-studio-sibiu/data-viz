@@ -3,7 +3,7 @@ import { scaleThreshold } from 'd3-scale';
 import type { MetricSeries } from '../data/co2';
 
 // ColorBrewer "Oranges", 7 classes (Cynthia Brewer, colorbrewer2.org, Apache 2.0): one hue, light → dark, perceptually
-// ordered and colour-blind safe. Warm, for carbon, and clear of the bluish-grey sea.
+// ordered and colour-blind safe. Warm, for carbon, and clear on the white sea.
 export const ORANGES_7 = ['#feedde', '#fdd0a2', '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#8c2d04'];
 
 export type Choropleth = {

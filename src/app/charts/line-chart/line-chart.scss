@@ -1,0 +1,32 @@
+@use '../../../styles/paper' as paper;
+
+:host { display: block; }
+
+.nsc-line-chart {
+  margin: 0;
+
+  .readout { display: flex; align-items: baseline; gap: 12px; margin-top: 36px; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .year { color: var(--ink); font-weight: 700; @include paper.mono-label(0.6875rem, 0.1em); }
+  .entry strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  // The value and, invisible in the same grid cell, the widest value it can take: the box is always as wide as the widest
+  .value { display: inline-grid; justify-items: start; }
+  .value > * { grid-area: 1 / 1; }
+  .widest { visibility: hidden; }
+  .key { display: inline-block; width: 14px; margin-right: 4px; vertical-align: middle; border-top: 2px solid var(--ink); }
+  .is-reference .key { border-top-style: dashed; border-top-color: var(--muted); }
+
+  svg { margin-top: 32px; display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; cursor: crosshair; }
+  .grid { stroke: var(--line); stroke-width: 1; }
+  .y-tick, .x-tick { fill: var(--muted); font-family: var(--ui-mono); font-size: 9px; }
+  .y-tick { text-anchor: start; dominant-baseline: middle; }
+  .x-tick { text-anchor: middle; }
+
+  .series { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .series.is-reference { stroke: var(--muted); stroke-width: 1.25; stroke-dasharray: 4 3; }
+
+  // The year rule: faint at the latest year, ink while hovering
+  .rule { stroke: var(--line); stroke-width: 1; }
+  .rule.is-active { stroke: var(--ink); }
+  .dot { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+  .dot.is-reference { stroke: var(--muted); stroke-width: 1.25; }
+}

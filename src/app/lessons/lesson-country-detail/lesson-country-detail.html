@@ -1,0 +1,83 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 11">
+  <h1>Country detail panel</h1>
+  <p>The selection card is now a detail panel. Below the latest figures there is a line chart of the country's CO₂ since 1900, the median of its income group as a dashed line, and its rank in that group. A switch flips the chart between per person and total. Try <a routerLink="/" [queryParams]="{ country: 'DEU' }">Germany</a>, <a routerLink="/" [queryParams]="{ country: 'CHN' }">China</a>, <a routerLink="/" [queryParams]="{ country: 'IND' }">India</a>.</p>
+
+  <h2>1. D3 does the maths, Angular draws</h2>
+  <pre><code>// charts/line-chart/line-chart.ts
+x     = scaleLinear([1900, 2024] → [left, right])
+y     = scaleLinear([0, max] → [bottom, top]).nice(4)
+paths = computed(() => line().defined(v => v !== null).x(…).y(…)(values))
+
+&lt;path [attr.d]="p.d" /&gt;   // one per line, in the template</code></pre>
+  <ul>
+    <li>The classic D3 chart owns the DOM: <code>d3.select(svg).selectAll('path').data(…).join('path')</code>. In Angular that fights the framework: two systems updating the same elements, and cleanup by hand.</li>
+    <li>Here D3 only computes. Scales turn years and tonnes into pixels, <code>line()</code> turns points into a path string, <code>ticks()</code> picks round axis values. Everything else is ordinary template: <code>&#64;for</code> over ticks, <code>[attr.d]</code> on a path. Same idea as lesson 03's flat map.</li>
+    <li>Every piece is a <code>computed</code>. Switch per person / total, or pick another country, and only the paths and ticks that depend on the change recompute. No <code>ngOnChanges</code>, no redraw function.</li>
+    <li><code>LineChart</code> is generic: lines in (<code>&#123; id, label, values, reference? &#125;</code>), a first year, a unit. It knows nothing about CO₂ or countries, so lesson 14's comparison can reuse it.</li>
+  </ul>
+
+  <h2>2. Honest axes, honest gaps</h2>
+  <ul>
+    <li><strong>The y axis starts at 0.</strong> Starting at the minimum makes a 10% dip look like a collapse. Emissions are a quantity, so the bar of zero matters.</li>
+    <li><strong>Missing years are gaps.</strong> <code>line().defined(v => v !== null)</code> lifts the pen over nulls. Many countries have no data before independence; the line starts when the data does, instead of diving to 0.</li>
+    <li><strong>Tick labels in SI:</strong> <code>y.tickFormat(4, '~s')</code> prints 12 000 Mt as "12k", so the left margin fits China's totals and Chad's per-person figures alike.</li>
+    <li><strong>A text alternative:</strong> the SVG has <code>role="img"</code> and an <code>aria-label</code> built from the data ("CO₂ per person in Germany, 1900 to 2024: from 5.86 t to 6.77 t"). A screen reader gets the trend without the picture.</li>
+  </ul>
+
+  <h2>3. Reading values: one readout, not a tooltip</h2>
+  <ul>
+    <li>Moving over the chart snaps to the nearest year: the pointer's x goes back through the scale (<code>x.invert</code>) and is rounded. The SVG scales with its box, so the pointer is first converted to viewBox units.</li>
+    <li>A rule and dots mark that year; the readout above the chart shows each line's value. Off the chart it shows the latest year with data. The readout doubles as the key (solid = the country, dashed = the peers), so there's no separate legend.</li>
+    <li>No floating tooltip: the panel already sits at the edge of the screen, and a readout in a fixed place is easier to compare while sweeping across years.</li>
+  </ul>
+
+  <h2>4. Peers: compared with whom?</h2>
+  <pre><code>// data/co2.ts
+medianSeries(series, ids)        // year by year, the median of the group (null where fewer than 3 have data)
+rankIn(series, ids, id, year)    // &#123; rank: 1 = highest, of: how many had a value &#125;</code></pre>
+  <ul>
+    <li>"High" or "low" only means something next to something. The peers are the country's <strong>income group</strong> (Natural Earth's World Bank classification, from lesson 02): it compares Germany with other rich countries, India with other lower-middle-income ones.</li>
+    <li><strong>The median, not the mean:</strong> Qatar's 40 t per person would drag a high-income mean up by a tonne on its own. The median is "a typical country in the group".</li>
+    <li>The rank uses the chart's metric and the country's latest year. China is 1st of 57 upper-middle-income countries in total, but 8th per person: that's the point of the switch.</li>
+    <li>Caveat, said on the methodology page in lesson 19: the classification is a snapshot (several countries changed group since), and it's applied to the whole history. In 1950 South Korea wasn't high income.</li>
+  </ul>
+
+  <h2>5. The panel reveal (moved here from lesson 10)</h2>
+  <pre><code>shown   = signal&lt;Country | null&gt;(null)                 // the country on screen
+current = computed(() => shown() ?? country())          // what the template reads
+
+new selection → fade .nsc-country-detail out (0.25 s)
+             → onComplete: shown.set(country())         // swapped while the panel is blank
+             → afterNextRender: fade in (0.4 s)</code></pre>
+  <ul>
+    <li><strong>Out, swap, in.</strong> The panel's content trails the selection: the old country stays on screen until it has faded out, is replaced while the panel is blank, and the new one fades in. The text never changes while visible. The frame (border, hatched shadow) is the host element and stays put; only the wrapper inside it, <code>.nsc-country-detail</code>, fades.</li>
+    <li>That's why the template reads <code>current()</code>, not the input: the input changes at once, <code>current()</code> only after the fade-out. Every computed (figures, chart, rank) follows <code>current()</code>, so they switch in the same frame.</li>
+    <li><strong>Fast clicks:</strong> a selection made during a fade-out doesn't start a second one; when the fade-out ends it shows the <em>latest</em> selection. <code>overwrite: true</code> stops a fade-in still running when the next fade-out starts.</li>
+    <li>Earlier versions faded each row in one after another (<code>stagger</code>), then the whole block in without fading the old one out. Both read as jagged: the new text appeared at once, then faded.</li>
+    <li><strong>Why <code>afterNextRender</code>:</strong> setting <code>shown</code> only schedules the DOM update. Fading in straight away would show the old country for a frame.</li>
+    <li><strong>GSAP loaded on demand:</strong> <code>await import('gsap')</code>. The globe's chunk loads it anyway, but on the flat map (or without WebGL) it shouldn't join the first download. The build shows it as its own lazy chunk (~25 kB gzipped).</li>
+    <li>Reduced motion (<code>MotionPreference</code>, lesson 00): no fade, the content just appears.</li>
+    <li>The <code>aria-live</code> region is a wrapper that stays in the DOM. A live region that is created together with its content isn't announced by most screen readers.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>charts/line-chart/*</code>: the generic line chart</li>
+    <li><code>pages/explorer/country-detail/*</code>: the panel (the selection card and its CO₂ figures moved here from the explorer), the chart's lines, the rank, the reveal</li>
+    <li><code>data/co2.ts</code>: <code>medianSeries</code>, <code>rankIn</code>, <code>lastIndexWithValue</code></li>
+    <li><code>pages/explorer/*</code>: the panel replaces the card; the side column is 340px wide</li>
+    <li>Package: <code>d3-shape</code> (+ types)</li>
+    <li><code>lessons/lesson-country-detail/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Select Germany: per-person line above the dashed high-income median for most of the century, falling since the 1980s</li>
+    <li>Switch to Total, then select China: the rank changes between the two modes</li>
+    <li>Sweep the pointer across the chart: the rule snaps to years, the readout follows, and returns to the latest year when you leave</li>
+    <li>Select a country without early data (e.g. Namibia, from 1991): the line starts late, with no dive to 0</li>
+    <li>Select Western Sahara: "No CO₂ data", no chart</li>
+    <li>Select a few countries in a row: the old content fades out, then the new one fades in; with reduced motion on, they don't</li>
+  </ul>
+</app-lesson-page>

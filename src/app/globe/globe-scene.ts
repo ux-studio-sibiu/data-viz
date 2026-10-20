@@ -20,6 +20,10 @@ const START = { lon: -8, lat: 32, distance: 2.9 };
 //   closest 1.8: Europe fills the screen, about Hungary-sized countries at their most detailed (adjust here)
 //   farthest 6: the whole globe small in the middle
 const ZOOM = { closest: 1.8, farthest: 6 };
+// The selection hatch keeps its full size from this distance out; closer in it gets finer, down to HATCH_FINEST at ZOOM.closest.
+// Up close the borders are thick and the country fills the screen, so a full-size hatch reads as heavy stripes.
+const HATCH_FULL_FROM = 2.6;
+const HATCH_FINEST = 0.55;
 const FRAME_FARTHEST = 4; // the fly-to never backs off further than this, even for Russia
 const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
 const ID_MAP_TEXEL = (2 * Math.PI) / ID_MAP_WIDTH; // one ID map pixel, as a distance on the unit sphere (≈ 10 km)
@@ -113,6 +117,9 @@ export class GlobeScene {
     // The mouse wheel is handled here instead (onWheel): OrbitControls applies each wheel notch as an instant jump.
     this.controls = new OrbitControls(this.camera, canvas);
     Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: ZOOM.closest, maxDistance: ZOOM.farthest, zoomSpeed: 0.7, autoRotateSpeed: 0.35 });
+    // OrbitControls' constructor runs disconnect() on the way in, which writes style.cursor = 'auto' inline. That beats the
+    // stylesheet (grab, pointer over a country, grabbing while dragging), so clear it and let globe.scss decide.
+    canvas.style.cursor = '';
 
     this.updateRotateSpeed();
     this.resizeObserver.observe(canvas);
@@ -258,7 +265,13 @@ export class GlobeScene {
 
   private render() {
     this.updateLineWidth();
+    this.updateHatchScale();
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private updateHatchScale() {
+    const t = MathUtils.smoothstep(this.camera.position.length(), ZOOM.closest, HATCH_FULL_FROM);
+    this.earthMaterial.uniforms['hatchScale'].value = MathUtils.lerp(HATCH_FINEST, 1, t);
   }
 
   // Border width follows the zoom: about 1.2 ID map pixels as they appear on screen, between 1 and 6 px.

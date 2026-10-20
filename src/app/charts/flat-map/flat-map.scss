@@ -7,7 +7,7 @@
 
   svg { display: block; width: 100%; height: auto; }
 
-  // Paper and ink, like the globe: bluish-grey sea, white land, ink borders, the selection hatched in red
+  // Paper and ink, like the globe: white sea and land, ink borders, the selection hatched in red
   .sphere { fill: var(--sea); stroke: var(--ink); stroke-width: 1; }
   .graticule { fill: none; stroke: var(--ink); stroke-opacity: 0.07; }
 

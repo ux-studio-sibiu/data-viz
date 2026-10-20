@@ -15,7 +15,7 @@ export function createPaletteTexture() {
 // The Earth's surface, coloured from the ID map (id-map.ts): 0 = ocean, anything else = land.
 // Lesson 06: the hovered and the selected country are marked. Lesson 09: each country coloured by its data (the palette).
 //
-// Drawn like an architectural plan: white land, a flat bluish-grey sea, the selection hatched in red. The hatching is engraved on the globe:
+// Drawn like an architectural plan: white land and sea, the selection hatched in red. The hatching is engraved on the globe:
 // each line is where one of a family of parallel planes slices the sphere, so it turns with the globe and spreads apart as you
 // zoom in. The line *width* is measured in screen pixels (fwidth), so lines stay crisp at any zoom.
 //
@@ -29,7 +29,7 @@ export function createEarthMaterial() {
   return new ShaderMaterial({
     uniforms: {
       idMap: { value: empty },
-      ocean: { value: new Color('#d9e1e7') }, // flat bluish grey: reads as water without competing with the ink lines
+      ocean: { value: new Color('#ffffff') }, // white, like the paper: the coastlines alone draw the land (was #dcdcdc grey)
       land: { value: new Color('#ffffff') },
       ink: { value: new Color('#141414') },
       // Country numbers from the ID map (1…240); 0 = none. Changing one is a uniform update, nothing is rebuilt.
@@ -37,7 +37,8 @@ export function createEarthMaterial() {
       selected: { value: 0 },
       palette: { value: createPaletteTexture() },
       colored: { value: 0 }, // 0 until a palette is set: plain white land, not "no data" everywhere while the data loads
-      pixelRatio: { value: 1 } // line widths are in CSS pixels, so they look the same on a 2× screen
+      pixelRatio: { value: 1 }, // line widths are in CSS pixels, so they look the same on a 2× screen
+      hatchScale: { value: 1 }  // the selection hatch's spacing and width: 1 from mid zoom out, finer zoomed in (GlobeScene sets it)
     },
     vertexShader: `
       varying vec3 vPosition; // on the unit sphere, in the globe's own coordinates
@@ -55,6 +56,7 @@ export function createEarthMaterial() {
       uniform sampler2D palette;
       uniform float colored;
       uniform float pixelRatio;
+      uniform float hatchScale;
       varying vec3 vPosition;
 
       // Ink coverage of globe-fixed hatching at point p on the unit sphere: 1 on a line, 0 between lines.
@@ -71,6 +73,20 @@ export function createEarthMaterial() {
         return mix(line, clamp(width * perPixel, 0.0, 1.0), tooDense);
       }
 
+      // Hatching that keeps about the same spacing on screen at any zoom: as fine on Luxembourg seen from afar as on Russia
+      // seen up close. Still fixed to the globe, so it turns with it.
+      //   unitsPerPixel: how far across the planes one screen pixel reaches. The ideal density is 1 / (spacingPx · unitsPerPixel).
+      //   Densities are rounded to powers of 2: zooming in, the lines spread apart until there's room for a new one between each
+      //   pair, which fades in (fine → 1); at double density the cycle repeats. Every line of the coarser set is also in the finer
+      //   one, so nothing slides or jumps. The spacing on screen stays between spacingPx and 2 × spacingPx.
+      float zoomHatch(vec3 p, vec3 direction, float spacingPx, float widthPx) {
+        float unitsPerPixel = max(fwidth(dot(p, direction)), 1e-7);
+        float level = log2(1.0 / (spacingPx * pixelRatio * unitsPerPixel));
+        float coarse = floor(level);
+        float fine = level - coarse;
+        return mix(hatch(p, direction, exp2(coarse), widthPx), hatch(p, direction, exp2(coarse + 1.0), widthPx), fine);
+      }
+
       void main() {
         vec3 p = normalize(vPosition);
         float lon = atan(p.x, p.z);              // -π … π, 0 at Greenwich
@@ -80,7 +96,7 @@ export function createEarthMaterial() {
         float id = floor(texture2D(idMap, uv).r * 255.0 + 0.5); // the byte back as a whole number
         // Computed for every pixel, before the ifs: fwidth() compares neighbouring pixels, and inside an if a neighbour that
         // took the other branch (the selected country vs its neighbour, right at a border) leaves it undefined.
-        float selectedLines = hatch(p, normalize(vec3(-1.0, 1.0, 0.35)), 170.0, 1.2); // ~37 km apart
+        float selectedLines = zoomHatch(p, normalize(vec3(-1.0, 1.0, 0.35)), 6.0 * hatchScale, 2.0 * hatchScale); // 6–12 px apart, 2 px wide; finer up close
         float noDataLines = hatch(p, normalize(vec3(1.0, 1.0, 0.35)), 110.0, 0.8);    // the other direction, finer, lighter
 
         vec4 data = texture2D(palette, vec2((id + 0.5) / 256.0, 0.5)); // the centre of slot "id"

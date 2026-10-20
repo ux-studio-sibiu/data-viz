@@ -1,0 +1,62 @@
+@use '../../../../styles/paper' as paper;
+
+:host { display: block; position: relative; @include paper.panel; } // positioned: the hatched lift is drawn outside the box
+
+.nsc-country-detail {
+  padding: 12px 14px;
+  // Tall content scrolls inside the panel, clear of the legend below
+  max-height: calc(100dvh - 220px); overflow-y: auto;
+
+  header { position: relative; } // the meter's tooltip is placed against the header, so it never runs out of the panel's side
+  h2 { margin: 0 36px 4px 0; font-size: 1.1rem; } // clear of the close box
+  .meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
+  // The income meter: four rising bars, filled up to the group (1 = low … 4 = high), like a signal-strength icon
+  .income { display: inline-flex; align-items: flex-end; gap: 2px; margin-left: 10px; vertical-align: -1px; }
+  .step { width: 5px; border: 1.5px solid var(--ink); background: var(--surface); }
+  .step:nth-child(1) { height: 6px; }
+  .step:nth-child(2) { height: 9px; }
+  .step:nth-child(3) { height: 12px; }
+  .step:nth-child(4) { height: 15px; }
+  .step.is-on { background: var(--ink); }
+  // The globe tooltip's card, under the name, shown at once while the meter is hovered
+  .tip { display: none; position: absolute; top: 100%; left: 0; z-index: 1; margin-top: 4px; pointer-events: none; font-weight: 400; @include paper.tooltip-card; }
+  .income:hover + .tip { display: block; }
+  .tip-title { display: block; color: var(--ink); font-weight: 700; font-size: 0.95rem; line-height: 1.3; }
+  .tip-role { display: block; margin-top: 0.25rem; color: var(--muted); @include paper.mono-label; }
+  .note { margin: 10px 0 0; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+
+  .figures {
+    margin: 16px 0 0; font-size: 0.85rem;
+
+    .figures-year { margin: 0 0 8px; padding-bottom: 3px; border-bottom: 1px solid var(--ink); text-align: right; color: var(--ink); font-weight: 700; } // the figures' own font and size, bold
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 0; }
+
+    dt { color: var(--muted); }
+    dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+    .year { color: var(--muted); font-size: 0.7rem; }
+  }
+
+  .history { margin-top: 22px; }
+  // A two-way switch in the studio's style: ink-edged segments, the active one inverted
+  .modes {
+    display: inline-flex; margin-bottom: 8px; border: paper.$border solid var(--ink);
+
+    button {
+      height: 24px; padding: 0 10px; border: 0; border-radius: 0; background: var(--surface); color: var(--ink); cursor: pointer;
+      @include paper.mono-label(0.625rem, 0.1em); font-weight: 700;
+    }
+    button + button { border-left: paper.$border solid var(--ink); }
+    button:hover { background: var(--hover-fill); }
+    button.is-active { background: var(--ink); color: var(--surface); }
+  }
+  .rank { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; }
+
+  // A square ink box. z-index: the header after it is positioned (for the meter's tooltip) and would otherwise paint over it.
+  .close {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    display: grid; place-items: center; width: 30px; height: 30px; padding: 0;
+    border: paper.$border solid var(--ink); border-radius: 0; background: var(--surface); color: var(--ink);
+    font-size: 1rem; font-weight: 700; line-height: 1; cursor: pointer;
+  }
+  .close:hover { background: var(--tint); } // a slight tint, not an inversion
+}

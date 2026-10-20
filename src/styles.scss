@@ -1,10 +1,10 @@
 // Global styles (≈ Next.js app/globals.css). Not scoped: tokens, resets and the shared lesson typography.
 // Paper and ink: an architectural drawing. Black lines on warm white, hatching instead of fills, one red for markup.
 :root {
-  --bg: #f4f3ef; --surface: #ffffff; --fg: #141414; --muted: #6b6862; --line: #d6d3cc; --accent: #d1261b; --code-bg: #ebe9e3;
+  --bg: #ffffff; --tint: #f2f1ed; --surface: #ffffff; --fg: #141414; --muted: #6b6862; --line: #d6d3cc; --accent: #d1261b; --code-bg: #ebe9e3;
   --ink: #141414;            // lines and hatching
   --hover-fill: #e6e3dc;     // a hovered country
-  --sea: #d9e1e7;            // flat bluish grey (the globe shader uses the same value)
+  --sea: #ffffff;            // white, like the paper (the globe shader uses the same value; was #dcdcdc grey)
   --shadow: rgb(20 20 20 / 0.12);
   --ui-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; // the studio's label face (used if installed)
   color-scheme: light;

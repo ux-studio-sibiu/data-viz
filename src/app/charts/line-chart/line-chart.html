@@ -1,0 +1,28 @@
+<figure class="nsc-line-chart">
+  <svg [attr.viewBox]="'0 0 ' + W + ' ' + H" role="img" [attr.aria-label]="label()" (pointermove)="track($event)" (pointerleave)="leave()">
+    @for (t of yTicks(); track t.value) {
+      <line class="grid" [attr.x1]="M.left" [attr.x2]="W - M.right" [attr.y1]="t.y" [attr.y2]="t.y" />
+      <text class="y-tick" x="0" [attr.y]="t.y">{{ t.label }}</text>
+    }
+    @for (t of xTicks(); track t.year) {
+      <text class="x-tick" [attr.x]="t.x" [attr.y]="H - 5">{{ t.year }}</text>
+    }
+
+    @for (p of paths(); track p.id) {
+      <path class="series" [class.is-reference]="p.reference" [attr.d]="p.d" />
+    }
+
+    <line class="rule" [class.is-active]="hovering()" [attr.x1]="ruleX()" [attr.x2]="ruleX()" [attr.y1]="M.top" [attr.y2]="H - M.bottom" />
+    @for (r of readout(); track r.id) {
+      @if (r.y !== null) { <circle class="dot" [class.is-reference]="r.reference" [attr.cx]="ruleX()" [attr.cy]="r.y" r="3" /> }
+    }
+  </svg>
+
+  <!-- Below the chart: the readout doubles as the key (solid = the country, dashed = the reference line) -->
+  <figcaption class="readout">
+    <span class="year">{{ year() }}</span>
+    @for (r of readout(); track r.id) {
+      <span class="entry" [class.is-reference]="r.reference"><span class="key"></span>{{ r.label }} <strong class="value"><span>{{ r.value }}</span><span class="widest" aria-hidden="true">{{ r.widest }}</span></strong></span>
+    }
+  </figcaption>
+</figure>

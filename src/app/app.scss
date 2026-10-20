@@ -10,7 +10,7 @@
 
   // Small caps with tracking: the lettering of a drawing's title block
   a { color: var(--fg); @include paper.mono-label(0.6875rem, 0.14em); font-weight: 700; text-decoration: none; text-shadow: 0 0 6px var(--bg); }
-  a:hover { color: var(--accent); }
+  a:hover { color: #4a4a4a; } // a touch lighter, no colour change
 }
 
 .view-switch {
@@ -18,8 +18,10 @@
 
   button { font: inherit; @include paper.mono-label(0.6875rem, 0.14em); font-weight: 700; height: 30px; padding: 0 12px; border: 0; background: none; color: var(--fg); cursor: pointer; }
   button + button { border-left: paper.$border solid var(--ink); }
-  button:hover:not(:disabled) { background: var(--hover-fill); }
   button.is-active { background: var(--ink); color: var(--surface); }
+  // Hover lightens a little, never inverts: paper gets a faint tint, the black active button goes charcoal
+  button:hover:not(:disabled) { background: var(--tint); }
+  button.is-active:hover { background: #3a3a3a; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
