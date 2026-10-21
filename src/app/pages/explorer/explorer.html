@@ -7,7 +7,7 @@
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
     <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
     @defer (on immediate) {
-      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" (unsupported)="state.noWebgl()">
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" [heights]="heights()" (unsupported)="state.noWebgl()">
         @if (country(); as c) {
           <span globe-tooltip class="card-title">{{ c.name }}</span>
         }
@@ -65,6 +65,21 @@
       </app-legend>
     }
   </div>
+
+  <!-- Lesson 15: raise the countries by their total CO₂ (globe only); while raised, what the height means -->
+  @if (state.view() === 'globe') {
+    <div class="extrude">
+      @if (state.extrude() && tallest(); as t) {
+        @if (raised(); as r) {
+          <app-pie-chart [slices]="r.slices" [label]="pieLabel()" />
+          <p class="extrude-note"><strong>{{ r.count }} of {{ r.of }} countries emit 90% of the CO₂</strong></p>
+        }
+      }
+      <div class="extrude-switch">
+        <button type="button" [class.is-active]="state.extrude()" [attr.aria-pressed]="state.extrude()" (click)="state.toggleExtrude()">Extrude by total CO₂</button>
+      </div>
+    </div>
+  }
 
   <!-- Lesson 14: the pinned countries side by side. Top right, under Lessons; empty (and not drawn) until something is pinned. -->
   <app-compare-tray class="compare" [year]="year()" />

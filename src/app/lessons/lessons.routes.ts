@@ -17,5 +17,6 @@ export const lessonRoutes: Routes = [
   { path: 'country-detail', loadComponent: () => import('./lesson-country-detail/lesson-country-detail').then(m => m.LessonCountryDetail), title: '11 Country detail panel' },
   { path: 'time', loadComponent: () => import('./lesson-time/lesson-time').then(m => m.LessonTime), title: '12 Time' },
   { path: 'scatter', loadComponent: () => import('./lesson-scatter/lesson-scatter').then(m => m.LessonScatter), title: '13 Linked scatter plot' },
-  { path: 'compare', loadComponent: () => import('./lesson-compare/lesson-compare').then(m => m.LessonCompare), title: '14 Compare countries' }
+  { path: 'compare', loadComponent: () => import('./lesson-compare/lesson-compare').then(m => m.LessonCompare), title: '14 Compare countries' },
+  { path: 'extrusion', loadComponent: () => import('./lesson-extrusion/lesson-extrusion').then(m => m.LessonExtrusion), title: '15 Extrusion mode' }
 ];

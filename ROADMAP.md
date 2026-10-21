@@ -115,7 +115,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 12 | Time | Year slider + play, fixed class breaks, panel follows the year | GSAP palette transitions, when interpolating between years is honest |
 | 13 | Linked scatter plot | GDP × CO₂ per capita, size by population, a third view beside Globe and Map (?view=scatter) | Linked selection between two views |
 | 14 | Compare countries | Pin up to 3 (?compare=), sparklines on one scale, per person / total / 1990 = 100 | Normalized vs raw units |
-| 15 | ⭐ Extrusion mode | Countries rise by total emissions | earcut, subdivision, antimeridian crossings, GSAP grow animation |
+| 15 | ⭐ Extrusion mode ✓ | Countries rise by total emissions (?extrude=1), heights in a texture, fixed scale over all years | earcut, subdivision, antimeridian crossings, GSAP grow animation |
 | 16 | The "divide" view | Bivariate responsibility × vulnerability map | 3×3 bivariate palette, second dataset |
 | 17 | Scroll-driven story | Editorial intro | ScrollTrigger → store → globe |
 | 18 | Polish | Loading states, touch, a11y, table fallback | `@defer`, `aria-live`, performance |

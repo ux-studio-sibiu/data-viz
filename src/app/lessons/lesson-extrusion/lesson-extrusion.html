@@ -1,0 +1,91 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 15">
+  <h1>Extrusion mode</h1>
+  <p>On the globe, <strong>Extrude by total CO₂</strong> (bottom right) raises a dark grey cylinder on the countries that together emit 90% of the world's CO₂, its height its total emissions that year, every cylinder the same footprint. The colours still show the chosen metric, so size and intensity show at once. Play the timeline and the columns grow out of the ground. <a routerLink="/" [queryParams]="{ extrude: 1, country: 'USA' }">Try it on the USA</a>.</p>
+  <p>The first version raised the countries themselves. It looked striking and was misleading: section 0 is why it changed. Its code is still there (<code>EXTRUSION_SHAPE = 'prisms'</code> in <code>globe-scene.ts</code>), because sections 1–3 are about it.</p>
+
+  <h2>0. The eye reads volume, not height</h2>
+  <ul>
+    <li>A raised country's volume is its <strong>area × height</strong>. People judge a 3D shape by its bulk, so China (huge area, huge emissions) looked even bigger than its emissions, Russia, Canada and Australia looked heavy for their size alone, and small emitters packed into small countries (the Netherlands, South Korea) all but vanished. Two variables, area and emissions, read as one.</li>
+    <li>The fix is to take area out: every country gets the <strong>same footprint</strong>, a column at its centre: first square and ~150 km wide (<code>'spikes'</code>), then round and ~280 km wide (<code>'cylinders'</code>), which reads better at the default zoom. Volume is then footprint × height, and the footprint is the same for all: volume follows the value. This is a "spike map".</li>
+    <li>Two alternatives were weighed: <em>density prisms</em> (height = CO₂ per km², so prism volume = total; honest, but height alone then means intensity, and Singapore becomes a tower) and <em>proportional circles</em> (flat discs, area ∝ total; the most reliably compared, but no 3D). A cartogram (countries resized by emissions) is kept for the scroll story in lesson 17.</li>
+    <li><strong>Dark grey, not the map's colours.</strong> One colour for every column (<code>EXTRUSION_COLOR</code>) makes the columns a layer of their own: the map below says the metric, the columns say the totals, and the two never blend. Hover and selection lighten a column, since darkening a dark grey would barely show.</li>
+    <li><strong>A floor for the smallest.</strong> With heights linear and China at the top, a 10 Mt emitter would be a sliver under a pixel tall. Multiplying every height by a constant doesn't fix that without sending China through the roof, so every country with data stands at least a short stub tall (<code>minHeight</code>, 0.006 radii). That overstates the very smallest a little, and the note by the switch says so ("the smallest raised to a minimum"). The tallest was also raised from 0.3 to 0.5 radii.</li>
+    <li><strong>Only the countries that emit 90%.</strong> Even with a floor, ~200 near-flat stubs cluttered the globe and said little. Now only the fewest countries that together make 90% of the year's total stand up (<code>TOP_SHARE</code> in <code>explorer.ts</code>); everyone else stays flat. That is itself the headline, printed by the switch: <strong>33 of 212 countries emit 90% of the CO₂</strong> in 2024 (10 of 69 in 1900, 19 of 174 in 1950, 35 of 208 in 1990). Playing the timeline, the club grows and changes members. The floor still lifts the smallest member in early years (Canada, 21 Mt, in 1900).</li>
+    <li><strong>A pie of the culprits</strong> above the switch (<code>charts/pie-chart</code>, d3's <code>pie()</code> and <code>arc()</code>, drawn by Angular): the five largest by name, the other raised countries as one slice, everyone else as another. In 2024: China 33%, the USA 13%, India 9%, Russia 5%, Japan 3%, 28 others raised 28%, 179 others 10%. Greys, darkest first, like the columns; no background, straight on the page.</li>
+    <li><strong>Outlines.</strong> Every face carries 0…1 coordinates across and up (<code>aEdge</code>), and the fragment shader inks the pixels within ~1.4 px of 0 or 1, measured with <code>fwidth</code> like the hatching. No separate line mesh to keep in step with the heights and the grow animation: the outline is part of the same draw. A face with a constant 0.5 (a prism's cap) has nothing to change across it, and gets no line. A cylinder's side has no edges at all, so its <strong>silhouette</strong> is inked instead: where the side turns away from the camera, its view-space normal faces sideways (z near 0), measured in pixels the same way.</li>
+  </ul>
+
+
+  <h2>1. The first version: shapes → triangles with earcut</h2>
+  <pre><code>ShapeUtils.triangulateShape(outline, holes)   // Three.js's copy of earcut (Mapbox)
+→ [[a, b, c], …]                              // indices into [outline, ...holes]</code></pre>
+  <ul>
+    <li>A GPU draws triangles, not countries. Earcut cuts any polygon, holes included (Lesotho inside South Africa), into triangles by "ear clipping": it keeps cutting off a corner triangle that has no other point inside it.</li>
+    <li>It runs in lon/lat, where a country is a plain flat polygon. GeoJSON rings repeat their first point at the end; that duplicate is dropped first.</li>
+    <li>The triangles are made into the <strong>cap</strong>; every ring edge also becomes a <strong>wall</strong>, a quad from the ground to the top.</li>
+  </ul>
+
+  <h2>2. Subdivision: following the curve</h2>
+  <ul>
+    <li>A triangle is flat; the globe isn't. Russia, triangulated as-is, is a few huge triangles whose middles sink deep under the surface. So every triangle is split at its edges' midpoints, into four, until no edge spans more than 2°. A 2° triangle's middle sits about 1 km below the curve, invisible at any zoom.</li>
+    <li>Walls are split the same way, so their top edge follows the cap's curved rim.</li>
+  </ul>
+
+  <h2>3. Seams in the data: antimeridian and pole</h2>
+  <ul>
+    <li>Natural Earth cuts shapes at the 180° meridian (Russia's Chukotka and Fiji come in two pieces, one each side) and closes Antarctica along the South Pole's edge of the map. Those edges are seams, not coastlines.</li>
+    <li>A wall along a seam would stand in the middle of a country. So walls are skipped where both ends of an edge lie on ±180° or at −90°. The two halves of Chukotka meet with no wall between them.</li>
+    <li>The caps need no special case: in lon/lat, each half is an ordinary polygon.</li>
+  </ul>
+
+  <h2>4. One geometry, heights in a texture</h2>
+  <pre><code>// built once (extrusion.ts): every vertex on the unit sphere, plus
+aTop      0 = a wall's foot, 1 = on top
+aCountry  the country's number in the ID map
+
+// every frame (extrusion-material.ts)
+h = mix(previousHeights, heights)[aCountry] × grow × maxHeight
+p = position × (1 + aTop × h)</code></pre>
+  <ul>
+    <li>Columns and prisms use the same mesh format and the same shader. All 240 countries are one mesh, one draw call. The geometry is never rebuilt: a new year uploads a 256-float texture of heights (1 kB), the same trick as the colour palette in lesson 09.</li>
+    <li>The material shares the surface's uniforms (palette, its crossfade, hovered, selected) as the same objects: whatever recolours the surface recolours the prisms in the same frame.</li>
+    <li>A country with no data has height 0, and its column is discarded rather than drawn flat on the surface, where it would flicker against it (z-fighting).</li>
+    <li>One light from above-left of the camera. Wall normals point sideways, so walls come out darker than caps and the prisms read as solid. Ring direction isn't consistent between countries, so the material is double-sided and the lighting uses <code>abs(dot(normal, light))</code>.</li>
+    <li>The geometry sits on the unit sphere and the shader lifts it, so Three's bounding sphere is too small: <code>frustumCulled = false</code>, or tall countries at the edge would vanish.</li>
+  </ul>
+
+  <h2>5. Growing: GSAP on one uniform</h2>
+  <ul>
+    <li>Turning it on tweens <code>grow</code> from 0 to 1 over 1.4 s (<code>power2.out</code>): everything rises together and settles. Turning it off lowers it in 0.6 s, then hides the mesh. Each step only redraws.</li>
+    <li>A new year while raised crossfades the heights in 0.1 s, like the colours (lesson 12).</li>
+    <li>Reduced motion: no growing; the prisms appear at full height.</li>
+  </ul>
+
+  <h2>6. What the height means</h2>
+  <ul>
+    <li>Total CO₂ per year, <strong>linear</strong>, like a bar chart: twice the emissions, twice the height, and with equal footprints, twice the volume. China (12,290 Mt in 2024) is the tallest; the USA (4,904 Mt) is 40% of it, India (3,193) a quarter, Germany (572) under 5%.</li>
+    <li>One fixed scale over all years: the tallest country in any year sets the top. In 1950 the USA (2,541 Mt) stands out and China (79 Mt) barely rises.</li>
+    <li>A line by the switch says it: "Height = total CO₂ per year · tallest: China, 12,300 Mt". A 3D chart without its scale is just a sculpture.</li>
+    <li>Known limit: picking still uses the globe's surface, so hovering the top of a tall column near the edge of the globe picks whatever country lies under it on the ground.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>globe/extrusion.ts</code>: the columns; the prisms (triangulation, subdivision, walls, the seams), kept to compare</li>
+    <li><code>globe/extrusion-material.ts</code>: the height texture, lifting, colour, light, outlines</li>
+    <li><code>globe/globe-scene.ts</code>: <code>setHeights</code>, grow and crossfade tweens; <code>globe/globe.ts</code>: <code>heights</code> input</li>
+    <li><code>pages/explorer/*</code>: heights from total CO₂, the switch and its note; <code>explorer-state.ts</code>: <code>?extrude=1</code></li>
+    <li><code>lessons/lesson-extrusion/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Press Extrude by total CO₂: a dark grey cylinder grows on every country and settles, rims and silhouettes outlined</li>
+    <li>Turn the globe so China and the USA are near its edge: tall columns against the sky, sides darker than tops</li>
+    <li>Compare Russia and Germany: Russia's column is about three times Germany's, whatever their areas</li>
+    <li>Play the timeline from 1900: the USA and Europe rise first, China later and higher</li>
+    <li>Switch the colours to GDP per capita: colours change, heights don't</li>
+    <li>Turn it off: everything sinks back; with reduced motion, it switches without animating</li>
+  </ul>
+</app-lesson-page>

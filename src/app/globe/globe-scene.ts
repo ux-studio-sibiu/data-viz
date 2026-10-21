@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import {
-  BufferAttribute, BufferGeometry, DataTexture, LineBasicMaterial, LineSegments, MathUtils, Mesh, NearestFilter, PerspectiveCamera, Quaternion,
+  BufferAttribute, BufferGeometry, Color, DataTexture, LineBasicMaterial, LineSegments, MathUtils, Mesh, NearestFilter, PerspectiveCamera, Quaternion,
   Raycaster, RedFormat, Scene, Sphere, SphereGeometry, UnsignedByteType, Vector2, Vector3, WebGLRenderer
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -10,6 +10,8 @@ import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js
 import type { CountryFeature } from '../data/boundaries';
 import { AURA_WIDTH, createAuraMaterial } from './aura-material';
 import { createEarthMaterial } from './earth-material';
+import { createExtrusionMaterial } from './extrusion-material';
+import { extrusionGeometry, type ExtrusionShape } from './extrusion';
 import { frameCountry } from './framing';
 import { graticulePositions, lonLatToVector3, sphereLinePositions, vector3ToLonLat } from './geo';
 import { idAt, rasterizeIds } from './id-map';
@@ -27,6 +29,12 @@ const HATCH_FULL_FROM = 2.6;
 const HATCH_FINEST = 0.55;
 // Colour crossfade when the data changes (lesson 12). Shorter than one year of playback (1 / 8 s), so fades never pile up.
 const PALETTE_FADE_S = 0.1;
+// Lesson 15: what stands up in extrusion mode (see extrusion.ts). 'cylinders' / 'spikes': equal-footprint columns, volume
+// follows the value. 'prisms': the countries' own shapes raised, the first version, kept to compare (its volume is area ×
+// height: misleading).
+const EXTRUSION_SHAPE: ExtrusionShape = 'cylinders';
+// The columns' colour: one dark grey, so they read as a layer of their own over the coloured map. null = the map's colours.
+const EXTRUSION_COLOR: string | null = '#3d3d3d';
 const FRAME_FARTHEST = 4; // the fly-to never backs off further than this, even for Russia
 const ID_MAP_WIDTH = 4096, ID_MAP_HEIGHT = 2048; // 1 pixel ≈ 10 km at the equator. 4096 is the safe maximum texture size on any WebGL device.
 const ID_MAP_TEXEL = (2 * Math.PI) / ID_MAP_WIDTH; // one ID map pixel, as a distance on the unit sphere (≈ 10 km)
@@ -72,6 +80,12 @@ export class GlobeScene {
   private readonly bordersMaterial = new LineMaterial({ color: 0x141414, linewidth: 1, worldUnits: false, transparent: true, opacity: 0.9 });
   private readonly auraGeometry = new SphereGeometry(1 + AURA_WIDTH + 0.01, 96, 64);
   private readonly auraMaterial = createAuraMaterial();
+  // Lesson 15: the prisms. The material shares the surface's palette uniforms; the mesh is made the first time it's needed.
+  private readonly extrusionMaterial = createExtrusionMaterial(this.earthMaterial.uniforms);
+  private extrusion: Mesh | null = null;
+  private heights: ReadonlyMap<string, number> | null = null; // country id → 0…1 of the tallest; null = flat
+  private growTween: gsap.core.Tween | null = null;
+  private heightFade: gsap.core.Tween | null = null;
 
   private idMap: DataTexture | null = null;
   private ids: Uint8Array | null = null; // the CPU copy of the ID map, for picking
@@ -168,6 +182,7 @@ export class GlobeScene {
     this.earthMaterial.uniforms['idMap'].value = texture;
     this.setHighlight(this.highlight.hovered, this.highlight.selected); // ids → numbers, now that the numbers exist
     this.setFills(this.fills);
+    this.applyHeights(false); // heights that arrived before the countries did
   }
 
   // Borders → fat line segments on the sphere (lesson 05), densified once per page load (bordersCache)
@@ -220,6 +235,64 @@ export class GlobeScene {
     palette.needsUpdate = true; // upload the 1 kB again
     this.earthMaterial.uniforms['colored'].value = fills ? 1 : 0;
     this.invalidate();
+  }
+
+  // Lesson 15: countries rise by a value (0…1 of the tallest), or lie flat again (null).
+  // Turning it on grows them from the ground (GSAP, 1.4 s); a new set of heights while up (another year) crossfades in 0.1 s,
+  // like the colours; turning it off lowers them (0.6 s) and then hides the mesh. animate = false: straight there.
+  setHeights(heights: ReadonlyMap<string, number> | null, animate: boolean) {
+    this.heights = heights;
+    this.applyHeights(animate);
+  }
+
+  private applyHeights(animate: boolean) {
+    const heights = this.heights, u = this.extrusionMaterial.uniforms;
+    if (heights) {
+      if (!this.features.length) return; // setFeatures calls this again once the countries are in
+      if (!this.extrusion) {
+        this.extrusion = new Mesh(extrusionGeometry(this.features, EXTRUSION_SHAPE), this.extrusionMaterial);
+        // The geometry lies on the unit sphere and the shader lifts it: its bounding sphere is too small for culling
+        this.extrusion.frustumCulled = false;
+        if (EXTRUSION_COLOR) {
+          (u['solid'].value as Color).set(EXTRUSION_COLOR);
+          u['useSolid'].value = 1;
+        }
+        this.scene.add(this.extrusion);
+      }
+      this.extrusion.visible = true;
+      const now = u['heights'].value as DataTexture, before = u['previousHeights'].value as DataTexture;
+      const values = now.image.data as Float32Array;
+      this.heightFade?.kill();
+      this.heightFade = null;
+      u['heightMix'].value = 1;
+      if (animate && u['grow'].value > 0.99) {
+        (before.image.data as Float32Array).set(values);
+        before.needsUpdate = true;
+        u['heightMix'].value = 0;
+        this.heightFade = gsap.to(u['heightMix'], { value: 1, duration: PALETTE_FADE_S, ease: 'none', onUpdate: () => this.invalidate() });
+      }
+      values.fill(0);
+      for (const [id, n] of this.numberById) values[n] = heights.get(id) ?? 0;
+      now.needsUpdate = true;
+      if (u['grow'].value < 1) this.growTo(1, animate);
+    } else if (this.extrusion?.visible) {
+      this.growTo(0, animate, () => { if (this.extrusion) this.extrusion.visible = false; });
+    }
+    this.invalidate();
+  }
+
+  private growTo(value: number, animate: boolean, done?: () => void) {
+    this.growTween?.kill();
+    const grow = this.extrusionMaterial.uniforms['grow'];
+    if (!animate) {
+      grow.value = value;
+      done?.();
+      return;
+    }
+    this.growTween = gsap.to(grow, {
+      value, duration: value ? 1.4 : 0.6, ease: value ? 'power2.out' : 'power2.in',
+      onUpdate: () => this.invalidate(), onComplete: () => { this.growTween = null; done?.(); this.invalidate(); }
+    });
   }
 
   // Auto-rotation as wanted by the component (input + reduced motion); it stays off for good once the user has taken over
@@ -444,6 +517,12 @@ export class GlobeScene {
     (this.earthMaterial.uniforms['previousPalette'].value as DataTexture).dispose();
     (this.earthMaterial.uniforms['centres'].value as DataTexture).dispose();
     this.paletteFade?.kill();
+    this.growTween?.kill();
+    this.heightFade?.kill();
+    this.extrusion?.geometry.dispose(); // its GPU buffers; the arrays stay cached for the next globe
+    this.extrusionMaterial.dispose();
+    (this.extrusionMaterial.uniforms['heights'].value as DataTexture).dispose();
+    (this.extrusionMaterial.uniforms['previousHeights'].value as DataTexture).dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss(); // hand the WebGL context back now; browsers allow only ~16 at once
   }

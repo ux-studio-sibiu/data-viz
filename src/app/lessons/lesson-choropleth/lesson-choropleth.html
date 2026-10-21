@@ -24,6 +24,15 @@ colour(v)  = scaleThreshold(thresholds, 7 colours)(v)                (d3-scale)<
     <li><strong>One year, honestly:</strong> the metric's latest year (2024; 2023 for consumption; 2022 for GDP). A country without a value in that year is "no data"; its older figure isn't shown in its place. The legend prints the year.</li>
   </ul>
 
+  <h3>Later: a second way to cut (lesson 15)</h3>
+  <ul>
+    <li>Quantiles ignore how far apart values are. For annual CO₂ the top class (the 10 largest, 570 Mt and up) held China at 12,290 Mt and Russia at about 1,800 Mt in one colour: a 7× gap, invisible. It showed when countries were raised by their totals and China towered over a Russia of the same colour.</li>
+    <li>Metrics that span orders of magnitude (annual CO₂: under 1 Mt to over 12,000; the share since 1750: 0.001% to 23%) now get <strong>log breaks</strong> from the 1-3-10 ladder: 10 · 30 · 100 · 300 · 1K · 3K · 10K Mt. Each class is about three times the one below, so a 10× gap is always at least two colours. China now has the darkest colour to itself; the USA and India share the next; Russia sits two below China.</li>
+    <li>The top break is the largest rung at or under the biggest value, so the darkest class is never empty; the rest step down from it. The honest cost: 103 of 213 countries emit under 10 Mt a year, so for this metric most of the map is pale. That is the shape of the data.</li>
+    <li>The per-person metrics and GDP keep quantiles: their values are spread evenly enough for equal-sized classes to work. One setting per metric (<code>METRIC_BREAKS</code> in <code>explorer-state.ts</code>) chooses.</li>
+    <li>The legend's labels went compact (10K, 3K), so five-digit breaks fit under the swatches.</li>
+  </ul>
+
   <h2>3. On the globe: a 1 kB palette texture</h2>
   <ul>
     <li>Lesson 05's ID map already tells the shader which country every pixel belongs to. Colouring adds a second, tiny texture: <strong>256 × 1 pixels, slot n = the colour of country n</strong>. Alpha 255 = has a value, alpha 0 = no data.</li>

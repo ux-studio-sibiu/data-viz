@@ -3,12 +3,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { Boundaries } from '../../data/boundaries';
+import type { Breaks } from '../../charts/choropleth';
 import type { MetricId } from '../../data/co2';
 
 export type View = 'globe' | 'map' | 'scatter';
 
 // The metrics the map can be coloured by (lesson 09). Population is left out: it's context, not part of the story.
 export const MAP_METRICS: MetricId[] = ['co2_per_capita', 'co2', 'share_global_cumulative_co2', 'consumption_co2_per_capita', 'gdp_per_capita'];
+// How each metric's colour classes are cut (charts/choropleth.ts). Totals and shares span orders of magnitude: 'log'. The
+// per-person figures and GDP are spread more evenly: quantiles, with the darkest kept for the top few.
+export const METRIC_BREAKS: Partial<Record<MetricId, Breaks>> = { co2: 'log', share_global_cumulative_co2: 'log' };
 const DEFAULT_METRIC: MetricId = 'co2_per_capita';
 // Lesson 14: how many countries can be pinned for comparison. Three lines are easy to tell apart; a fourth starts to be a tangle.
 export const MAX_COMPARED = 3;
@@ -59,6 +63,9 @@ export class ExplorerState {
     return Number.isInteger(y) && y > 0 ? y : null;
   });
 
+  // Lesson 15: countries rise off the globe by their total emissions (?extrude=1)
+  readonly extrude = computed(() => this.params().get('extrude') === '1');
+
   // Lesson 14: the countries pinned for comparison, in the order they were pinned (?compare=DEU,CHN,USA). Unknown codes and
   // repeats are dropped, and anything past the third, so a hand-edited link can't break the tray.
   readonly compared = computed(() => {
@@ -76,6 +83,7 @@ export class ExplorerState {
   show(view: View) { this.write('view', view === 'globe' ? null : view); }
   showMetric(metric: MetricId) { this.write('metric', metric === DEFAULT_METRIC ? null : metric); }
   showYear(year: number | null) { this.write('year', year); }
+  toggleExtrude() { this.write('extrude', this.extrude() ? null : '1'); }
   // Pin or unpin. A full tray refuses a fourth (the button says so); the last one out leaves the URL clean.
   togglePin(id: string) {
     const now = this.compared();

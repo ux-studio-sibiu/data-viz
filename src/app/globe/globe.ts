@@ -25,6 +25,7 @@ export class Globe {
   readonly hovered = model<string | null>(null);   // lesson 06: two-way, like FlatMap's, so either view can light up a country
   readonly selected = model<string | null>(null);  // lesson 06: set by a click; lesson 10: the camera flies to it
   readonly fills = input<ReadonlyMap<string, string> | null>(null); // lesson 09: country id → colour; missing = no data
+  readonly heights = input<ReadonlyMap<string, number> | null>(null); // lesson 15: country id → 0…1 of the tallest; null = flat
   readonly autoRotate = input(true);
   readonly label = input('A globe you can rotate by dragging and zoom with the mouse wheel or a pinch. Click a country to select it.');
   readonly unsupported = output(); // no WebGL: the parent shows the flat map instead
@@ -61,6 +62,7 @@ export class Globe {
       effect(() => scene.setBorders(this.borders()), { injector });
       effect(() => scene.setHighlight(this.hovered(), this.selected()), { injector });
       effect(() => scene.setFills(this.fills(), !motion.reduced()), { injector }); // lesson 12: crossfade, unless reduced motion
+      effect(() => scene.setHeights(this.heights(), !motion.reduced()), { injector }); // lesson 15: grow, unless reduced motion
 
       // Selected → fly there. untracked(): only the selection and the features should re-run this, not what the flight reads.
       // Before the globe has faded in (on load with ?country=…, or switching back from the map or the scatter with a country

@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 
-const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 2 });
+// Class breaks: 2 significant digits, compact (10K, 3K, 0.37), so the labels fit under the swatches even for totals in Mt
+const figure = new Intl.NumberFormat('en', { maximumSignificantDigits: 2, notation: 'compact' });
 
 // A classed colour legend: one swatch per class, the class boundaries between them, and a "no data" swatch.
 // Generic: thresholds and colours in; the title row (e.g. a metric switcher) comes from the parent through the slot.
