@@ -14,6 +14,8 @@ export const MAP_METRICS: MetricId[] = ['co2_per_capita', 'co2', 'share_global_c
 // per-person figures and GDP are spread more evenly: quantiles, with the darkest kept for the top few.
 export const METRIC_BREAKS: Partial<Record<MetricId, Breaks>> = { co2: 'log', share_global_cumulative_co2: 'log' };
 const DEFAULT_METRIC: MetricId = 'co2_per_capita';
+// Lesson 16: the bivariate view's value in ?metric=
+export const DIVIDE = 'divide';
 // Lesson 14: how many countries can be pinned for comparison. Three lines are easy to tell apart; a fourth starts to be a tangle.
 export const MAX_COMPARED = 3;
 
@@ -51,10 +53,16 @@ export class ExplorerState {
     return this.webglWorks() ? 'globe' : 'map';
   });
 
+  // Lesson 16: the "divide" view (?metric=divide): responsibility × vulnerability, two variables in one bivariate map
+  readonly divide = computed(() => this.params().get('metric') === DIVIDE);
+
   // Lesson 09: what the map is coloured by. Unknown values fall back to the default; the default leaves the URL clean.
+  // In the divide view this is its responsibility side, the share of all CO₂ since 1750, so the year range, the series
+  // and the scatter's colours keep working from one metric.
   readonly metric = computed<MetricId>(() => {
-    const m = this.params().get('metric') as MetricId | null;
-    return m && MAP_METRICS.includes(m) ? m : DEFAULT_METRIC;
+    const m = this.params().get('metric');
+    if (m === DIVIDE) return 'share_global_cumulative_co2';
+    return m && MAP_METRICS.includes(m as MetricId) ? (m as MetricId) : DEFAULT_METRIC;
   });
 
   // Lesson 12: the year the map shows. null = the metric's latest year, which leaves the URL clean.
@@ -81,7 +89,7 @@ export class ExplorerState {
   // The rest replace the entry: switching views or metrics isn't something to step back through, and playback writes the
   // year 8 times a second (the back button shouldn't step through 125 years). Defaults leave the URL clean.
   show(view: View) { this.write('view', view === 'globe' ? null : view); }
-  showMetric(metric: MetricId) { this.write('metric', metric === DEFAULT_METRIC ? null : metric); }
+  showMetric(metric: MetricId | typeof DIVIDE) { this.write('metric', metric === DEFAULT_METRIC ? null : metric); }
   showYear(year: number | null) { this.write('year', year); }
   toggleExtrude() { this.write('extrude', this.extrude() ? null : '1'); }
   // Pin or unpin. A full tray refuses a fourth (the button says so); the last one out leaves the URL clean.

@@ -1,0 +1,64 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 16">
+  <h1>The divide view</h1>
+  <p>The metric select in the legend has a new last option, <strong>The divide: responsibility × vulnerability</strong>. It colours every country by two things at once: how much of all CO₂ since 1750 it emitted, and how vulnerable it is to climate change. <a routerLink="/" [queryParams]="{ metric: 'divide', view: 'map' }">Open it on the map</a>.</p>
+
+  <h2>1. What it shows</h2>
+  <ul>
+    <li>In 2024, the 42 countries that are <strong>highly responsible and little vulnerable</strong> (pink: the USA, Canada, Europe, Russia, China, Australia, Brazil…) emitted <strong>80.8%</strong> of all CO₂ since 1750.</li>
+    <li>The 38 that are <strong>little responsible and highly vulnerable</strong> (teal: Chad, Niger, Burkina Faso, Burundi, the Central African Republic…) emitted <strong>0.09%</strong>, about a nine-hundredth as much.</li>
+    <li>Six countries are high on both (dark blue-purple): Iraq, North Korea, Libya, Nigeria, Pakistan and Vietnam. Five are low on both (light grey): Iceland, Malta, Barbados, Saint Lucia, Andorra.</li>
+    <li>That is the "carbon divide" this whole project is named after: those who caused the problem and those who will bear it are, mostly, not the same countries.</li>
+  </ul>
+
+  <h2>2. A second dataset: ND-GAIN</h2>
+  <pre><code>npm run data:vulnerability   // scripts/build-vulnerability.mjs → public/data/vulnerability.json (36 kB)</code></pre>
+  <ul>
+    <li>The <strong>ND-GAIN Country Index</strong> (Notre Dame Global Adaptation Initiative) scores each country's vulnerability: its exposure, sensitivity and capacity to adapt to the effects of climate change, across food, water, health, ecosystems, habitat and infrastructure. 0 = least vulnerable, 1 = most. 192 countries, 1995–2024.</li>
+    <li>It comes as a 4.9 MB zip of CSVs. The script downloads it once (pinned to the 2026 release, cached in <code>scripts/.cache</code>), takes one file out, keeps our countries and 3 decimals, and writes 36 kB. The page never sees the zip.</li>
+    <li><strong>No zip library:</strong> a zip ends with a "central directory", one record per file with its name, size and where its data starts. Reading that and inflating the one entry with Node's own <code>zlib</code> (zip's deflate is raw deflate) is 30 lines.</li>
+    <li>Two practical surprises: the server answers 403 to clients that don't send a browser-like User-Agent, and the folder inside the zip is called <code>resources 2</code>.</li>
+    <li>It joins on ISO3 codes, like OWID (lesson 08). 48 of our 240 areas aren't scored (mostly dependencies and territories: Åland, Bermuda, the Cayman Islands…) and show as "no data", never as a colour.</li>
+    <li>Citation, as ND-GAIN asks (for the methodology page, lesson 19): "Notre Dame Global Adaptation Initiative Country Index (ND-GAIN). 2026."</li>
+  </ul>
+
+  <h2>3. Bivariate: two variables, nine colours</h2>
+  <pre><code>// charts/bivariate.ts
+x = vulnerability     → 3 classes (tertiles)
+y = responsibility    → 3 classes (tertiles)
+colour = STEVENS_3X3[y][x]</code></pre>
+  <ul>
+    <li>Each variable is cut into thirds (tertiles): a third of the countries low, a third middle, a third high. Tertiles make two different units comparable: "high" means "in the top third", whether it's a 0–1 score or a percentage of all CO₂.</li>
+    <li>Responsibility is the <strong>share of all CO₂ since 1750</strong>, not this year's emissions: climate change is driven by the CO₂ accumulated in the air, so history is what counts for responsibility.</li>
+    <li>The palette is Joshua Stevens' standard 3 × 3: one hue per variable (teal for vulnerability, pink for responsibility) blending to dark blue-purple where both are high. Only three steps per axis: with 4 × 4 = 16 colours, nobody can read a colour back to its two classes.</li>
+    <li>The breaks are cut in 2024 and applied to every year, as in lesson 12, so a colour means the same thing whichever year the timeline shows. The timeline narrows to 1995–2024, the years ND-GAIN covers.</li>
+    <li>A country needs both values to get a colour; with one missing, it's "no data".</li>
+  </ul>
+
+  <h2>4. A legend for two variables</h2>
+  <ul>
+    <li><code>charts/bivariate-legend</code>: the nine colours as a 3 × 3 grid, vulnerability rising to the right, responsibility rising upwards. A grid is the only honest key for a bivariate map: a list of nine swatches would hide which two classes each colour means.</li>
+    <li>Beside it, the corners that tell the story, in words: "Caused much, at little risk" (pink), "Caused little, at great risk" (teal), "Both high".</li>
+    <li>The metric select is now written once as an <code>ng-template</code> and projected into whichever legend is showing. <code>ngProjectAs="[legend-title]"</code> lets an <code>ng-container</code> fill the legends' title slot, a selector it couldn't otherwise match.</li>
+    <li>In the state, <code>?metric=divide</code> is a view of its own, but <code>metric()</code> reports its responsibility side (the share since 1750). The year range, the series, the panel and the scatter's colours keep working without knowing about the divide.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>scripts/build-vulnerability.mjs</code>, <code>npm run data:vulnerability</code>; <code>public/data/vulnerability.json</code></li>
+    <li><code>data/vulnerability.ts</code>: the type, the parse check, the lazily loaded resource</li>
+    <li><code>charts/bivariate.ts</code>: tertiles and the 3 × 3 palette; <code>charts/bivariate-legend/*</code>: the grid key</li>
+    <li><code>pages/explorer/*</code>: the divide option, its colours and legend, the 1995 start; <code>explorer-state.ts</code>: <code>divide</code>, <code>DIVIDE</code></li>
+    <li><code>lessons/lesson-divide/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Pick "The divide" in the legend: the map goes pink in the north, teal across much of Africa; the legend becomes a 3 × 3 grid</li>
+    <li>The timeline now runs 1995–2024</li>
+    <li>Hover Chad (teal) and the USA (pink); select Bangladesh: middle responsibility, high vulnerability</li>
+    <li>Switch to the globe and the scatter: same colours</li>
+    <li>Switch back to a normal metric: the classed legend returns</li>
+    <li>Reload: still the divide (it's in the URL)</li>
+  </ul>
+</app-lesson-page>

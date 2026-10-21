@@ -7,7 +7,7 @@
     <!-- @defer: Three.js (~600 kB) moves into its own chunk, downloaded the first time the globe is shown, not with the app -->
     <!-- Leaving this branch destroys the globe: its DestroyRef cleanup frees the GPU memory and the WebGL context -->
     @defer (on immediate) {
-      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" [heights]="heights()" (unsupported)="state.noWebgl()">
+      <app-globe class="globe" [features]="boundaries.features()" [borders]="boundaries.borders()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="fills()" [heights]="heights()" (unsupported)="state.noWebgl()">
         @if (country(); as c) {
           <span globe-tooltip class="card-title">{{ c.name }}</span>
         }
@@ -16,13 +16,13 @@
     <!-- No placeholder: the empty paper is the loading state, and the globe fades in once it has something to show -->
   } @else if (state.view() === 'scatter') {
     <!-- Lesson 13: the third view. Shares the selection, the year and the map's colours with the other two. -->
-    <app-scatter-view [year]="year()" [fills]="map()?.fills ?? null" />
+    <app-scatter-view [year]="year()" [fills]="fills()" />
   } @else if (boundaries.error()) {
     <p class="status">The map data couldn't be loaded.</p>
   } @else if (boundaries.isLoading()) {
     <p class="status">Loading the map…</p>
   } @else {
-    <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="map()?.fills ?? null" label="World map of countries, coloured by the chosen metric. Hover a country to see its value, click to select it.">
+    <app-flat-map [features]="boundaries.features()" [(hovered)]="state.hovered" [selected]="state.selected()" (selectedChange)="state.select($event)" [fills]="fills()" label="World map of countries, coloured by the chosen metric. Hover a country to see its value, click to select it.">
       @if (country(); as c) {
         <span map-tooltip class="card-title">{{ c.name }}@if (c.incomeGroup) {<app-income-meter class="income" [group]="c.incomeGroup" />}</span>
       }
@@ -51,17 +51,29 @@
     @if (yearRange(); as r) {
       <app-timeline [min]="r.min" [max]="r.max" [value]="year() ?? r.max" (valueChange)="setYear($event)" label="Year shown on the map" />
     }
-    <!-- The metric switcher goes in the legend's title slot -->
-    @if (map(); as m) {
+    <!-- The metric switcher, defined once and projected into whichever legend shows. ngProjectAs lets the ng-container
+         fill the legends' [legend-title] slot, a selector it can't otherwise match. -->
+    <ng-template #metricSelect>
+      <label class="metric">
+        <span class="visually-hidden">Colour the map by</span>
+        <select (change)="state.showMetric($any($event.target).value)">
+          <!-- [selected] on each option, not [value] on the select: the options render after the select's value is set,
+               so a select-level value found no matching option and the first one showed, whatever the metric -->
+          @for (m of mapMetrics(); track m.id) { <option [value]="m.id" [selected]="!state.divide() && m.id === state.metric()">{{ m.title }}</option> }
+          <!-- Lesson 16: two variables at once -->
+          <option [value]="divideOption" [selected]="state.divide()">The divide: responsibility × vulnerability</option>
+        </select>
+      </label>
+    </ng-template>
+    @if (state.divide()) {
+      @if (divideMap(); as d) {
+        <app-bivariate-legend [colors]="d.colors" xLabel="More vulnerable" yLabel="More responsible" highYNote="Caused much, at little risk" highXNote="Caused little, at great risk" [caption]="'CO₂ since 1750 × ND-GAIN vulnerability · ' + d.year">
+          <ng-container ngProjectAs="[legend-title]" [ngTemplateOutlet]="metricSelect" />
+        </app-bivariate-legend>
+      }
+    } @else if (map(); as m) {
       <app-legend [thresholds]="m.thresholds" [colors]="m.colors" [unit]="shortUnit()" [year]="m.year">
-        <label legend-title class="metric">
-          <span class="visually-hidden">Colour the map by</span>
-          <select (change)="state.showMetric($any($event.target).value)">
-            <!-- [selected] on each option, not [value] on the select: the options render after the select's value is set,
-                 so a select-level value found no matching option and the first one showed, whatever the metric -->
-            @for (m of mapMetrics(); track m.id) { <option [value]="m.id" [selected]="m.id === state.metric()">{{ m.title }}</option> }
-          </select>
-        </label>
+        <ng-container ngProjectAs="[legend-title]" [ngTemplateOutlet]="metricSelect" />
       </app-legend>
     }
   </div>

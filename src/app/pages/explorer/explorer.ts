@@ -1,6 +1,10 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, untracked } from '@angular/core';
 import { BRWNYL_8, choropleth } from '../../charts/choropleth';
 import { PieChart, type PieSlice } from '../../charts/pie-chart/pie-chart';
+import { bivariate } from '../../charts/bivariate';
+import { BivariateLegend } from '../../charts/bivariate-legend/bivariate-legend';
+import { Vulnerability } from '../../data/vulnerability';
 import { FlatMap } from '../../charts/flat-map/flat-map';
 import { Legend } from '../../charts/legend/legend';
 import { Boundaries } from '../../data/boundaries';
@@ -14,7 +18,7 @@ import { CompareTray } from './compare-tray/compare-tray';
 import { IncomeMeter } from './income-meter/income-meter';
 import { Timeline } from '../../ui/timeline/timeline';
 import { Backdrop } from '../../ui/backdrop/backdrop';
-import { ExplorerState, MAP_METRICS, METRIC_BREAKS } from './explorer-state';
+import { DIVIDE, ExplorerState, MAP_METRICS, METRIC_BREAKS } from './explorer-state';
 
 // Short units for tooltips and the legend (OWID's are long: "tonnes per person (t/person)")
 // Lesson 15: extrusion raises only the countries that together emit this share of the year's total
@@ -39,9 +43,10 @@ const SHORT_UNIT: Record<string, string> = {
 // Lesson 13: a scatter plot of wealth × emissions, a third view beside the globe and the map (?view=scatter).
 // Lesson 14: up to three countries pinned side by side in a compare tray (?compare=).
 // Lesson 15: on the globe, countries rise by their total CO₂ (?extrude=1).
+// Lesson 16: the divide view (?metric=divide): responsibility × vulnerability as one bivariate map.
 @Component({
   selector: 'app-explorer',
-  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter, CompareTray, PieChart],
+  imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter, CompareTray, PieChart, BivariateLegend, NgTemplateOutlet],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss'
 })
@@ -112,7 +117,11 @@ export class Explorer {
   // The slider runs from the data's first year to the metric's last (2024 for CO₂, 2022 for GDP)
   protected readonly yearRange = computed(() => {
     const meta = this.co2.meta.value(), info = this.metricInfo();
-    return meta && info ? { min: meta.firstYear, max: info.lastYear } : null;
+    if (!meta || !info) return null;
+    if (!this.state.divide()) return { min: meta.firstYear, max: info.lastYear };
+    // The divide needs both: ND-GAIN starts in 1995
+    const v = this.vulnerability()?.value();
+    return v ? { min: Math.max(meta.firstYear, v.firstYear), max: Math.min(info.lastYear, v.lastYear) } : null;
   });
   // The year on screen: ?year= clamped to the range (a link from another metric may point past its last year), else the latest
   protected readonly year = computed(() => {
@@ -128,5 +137,29 @@ export class Explorer {
   });
 
   protected readonly shortUnit = computed(() => SHORT_UNIT[this.state.metric()] ?? '');
+
+  // --- lesson 16: the divide -------------------------------------------------------------------------------------------
+  // Loaded only once the divide view is chosen (untracked: creating the resource is a side effect, as in mapSeries)
+  protected readonly divideOption = DIVIDE;
+  private readonly vulnerabilityData = inject(Vulnerability);
+  private readonly vulnerability = computed(() => (this.state.divide() ? untracked(() => this.vulnerabilityData.resource()) : null));
+
+  // x = vulnerability (ND-GAIN), y = responsibility (share of all CO₂ since 1750), each in thirds. Breaks from the last
+  // year both have, applied to the year on screen; a country needs both values to be coloured.
+  protected readonly divideMap = computed(() => {
+    const share = this.mapSeries().value(), vuln = this.vulnerability()?.value(), year = this.year(), range = this.yearRange();
+    if (!this.state.divide() || !share || !vuln || year === null || !range) return null;
+    const at = (values: Record<string, (number | null)[]>, first: number, y: number) => {
+      const out = new Map<string, number>();
+      for (const [id, row] of Object.entries(values)) { const v = row[y - first]; if (v !== null && v !== undefined) out.set(id, v); }
+      return out;
+    };
+    const x = at(vuln.values, vuln.firstYear, year), y = at(share.values, share.firstYear, year);
+    const breakX = at(vuln.values, vuln.firstYear, range.max), breakY = at(share.values, share.firstYear, range.max);
+    return { ...bivariate(x, y, breakX, breakY), year };
+  });
+
+  // What the views are coloured with: the divide's nine colours, or the metric's classes
+  protected readonly fills = computed(() => (this.state.divide() ? this.divideMap()?.fills : this.map()?.fills) ?? null);
 
 }

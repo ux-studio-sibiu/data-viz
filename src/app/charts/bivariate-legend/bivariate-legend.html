@@ -1,0 +1,25 @@
+<figure class="nsc-bivariate-legend">
+  <figcaption class="title"><ng-content select="[legend-title]" /></figcaption>
+
+  <div class="body">
+    <div class="key">
+      <span class="y-label">{{ yLabel() }} →</span>
+      <div class="grid" aria-hidden="true">
+        @for (y of rows; track y) {
+          @for (x of [0, 1, 2]; track x) { <span class="cell" [style.background]="colors()[y][x]"></span> }
+        }
+      </div>
+      <span class="x-label">{{ xLabel() }} →</span>
+    </div>
+
+    <!-- The two corners that tell the story, each with its own swatch -->
+    <ul class="corners">
+      <li><span class="swatch" [style.background]="colors()[2][0]"></span>{{ highYNote() }}</li>
+      <li><span class="swatch" [style.background]="colors()[0][2]"></span>{{ highXNote() }}</li>
+      <li><span class="swatch" [style.background]="colors()[2][2]"></span>Both high</li>
+      <li><span class="swatch no-data"></span>No data</li>
+    </ul>
+  </div>
+
+  <p class="caption">{{ caption() }}</p>
+</figure>

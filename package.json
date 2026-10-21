@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "data:boundaries": "node scripts/build-boundaries.mjs",
-    "data:co2": "node scripts/build-co2.mjs"
+    "data:co2": "node scripts/build-co2.mjs",
+    "data:vulnerability": "node scripts/build-vulnerability.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.0",
