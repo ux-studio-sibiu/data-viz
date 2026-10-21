@@ -1,6 +1,11 @@
 @use '../../../styles/paper' as paper;
 
 :host { display: flex; flex: 1; }
+// Lesson 17: behind the story. No pointer input (the wheel scrolls the story); the legend moves to the right, out from
+// under the story's column, and the extrusion's pie sits above it.
+:host(.is-story) { pointer-events: none; }
+:host(.is-story) .nsc-explorer .bottom { left: auto; right: 16px; } // .nsc-explorer: as specific as the rule it overrides, below
+:host(.is-story) .nsc-explorer .extrude { bottom: 210px; }
 
 // The whole screen is the stage; the app header floats over its top-right corner
 .nsc-explorer {

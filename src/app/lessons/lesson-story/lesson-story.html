@@ -1,0 +1,65 @@
+<!-- Literal @ and { } start Angular syntax: escape them (&#64;, &#123;). -->
+<app-lesson-page eyebrow="Lesson 17">
+  <h1>Scroll-driven story</h1>
+  <p>A new page, <a routerLink="/story">/story</a> (the <strong>Story</strong> link in the header), tells the project's story in six steps. Scroll, and the globe and map behind the text follow: 1900, 1950, 2024, per person, wealth, the divide. The last step hands over to the explorer, where the reader picks up from the same state.</p>
+
+  <h2>1. ScrollTrigger only says which step</h2>
+  <pre><code>ScrollTrigger.create(&#123;
+  trigger: step.element,
+  start: 'top 55%', end: 'bottom 55%',      // active while it straddles the line 55% down the screen
+  onToggle: self => self.isActive &amp;&amp; show(i)
+&#125;)</code></pre>
+  <ul>
+    <li>GSAP's ScrollTrigger watches each step and reports the one crossing a line a little below the middle of the screen, where the eye reads. <code>onToggle</code> fires on entering and leaving that span from either direction, so scrolling back up works the same as scrolling down.</li>
+    <li>That's all it does. There's no scrubbed animation here: the step writes its state, and the explorer animates with what it already has. The globe flies to China, colours crossfade between years, columns grow, the view switches to the scatter.</li>
+    <li>The triggers are created after the first render (<code>afterNextRender</code>), once the steps exist, and killed when the page is destroyed.</li>
+  </ul>
+
+  <h2>2. Story → store → globe</h2>
+  <ul>
+    <li>Each step writes the <strong>whole</strong> state into the URL: view, metric, year, country, extrusion, and no pins. Anything a step leaves out goes back to the default (null in the URL), so a step never inherits leftovers from the one before. Scrolling back up restores the earlier step exactly.</li>
+    <li>It goes through the same URL-backed store as every control (lesson 07), with <code>replaceUrl</code>: scrolling isn't navigating, so the back button leaves the story instead of rewinding it.</li>
+    <li>"Explore it yourself" links to the explorer, and the query params come along (<code>defaultQueryParamsHandling: 'merge'</code>): the reader lands on the divide map the story ended on.</li>
+  </ul>
+
+  <h2>3. The content stays in the template</h2>
+  <pre><code>&lt;section class="step" [storyStep]="&#123; year: 1950, metric: 'co2', extrude: true &#125;"&gt;
+  &lt;div class="card"&gt;&lt;p class="kicker"&gt;1950&lt;/p&gt;&lt;h2&gt;One country, almost half&lt;/h2&gt;…&lt;/div&gt;
+&lt;/section&gt;</code></pre>
+  <ul>
+    <li>The steps are written as HTML, not as a data array of titles and paragraphs: the story is content and reads as content. A small directive, <code>storyStep</code>, carries each step's state; the page finds them with <code>viewChildren(StoryStep)</code>.</li>
+    <li>Each step is most of a screen tall with its card in the middle, so one card at a time sits on the trigger line. The other cards fade to 40%, keeping the eye on the one the stage shows.</li>
+  </ul>
+
+  <h2>4. The explorer, in story mode</h2>
+  <ul>
+    <li>The page puts the explorer behind the text, <code>position: fixed</code>, with a new input: <code>&lt;app-explorer [story]="true" /&gt;</code>.</li>
+    <li>Story mode hides the controls (view switch, search, panel, timeline, compare tray, extrude button) and takes no pointer input. Otherwise the globe's wheel zoom would swallow the reader's scroll.</li>
+    <li>What explains the picture stays: the legend (moved to the right, out from under the text) and the extrusion's pie and "33 of 212" line.</li>
+    <li>The story is its own lazy chunk with ScrollTrigger in it; the explorer doesn't download it.</li>
+  </ul>
+
+  <h2>5. The numbers</h2>
+  <ul>
+    <li>Every figure in the story comes from the same files the app draws: 1900 per person (UK 10.2 t, USA 8.9), 1950 totals (USA 2,541 Mt, 44% of the world), 2024 totals (China 12,290 of 37,400 Mt), 2024 per person (Qatar 41, USA 14.2, China 8.7, India 2.2, Niger 0.1), and the divide (lesson 16).</li>
+    <li>They're written into the text by hand, not computed live. A story is edited; a new data release means re-checking the text, which is the honest place for that work to happen.</li>
+  </ul>
+
+  <h2>Files in this lesson</h2>
+  <ul class="note">
+    <li><code>pages/story/*</code>: the story page, its steps, ScrollTrigger; <code>story-step.ts</code>: the directive</li>
+    <li><code>pages/explorer/*</code>: the <code>story</code> input (story mode)</li>
+    <li><code>app.routes.ts</code>: <code>/story</code>; <code>app.html</code>: the Story link</li>
+    <li><code>lessons/lesson-story/*</code> (this page), <code>lessons.routes.ts</code>, the roadmap</li>
+  </ul>
+
+  <h2>Review checklist</h2>
+  <ul class="note">
+    <li>Open Story from the header: the intro card, then 1900 with the globe pale but for Europe and North America</li>
+    <li>Scroll to 1950: the colours switch to totals and columns rise; to 2024: the globe flies to China</li>
+    <li>Scroll on to the scatter and the divide map; then scroll back up: each step restores its own picture</li>
+    <li>The wheel always scrolls the text; the globe never zooms</li>
+    <li>"Explore it yourself": the explorer opens on the divide map, with the controls back</li>
+    <li>The back button from the story returns to where you came from, not to the previous step</li>
+  </ul>
+</app-lesson-page>

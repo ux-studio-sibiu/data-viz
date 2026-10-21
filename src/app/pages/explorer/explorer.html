@@ -29,7 +29,8 @@
     </app-flat-map>
   }
 
-  <!-- Top-left, opposite the header: find a country, then what's selected -->
+  <!-- Top-left, opposite the header: find a country, then what's selected. Not in story mode (lesson 17): the story drives. -->
+  @if (!story()) {
   <div class="side">
     <!-- Which view fills the stage. Three equal buttons across the column, above the search. -->
     <div class="view-switch" role="group" aria-label="View">
@@ -45,10 +46,11 @@
       @if (selectedCountry(); as c) { <app-country-detail [country]="c" [year]="year()" /> }
     </div>
   </div>
+  }
 
   <!-- Bottom-left, under the search and the panel, in the same column: the year (lesson 12), then what the colours mean (lesson 09) -->
   <div class="bottom">
-    @if (yearRange(); as r) {
+    @if (!story() && yearRange(); as r) {
       <app-timeline [min]="r.min" [max]="r.max" [value]="year() ?? r.max" (valueChange)="setYear($event)" label="Year shown on the map" />
     }
     <!-- The metric switcher, defined once and projected into whichever legend shows. ngProjectAs lets the ng-container
@@ -87,14 +89,16 @@
           <p class="extrude-note"><strong>{{ r.count }} of {{ r.of }} countries emit 90% of the CO₂</strong></p>
         }
       }
-      <div class="extrude-switch">
-        <button type="button" [class.is-active]="state.extrude()" [attr.aria-pressed]="state.extrude()" (click)="state.toggleExtrude()">Extrude by total CO₂</button>
-      </div>
+      @if (!story()) {
+        <div class="extrude-switch">
+          <button type="button" [class.is-active]="state.extrude()" [attr.aria-pressed]="state.extrude()" (click)="state.toggleExtrude()">Extrude by total CO₂</button>
+        </div>
+      }
     </div>
   }
 
   <!-- Lesson 14: the pinned countries side by side. Top right, under Lessons; empty (and not drawn) until something is pinned. -->
-  <app-compare-tray class="compare" [year]="year()" />
+  @if (!story()) { <app-compare-tray class="compare" [year]="year()" /> }
 
   @if (!state.webgl()) { <p class="status notice">WebGL isn't available in this browser, so the flat map is shown instead.</p> }
 </section>

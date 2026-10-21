@@ -3,6 +3,9 @@
 <header class="site-header">
   @if (!onExplorer()) {
     <a routerLink="/">Explore</a>
+  } @else {
+    <!-- Lesson 17: the scroll-driven story -->
+    <a routerLink="/story">Story</a>
   }
   <!-- Opens the roadmap in the lesson window: only the named outlet changes, the current page stays -->
   <a [routerLink]="[{ outlets: { lesson: ['lessons'] } }]" title="Lessons (L)">Lessons</a>

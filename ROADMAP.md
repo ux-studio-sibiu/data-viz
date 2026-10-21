@@ -117,7 +117,7 @@ product gains, and "Concepts" is what the lesson page explains.
 | 14 | Compare countries | Pin up to 3 (?compare=), sparklines on one scale, per person / total / 1990 = 100 | Normalized vs raw units |
 | 15 | ⭐ Extrusion mode ✓ | Countries rise by total emissions (?extrude=1), heights in a texture, fixed scale over all years | earcut, subdivision, antimeridian crossings, GSAP grow animation |
 | 16 | The "divide" view ✓ | Bivariate responsibility (share of CO₂ since 1750) × vulnerability (ND-GAIN) map, ?metric=divide | 3×3 bivariate palette, second dataset |
-| 17 | Scroll-driven story | Editorial intro | ScrollTrigger → store → globe |
+| 17 | Scroll-driven story ✓ | Editorial intro at /story: six steps over the explorer in story mode | ScrollTrigger → store → globe |
 | 18 | Polish | Loading states, touch, a11y, table fallback | `@defer`, `aria-live`, performance |
 | 19 | Ship it | Static build, methodology page (incl. border choices; credit CARTOColors BrwnYl, CC BY 3.0, Hero Patterns Graph Paper, CC BY 4.0, Lucide globe icon, ISC, and cite ND-GAIN 2026), case study | Attribution, licenses, deploy |
 

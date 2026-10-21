@@ -1,0 +1,33 @@
+@use '../../../styles/paper' as paper;
+
+:host { display: block; position: relative; }
+
+// The explorer, fixed full screen behind the story
+.stage { position: fixed; inset: 0; z-index: 0; display: flex; }
+
+// The story's column: left, over the stage. The page itself scrolls. Each step is most of a screen tall with its card in
+// the middle, so one card at a time sits on the line ScrollTrigger watches (55% down the screen).
+.nsc-story {
+  position: relative; z-index: 1; width: min(400px, 100% - 32px); margin-left: 32px; padding: 30vh 0 40vh;
+
+  .intro, .card { position: relative; padding: 20px 22px; @include paper.panel; } // positioned: the hatched lift is outside
+  .intro { margin-bottom: 30vh; }
+  .intro h1 { margin: 6px 0 10px; font-size: 1.8rem; line-height: 1.15; }
+  .intro p:last-child { margin: 0; color: var(--muted); }
+
+  .step { display: flex; align-items: center; min-height: 80vh; }
+  .card { width: 100%; transition: opacity 0.3s ease; opacity: 0.4; } // steps off the line fade back
+  .step.is-active .card { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+
+  .kicker { margin: 0; color: var(--muted); @include paper.mono-label(0.6875rem, 0.14em); }
+  h2 { margin: 6px 0 10px; font-size: 1.35rem; line-height: 1.2; }
+  .card p { margin: 0; line-height: 1.55; }
+
+  .cta {
+    display: inline-block; margin-top: 16px; padding: 10px 16px;
+    border: paper.$border solid var(--ink); background: var(--surface); color: var(--ink); text-decoration: none; box-shadow: 3px 5px #00000033;
+    @include paper.mono-label(0.75rem, 0.14em); font-weight: 700;
+  }
+  .cta:hover { background: var(--tint); }
+}

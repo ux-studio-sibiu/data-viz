@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, untracked } from '@angular/core';
+import { Component, computed, inject, input, untracked } from '@angular/core';
 import { BRWNYL_8, choropleth } from '../../charts/choropleth';
 import { PieChart, type PieSlice } from '../../charts/pie-chart/pie-chart';
 import { bivariate } from '../../charts/bivariate';
@@ -44,13 +44,19 @@ const SHORT_UNIT: Record<string, string> = {
 // Lesson 14: up to three countries pinned side by side in a compare tray (?compare=).
 // Lesson 15: on the globe, countries rise by their total CO₂ (?extrude=1).
 // Lesson 16: the divide view (?metric=divide): responsibility × vulnerability as one bivariate map.
+// Lesson 17: a story mode, for the scroll-driven story behind which it sits: read-only, no controls.
 @Component({
   selector: 'app-explorer',
   imports: [FlatMap, Globe, CountrySearch, CountryDetail, Legend, Timeline, Backdrop, ScatterView, IncomeMeter, CompareTray, PieChart, BivariateLegend, NgTemplateOutlet],
   templateUrl: './explorer.html',
-  styleUrl: './explorer.scss'
+  styleUrl: './explorer.scss',
+  host: { '[class.is-story]': 'story()' }
 })
 export class Explorer {
+  // Lesson 17: shown behind the story (pages/story). The story drives the state; the controls are hidden, and the stage
+  // takes no pointer input, so the wheel scrolls the story instead of zooming the globe.
+  readonly story = input(false);
+
   protected readonly boundaries = inject(Boundaries);
   protected readonly state = inject(ExplorerState);
   protected readonly co2 = inject(Co2Data);

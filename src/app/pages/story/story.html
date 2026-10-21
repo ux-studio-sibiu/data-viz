@@ -1,0 +1,66 @@
+<!-- The stage: the explorer, fixed behind the story, in story mode (no controls, no pointer input) -->
+<div class="stage" aria-hidden="true"><app-explorer [story]="true" /></div>
+
+<article class="nsc-story">
+  <header class="intro">
+    <p class="kicker">The carbon divide</p>
+    <h1>Who emitted the CO₂, and who pays for it</h1>
+    <p>Scroll to follow 125 years of emissions, from a handful of chimneys to a warming world.</p>
+  </header>
+
+  <section class="step" [class.is-active]="active() === 0" [storyStep]="{ year: 1900 }">
+    <div class="card">
+      <p class="kicker">1900</p>
+      <h2>A handful of chimneys</h2>
+      <p>The United Kingdom burned coal for 10.2 tonnes of CO₂ per person, the United States 8.9, Germany 5.9. India: 0.04. Most of the world emitted next to nothing, or wasn't measured at all.</p>
+    </div>
+  </section>
+
+  <section class="step" [class.is-active]="active() === 1" [storyStep]="{ year: 1950, metric: 'co2', extrude: true }">
+    <div class="card">
+      <p class="kicker">1950</p>
+      <h2>One country, almost half</h2>
+      <p>The United States alone emitted 2,541 Mt of CO₂ that year: 44% of the world's. The columns are each country's total; only the few that together emit 90% of it stand up.</p>
+    </div>
+  </section>
+
+  <section class="step" [class.is-active]="active() === 2" [storyStep]="{ year: 2024, metric: 'co2', extrude: true, country: 'CHN' }">
+    <div class="card">
+      <p class="kicker">2024</p>
+      <h2>The centre moves east</h2>
+      <p>China now emits 12,290 Mt a year, a third of the world's 37,400. The United States and India follow. Thirty-three of 212 countries emit 90% of all CO₂.</p>
+    </div>
+  </section>
+
+  <section class="step" [class.is-active]="active() === 3" [storyStep]="{ year: 2024 }">
+    <div class="card">
+      <p class="kicker">Per person</p>
+      <h2>A different map</h2>
+      <p>Divide by people and the order changes. An average Qatari emits 41 tonnes a year, an American 14, a Chinese 8.7, an Indian 2.2, a Nigerien 0.1: about 350 times less than a Qatari.</p>
+    </div>
+  </section>
+
+  <section class="step" [class.is-active]="active() === 4" [storyStep]="{ view: 'scatter', year: 2022 }">
+    <div class="card">
+      <p class="kicker">Wealth</p>
+      <h2>Richer, higher</h2>
+      <p>Plot every country by wealth and emissions and they line up: roughly, twice as rich, twice the CO₂. The exceptions show it's a choice of energy, not destiny: Switzerland and the United States are about as rich, four times apart.</p>
+    </div>
+  </section>
+
+  <section class="step" [class.is-active]="active() === 5" [storyStep]="{ view: 'map', metric: 'divide', year: 2024 }">
+    <div class="card">
+      <p class="kicker">The divide</p>
+      <h2>Who caused it, who bears it</h2>
+      <p>Since 1750 the United States has emitted 23.5% of all CO₂, China 15.4%, India 3.6%. The 42 countries that caused 80.8% of it are among the least vulnerable to climate change, in pink. The 38 most vulnerable, in teal, caused 0.09%.</p>
+    </div>
+  </section>
+
+  <section class="step end" [class.is-active]="active() === 6" [storyStep]="{ view: 'map', metric: 'divide', year: 2024 }">
+    <div class="card">
+      <h2>Your turn</h2>
+      <p>Every view, year and country is a link. Pick up from here, or start anywhere.</p>
+      <a class="cta" routerLink="/">Explore it yourself →</a>
+    </div>
+  </section>
+</article>

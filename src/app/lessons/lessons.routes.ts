@@ -19,5 +19,6 @@ export const lessonRoutes: Routes = [
   { path: 'scatter', loadComponent: () => import('./lesson-scatter/lesson-scatter').then(m => m.LessonScatter), title: '13 Linked scatter plot' },
   { path: 'compare', loadComponent: () => import('./lesson-compare/lesson-compare').then(m => m.LessonCompare), title: '14 Compare countries' },
   { path: 'extrusion', loadComponent: () => import('./lesson-extrusion/lesson-extrusion').then(m => m.LessonExtrusion), title: '15 Extrusion mode' },
-  { path: 'divide', loadComponent: () => import('./lesson-divide/lesson-divide').then(m => m.LessonDivide), title: '16 The divide view' }
+  { path: 'divide', loadComponent: () => import('./lesson-divide/lesson-divide').then(m => m.LessonDivide), title: '16 The divide view' },
+  { path: 'story', loadComponent: () => import('./lesson-story/lesson-story').then(m => m.LessonStory), title: '17 Scroll-driven story' }
 ];
